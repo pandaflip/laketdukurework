@@ -1,0 +1,7 @@
+{
+  "VALIDATION_ERROR": "A requisição é inválida.",
+  "NOT_FOUND": "Não encontrado.",
+  "RATE_LIMITED": "Muitas requisições. Aguarde um instante e tente novamente.",
+  "INTERNAL_ERROR": "Algo deu errado do nosso lado.",
+  "NETWORK_ERROR": "Não foi possível conectar ao servidor."
+}

@@ -1,0 +1,26 @@
+{
+  "zoom-out": {
+    "name": "Zoom Out",
+    "description": "A imagem começa em um detalhe minúsculo e se afasta passo a passo."
+  },
+  "pixelated": {
+    "name": "Pixelated",
+    "description": "Um mosaico borrado que fica nítido aos poucos."
+  },
+  "shadow-guess": {
+    "name": "Shadow Guess",
+    "description": "Só a silhueta aparece."
+  },
+  "skin-detective": {
+    "name": "Skin Detective",
+    "description": "Você conhece o personagem. Consegue dizer qual é a skin?"
+  },
+  "historic": {
+    "name": "Que Bunda É Essa?",
+    "description": "O modo original, onde tudo começou. Apenas personagens adultos verificados."
+  },
+  "chaos-mix": {
+    "name": "Chaos Mix",
+    "description": "Uma mistura aleatória de todos os modos compatíveis."
+  }
+}

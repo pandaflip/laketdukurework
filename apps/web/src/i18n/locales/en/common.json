@@ -1,0 +1,20 @@
+{
+  "language": { "label": "Language" },
+  "nav": { "home": "Home", "backHome": "Back to home" },
+  "home": { "gamesTitle": "Games", "open": "Open" },
+  "game": {
+    "modesTitle": "Game modes",
+    "comingSoon": "Coming soon",
+    "optIn": "Optional, off by default"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "body": "This page does not exist or is no longer available."
+  },
+  "server": {
+    "label": "Server",
+    "checking": "Checking…",
+    "online": "Online",
+    "offline": "Unreachable"
+  }
+}

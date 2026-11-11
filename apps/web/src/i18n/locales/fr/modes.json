@@ -1,0 +1,26 @@
+{
+  "zoom-out": {
+    "name": "Zoom Out",
+    "description": "L'image part d'un minuscule détail et s'élargit étape par étape."
+  },
+  "pixelated": {
+    "name": "Pixelated",
+    "description": "Une mosaïque floue qui devient nette petit à petit."
+  },
+  "shadow-guess": {
+    "name": "Shadow Guess",
+    "description": "Seule la silhouette est affichée."
+  },
+  "skin-detective": {
+    "name": "Skin Detective",
+    "description": "Vous connaissez le personnage. Saurez-vous nommer le skin ?"
+  },
+  "historic": {
+    "name": "Laketduku",
+    "description": "Le mode d'origine, celui par qui tout a commencé. Personnages adultes vérifiés uniquement."
+  },
+  "chaos-mix": {
+    "name": "Chaos Mix",
+    "description": "Un mélange aléatoire de tous les modes compatibles."
+  }
+}
