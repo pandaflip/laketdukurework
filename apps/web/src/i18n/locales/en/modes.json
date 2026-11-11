@@ -1,0 +1,26 @@
+{
+  "zoom-out": {
+    "name": "Zoom Out",
+    "description": "The picture starts on a tiny detail and pulls back step by step."
+  },
+  "pixelated": {
+    "name": "Pixelated",
+    "description": "A blurry mosaic gets sharper little by little."
+  },
+  "shadow-guess": {
+    "name": "Shadow Guess",
+    "description": "Only the silhouette is shown."
+  },
+  "skin-detective": {
+    "name": "Skin Detective",
+    "description": "You know the character. Can you name the skin?"
+  },
+  "historic": {
+    "name": "Ziasskwest",
+    "description": "The original mode that started it all. Verified adult characters only."
+  },
+  "chaos-mix": {
+    "name": "Chaos Mix",
+    "description": "A random blend of every compatible mode."
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "language": { "label": "Idioma" },
+  "nav": { "home": "Início", "backHome": "Voltar ao início" },
+  "home": { "gamesTitle": "Jogos", "open": "Abrir" },
+  "game": {
+    "modesTitle": "Modos de jogo",
+    "comingSoon": "Em breve",
+    "optIn": "Opcional, desativado por padrão"
+  },
+  "notFound": {
+    "title": "Página não encontrada",
+    "body": "Esta página não existe ou não está mais disponível."
+  },
+  "server": {
+    "label": "Servidor",
+    "checking": "Verificando…",
+    "online": "Online",
+    "offline": "Indisponível"
+  }
+}

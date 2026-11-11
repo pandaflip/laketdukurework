@@ -1,0 +1,7 @@
+{
+  "VALIDATION_ERROR": "La requête est invalide.",
+  "NOT_FOUND": "Introuvable.",
+  "RATE_LIMITED": "Trop de requêtes. Patientez un instant avant de réessayer.",
+  "INTERNAL_ERROR": "Une erreur est survenue de notre côté.",
+  "NETWORK_ERROR": "Impossible de joindre le serveur."
+}
