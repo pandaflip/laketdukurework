@@ -17,7 +17,11 @@
     "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test",
     "e2e": "pnpm --filter @app/e2e e2e",
     "db:up": "docker compose --env-file .env up -d",
-    "db:down": "docker compose --env-file .env down"
+    "db:down": "docker compose --env-file .env down",
+    "db:migrate": "pnpm --filter @app/server db:migrate",
+    "db:migrate:dev": "pnpm --filter @app/server db:migrate:dev",
+    "db:seed": "pnpm --filter @app/server db:seed",
+    "admin:create": "pnpm --filter @app/server admin:create"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

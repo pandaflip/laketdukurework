@@ -1,0 +1,153 @@
+{
+  "loading": "Loading…",
+  "nav": {
+    "label": "Administration",
+    "characters": "Characters",
+    "universes": "Universes",
+    "history": "History",
+    "logout": "Sign out"
+  },
+  "login": {
+    "title": "Administration",
+    "username": "Username",
+    "password": "Password",
+    "submit": "Sign in"
+  },
+  "actions": {
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete"
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page {{page}} of {{pageCount}}"
+  },
+  "fields": {
+    "name": "Name",
+    "nameEn": "Name (English)",
+    "nameFr": "Name (French)",
+    "namePtBR": "Name (Portuguese)",
+    "universe": "Universe",
+    "status": "Status",
+    "classification": "Safety classification",
+    "eligibility": "Effective eligibility"
+  },
+  "status": {
+    "ALLOWED": {
+      "label": "Allowed",
+      "hint": "Active in the catalog. Each mode still applies its own rules: this status never opens a sensitive mode by itself."
+    },
+    "RESTRICTED": {
+      "label": "Restricted",
+      "hint": "Neutral modes only. This is where every new character starts."
+    },
+    "EXCLUDED": {
+      "label": "Excluded",
+      "hint": "Removed from every mode, neutral ones included."
+    }
+  },
+  "ageClass": {
+    "UNKNOWN": "Not reviewed",
+    "ADULT_VERIFIED": "Verified adult",
+    "MINOR": "Minor",
+    "CHILDLIKE": "Childlike appearance",
+    "AMBIGUOUS": "Ambiguous age"
+  },
+  "eligibility": {
+    "eligible": "Eligible",
+    "notEligible": "Not eligible",
+    "neutralYes": "Neutral modes: yes",
+    "neutralNo": "Neutral modes: no",
+    "sensitiveYes": "Sensitive modes: yes",
+    "sensitiveNo": "Sensitive modes: no"
+  },
+  "reasons": {
+    "CHARACTER_EXCLUDED": "The character is excluded from the game.",
+    "MODE_DISABLED_FOR_UNIVERSE": "This mode is not enabled for the universe.",
+    "MODE_BLOCKED_FOR_CHARACTER": "This mode is blocked for this character.",
+    "UNIVERSE_NEVER_SENSITIVE": "This universe never offers sensitive modes.",
+    "CORE_EXCLUSION": "Fundamental exclusion: cannot be lifted from this interface.",
+    "STATUS_RESTRICTED": "The status is Restricted (neutral modes only).",
+    "NOT_ADULT_VERIFIED": "The character is not classified as a verified adult.",
+    "ASSET_NOT_APPROVED": "The image has not been approved for this mode.",
+    "ASSET_REJECTED": "The image was rejected."
+  },
+  "characters": {
+    "title": "Characters",
+    "addTitle": "Add a character",
+    "add": "Add",
+    "addHint": "A new character always starts as Restricted and Not reviewed.",
+    "search": "Search",
+    "searchPlaceholder": "Name or alias, in any language",
+    "allUniverses": "All universes",
+    "allStatuses": "All statuses",
+    "selected_one": "{{count}} character selected",
+    "selected_other": "{{count}} characters selected",
+    "bulkLabel": "Status to apply",
+    "bulkApply": "Apply to selection",
+    "bulkHint": "Bulk changes only touch the status, never the safety classification.",
+    "bulkDone_one": "{{count}} character updated.",
+    "bulkDone_other": "{{count}} characters updated.",
+    "selectAll": "Select all",
+    "statusOf": "Status of {{name}}",
+    "coreExcluded": "Fundamental exclusion",
+    "empty": "No character matches.",
+    "total_one": "{{count}} character",
+    "total_other": "{{count}} characters"
+  },
+  "character": {
+    "namesTitle": "Names",
+    "aliasesTitle": "Accepted aliases",
+    "aliasesHint": "Separate aliases with commas. They will count as correct answers in that language.",
+    "statusNote": "The status and the safety classification are two separate settings.",
+    "classificationIntro": "Only a verified adult, with a non-childlike appearance and presentation, can appear in sensitive modes. Small stature alone proves nothing either way: judge each character individually, and when in doubt choose Ambiguous age.",
+    "coreExcluded": "This character is permanently excluded from sensitive modes. It can never be classified as a verified adult.",
+    "note": "Justification",
+    "noteHint": "Optional. Explain the choice for the next reviewer.",
+    "noteHintAdult": "Required: at least {{count}} characters. State the source for the age and why the appearance is not childlike.",
+    "confirmAdult": "I have checked this character individually: adult according to the official material, non-childlike appearance and presentation, no ambiguity.",
+    "saveClassification": "Save classification",
+    "blockedTitle": "Modes blocked for this character",
+    "blockedIntro": "Tick a mode to keep this character out of it, whatever its status.",
+    "eligibilityIntro": "Computed by the server from every rule. This is what the game will apply.",
+    "variantsTitle": "Variants and skins",
+    "variantsIntro": "Variants inherit every restriction of the character. A skin can never unlock a mode.",
+    "noVariants": "No variant yet.",
+    "addVariant": "Add variant"
+  },
+  "universes": {
+    "title": "Universes",
+    "addTitle": "Add a universe",
+    "add": "Add",
+    "addHint": "A new universe starts with neutral modes only.",
+    "sensitive": "Sensitive",
+    "neverSensitive": "Sensitive modes can never be enabled for this universe.",
+    "characterCount_one": "{{count}} character",
+    "characterCount_other": "{{count}} characters"
+  },
+  "history": {
+    "title": "History",
+    "intro": "Every change is recorded. A change can be restored as long as nothing newer has replaced it.",
+    "empty": "Nothing here yet.",
+    "none": "none",
+    "restore": "Restore",
+    "restoreBatch": "Restore the whole batch",
+    "isRestoration": "Restoration",
+    "restored": "Restored",
+    "bulk": "Bulk",
+    "batchRestored": "{{restored}} restored, {{skipped}} skipped (changed since).",
+    "actions": {
+      "universe.create": "Universe created",
+      "universe.update": "Universe updated",
+      "character.create": "Character created",
+      "character.labels": "Names changed",
+      "character.status": "Status changed",
+      "character.classification": "Classification changed",
+      "character.blocked-modes": "Blocked modes changed",
+      "variant.create": "Variant added",
+      "variant.update": "Variant renamed",
+      "variant.delete": "Variant deleted"
+    }
+  }
+}

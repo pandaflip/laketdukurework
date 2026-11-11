@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router';
@@ -10,8 +11,14 @@ if (!container) throw new Error('#root element is missing');
 
 await initI18n();
 
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { refetchOnWindowFocus: false, staleTime: 5_000 } },
+});
+
 createRoot(container).render(
   <StrictMode>
-    <RouterProvider router={createBrowserRouter(routes)} />
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={createBrowserRouter(routes)} />
+    </QueryClientProvider>
   </StrictMode>,
 );

@@ -1,4 +1,13 @@
-import { GAME_IDS, MODE_IDS, SUPPORTED_LOCALES } from '@app/shared';
+import {
+  AGE_CLASSES,
+  AUDIT_ACTIONS,
+  CHARACTER_STATUSES,
+  ERROR_CODES,
+  GAME_IDS,
+  INELIGIBILITY_REASONS,
+  MODE_IDS,
+  SUPPORTED_LOCALES,
+} from '@app/shared';
 import { describe, expect, it } from 'vitest';
 import { LOCALE_NAMES, NAMESPACES, resources } from './resources';
 
@@ -46,6 +55,22 @@ describe('translation files', () => {
     for (const id of MODE_IDS) {
       expect(modes).toHaveProperty([`${id}.name`]);
       expect(modes).toHaveProperty([`${id}.description`]);
+    }
+  });
+
+  it.each(SUPPORTED_LOCALES)('%s translates every code the server can send', (locale) => {
+    const errors = flatten(resources[locale].errors);
+    for (const code of [...ERROR_CODES, 'NETWORK_ERROR']) expect(errors).toHaveProperty([code]);
+
+    const admin = flatten(resources[locale].admin);
+    for (const reason of INELIGIBILITY_REASONS) expect(admin).toHaveProperty([`reasons.${reason}`]);
+    for (const ageClass of AGE_CLASSES) expect(admin).toHaveProperty([`ageClass.${ageClass}`]);
+    for (const action of AUDIT_ACTIONS) {
+      expect(admin).toHaveProperty([`history.actions.${action}`]);
+    }
+    for (const status of CHARACTER_STATUSES) {
+      expect(admin).toHaveProperty([`status.${status}.label`]);
+      expect(admin).toHaveProperty([`status.${status}.hint`]);
     }
   });
 });

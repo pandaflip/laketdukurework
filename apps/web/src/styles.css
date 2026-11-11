@@ -1,9 +1,15 @@
 @import 'tailwindcss';
+@import './design/tokens.css';
 
 :root {
   color-scheme: dark;
 }
 
 body {
-  @apply min-h-screen bg-slate-950 text-slate-100 antialiased;
+  @apply min-h-screen bg-surface font-body text-fg antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 2px;
 }

@@ -3,5 +3,16 @@
   "NOT_FOUND": "Introuvable.",
   "RATE_LIMITED": "Trop de requêtes. Patientez un instant avant de réessayer.",
   "INTERNAL_ERROR": "Une erreur est survenue de notre côté.",
-  "NETWORK_ERROR": "Impossible de joindre le serveur."
+  "NETWORK_ERROR": "Impossible de joindre le serveur.",
+  "SERVICE_UNAVAILABLE": "Le service est momentanément indisponible.",
+  "UNAUTHENTICATED": "Veuillez vous reconnecter.",
+  "INVALID_CREDENTIALS": "Identifiant ou mot de passe incorrect, ou trop de tentatives. Patientez quelques minutes avant de réessayer.",
+  "FORBIDDEN_ORIGIN": "Cette requête a été refusée pour des raisons de sécurité.",
+  "CONFLICT": "Cet élément existe déjà.",
+  "SENSITIVE_MODE_FORBIDDEN": "Les modes sensibles ne peuvent jamais être activés pour cet univers.",
+  "CLASSIFICATION_FORBIDDEN": "Ce personnage est définitivement exclu des modes sensibles et ne peut pas être classé adulte vérifié.",
+  "CONFIRMATION_REQUIRED": "Cochez la case de confirmation pour classer un personnage comme adulte vérifié.",
+  "JUSTIFICATION_REQUIRED": "Rédigez une justification plus détaillée avant de classer un personnage comme adulte vérifié.",
+  "RESTORE_CONFLICT": "Cet élément a été modifié depuis : il ne peut pas être restauré automatiquement.",
+  "RESTORE_NOT_ALLOWED": "Cette modification ne peut pas être restaurée. Une classification « adulte vérifié » doit toujours être saisie à la main."
 }

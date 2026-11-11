@@ -10,6 +10,21 @@ export const ERROR_CODES = [
   'NOT_FOUND',
   'RATE_LIMITED',
   'INTERNAL_ERROR',
+  'SERVICE_UNAVAILABLE',
+  // Authentication
+  'UNAUTHENTICATED',
+  'INVALID_CREDENTIALS',
+  'FORBIDDEN_ORIGIN',
+  // Catalog
+  'CONFLICT',
+  'SENSITIVE_MODE_FORBIDDEN',
+  // Safety policy
+  'CLASSIFICATION_FORBIDDEN',
+  'CONFIRMATION_REQUIRED',
+  'JUSTIFICATION_REQUIRED',
+  // History
+  'RESTORE_CONFLICT',
+  'RESTORE_NOT_ALLOWED',
 ] as const;
 
 export type ErrorCode = (typeof ERROR_CODES)[number];

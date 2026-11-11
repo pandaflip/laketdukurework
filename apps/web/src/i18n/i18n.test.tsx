@@ -16,7 +16,7 @@ beforeEach(() => {
   window.localStorage.clear();
   vi.stubGlobal(
     'fetch',
-    vi.fn(() => Promise.resolve(Response.json({ status: 'ok' }))),
+    vi.fn(() => Promise.resolve(Response.json({ status: 'ok', database: 'up' }))),
   );
 });
 

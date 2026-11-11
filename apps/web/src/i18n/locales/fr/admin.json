@@ -1,0 +1,153 @@
+{
+  "loading": "Chargement…",
+  "nav": {
+    "label": "Administration",
+    "characters": "Personnages",
+    "universes": "Univers",
+    "history": "Historique",
+    "logout": "Se déconnecter"
+  },
+  "login": {
+    "title": "Administration",
+    "username": "Identifiant",
+    "password": "Mot de passe",
+    "submit": "Se connecter"
+  },
+  "actions": {
+    "save": "Enregistrer",
+    "edit": "Modifier",
+    "delete": "Supprimer"
+  },
+  "pagination": {
+    "previous": "Précédent",
+    "next": "Suivant",
+    "page": "Page {{page}} sur {{pageCount}}"
+  },
+  "fields": {
+    "name": "Nom",
+    "nameEn": "Nom (anglais)",
+    "nameFr": "Nom (français)",
+    "namePtBR": "Nom (portugais)",
+    "universe": "Univers",
+    "status": "Statut",
+    "classification": "Classification de sécurité",
+    "eligibility": "Éligibilité effective"
+  },
+  "status": {
+    "ALLOWED": {
+      "label": "Autorisé",
+      "hint": "Actif dans le catalogue. Chaque mode applique encore ses propres règles : ce statut n'ouvre jamais un mode sensible à lui seul."
+    },
+    "RESTRICTED": {
+      "label": "Restreint",
+      "hint": "Modes neutres uniquement. C'est le point de départ de tout nouveau personnage."
+    },
+    "EXCLUDED": {
+      "label": "Exclu",
+      "hint": "Retiré de tous les modes, y compris les modes neutres."
+    }
+  },
+  "ageClass": {
+    "UNKNOWN": "Non évalué",
+    "ADULT_VERIFIED": "Adulte vérifié",
+    "MINOR": "Mineur",
+    "CHILDLIKE": "Apparence enfantine",
+    "AMBIGUOUS": "Âge ambigu"
+  },
+  "eligibility": {
+    "eligible": "Éligible",
+    "notEligible": "Non éligible",
+    "neutralYes": "Modes neutres : oui",
+    "neutralNo": "Modes neutres : non",
+    "sensitiveYes": "Modes sensibles : oui",
+    "sensitiveNo": "Modes sensibles : non"
+  },
+  "reasons": {
+    "CHARACTER_EXCLUDED": "Le personnage est exclu du jeu.",
+    "MODE_DISABLED_FOR_UNIVERSE": "Ce mode n'est pas activé pour l'univers.",
+    "MODE_BLOCKED_FOR_CHARACTER": "Ce mode est bloqué pour ce personnage.",
+    "UNIVERSE_NEVER_SENSITIVE": "Cet univers ne propose jamais de mode sensible.",
+    "CORE_EXCLUSION": "Exclusion fondamentale : impossible à lever depuis cette interface.",
+    "STATUS_RESTRICTED": "Le statut est Restreint (modes neutres uniquement).",
+    "NOT_ADULT_VERIFIED": "Le personnage n'est pas classé adulte vérifié.",
+    "ASSET_NOT_APPROVED": "L'image n'a pas été approuvée pour ce mode.",
+    "ASSET_REJECTED": "L'image a été rejetée."
+  },
+  "characters": {
+    "title": "Personnages",
+    "addTitle": "Ajouter un personnage",
+    "add": "Ajouter",
+    "addHint": "Un nouveau personnage démarre toujours en Restreint et Non évalué.",
+    "search": "Recherche",
+    "searchPlaceholder": "Nom ou alias, dans n'importe quelle langue",
+    "allUniverses": "Tous les univers",
+    "allStatuses": "Tous les statuts",
+    "selected_one": "{{count}} personnage sélectionné",
+    "selected_other": "{{count}} personnages sélectionnés",
+    "bulkLabel": "Statut à appliquer",
+    "bulkApply": "Appliquer à la sélection",
+    "bulkHint": "Les modifications groupées ne touchent que le statut, jamais la classification de sécurité.",
+    "bulkDone_one": "{{count}} personnage mis à jour.",
+    "bulkDone_other": "{{count}} personnages mis à jour.",
+    "selectAll": "Tout sélectionner",
+    "statusOf": "Statut de {{name}}",
+    "coreExcluded": "Exclusion fondamentale",
+    "empty": "Aucun personnage ne correspond.",
+    "total_one": "{{count}} personnage",
+    "total_other": "{{count}} personnages"
+  },
+  "character": {
+    "namesTitle": "Noms",
+    "aliasesTitle": "Alias acceptés",
+    "aliasesHint": "Séparez les alias par des virgules. Ils compteront comme bonnes réponses dans cette langue.",
+    "statusNote": "Le statut et la classification de sécurité sont deux réglages distincts.",
+    "classificationIntro": "Seul un adulte vérifié, d'apparence et de présentation non enfantines, peut apparaître dans les modes sensibles. La petite taille seule ne prouve rien, ni dans un sens ni dans l'autre : évaluez chaque personnage individuellement et, au moindre doute, choisissez Âge ambigu.",
+    "coreExcluded": "Ce personnage est définitivement exclu des modes sensibles. Il ne peut jamais être classé adulte vérifié.",
+    "note": "Justification",
+    "noteHint": "Facultative. Expliquez le choix pour la prochaine relecture.",
+    "noteHintAdult": "Obligatoire : au moins {{count}} caractères. Indiquez la source de l'âge et pourquoi l'apparence n'est pas enfantine.",
+    "confirmAdult": "J'ai vérifié ce personnage individuellement : adulte selon les sources officielles, apparence et présentation non enfantines, aucune ambiguïté.",
+    "saveClassification": "Enregistrer la classification",
+    "blockedTitle": "Modes bloqués pour ce personnage",
+    "blockedIntro": "Cochez un mode pour en écarter ce personnage, quel que soit son statut.",
+    "eligibilityIntro": "Calculée par le serveur à partir de toutes les règles. C'est ce que le jeu appliquera.",
+    "variantsTitle": "Variantes et skins",
+    "variantsIntro": "Les variantes héritent de toutes les restrictions du personnage. Un skin ne peut jamais débloquer un mode.",
+    "noVariants": "Aucune variante pour l'instant.",
+    "addVariant": "Ajouter la variante"
+  },
+  "universes": {
+    "title": "Univers",
+    "addTitle": "Ajouter un univers",
+    "add": "Ajouter",
+    "addHint": "Un nouvel univers démarre avec les modes neutres uniquement.",
+    "sensitive": "Sensible",
+    "neverSensitive": "Les modes sensibles ne peuvent jamais être activés pour cet univers.",
+    "characterCount_one": "{{count}} personnage",
+    "characterCount_other": "{{count}} personnages"
+  },
+  "history": {
+    "title": "Historique",
+    "intro": "Chaque modification est enregistrée. Une modification peut être restaurée tant qu'aucun changement plus récent ne l'a remplacée.",
+    "empty": "Rien pour l'instant.",
+    "none": "aucun",
+    "restore": "Restaurer",
+    "restoreBatch": "Restaurer tout le lot",
+    "isRestoration": "Restauration",
+    "restored": "Restaurée",
+    "bulk": "Lot",
+    "batchRestored": "{{restored}} restaurées, {{skipped}} ignorées (modifiées depuis).",
+    "actions": {
+      "universe.create": "Univers créé",
+      "universe.update": "Univers modifié",
+      "character.create": "Personnage créé",
+      "character.labels": "Noms modifiés",
+      "character.status": "Statut modifié",
+      "character.classification": "Classification modifiée",
+      "character.blocked-modes": "Modes bloqués modifiés",
+      "variant.create": "Variante ajoutée",
+      "variant.update": "Variante renommée",
+      "variant.delete": "Variante supprimée"
+    }
+  }
+}
