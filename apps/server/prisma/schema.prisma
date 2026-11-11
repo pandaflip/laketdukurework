@@ -40,15 +40,21 @@ enum AssetReview {
 }
 
 model Universe {
-  id           String      @id @default(cuid())
+  id                    String      @id @default(cuid())
   /// Immutable technical identifier.
-  slug         String      @unique
-  name         String
+  slug                  String      @unique
+  name                  String
   /// Mode identifiers (see the shared mode registry) offered for this universe.
-  enabledModes String[]
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  characters   Character[]
+  enabledModes          String[]
+  /// Universes with a young audience keep sensitive modes locked until an
+  /// administrator unlocks them explicitly (the audience tier itself is code, not data).
+  sensitiveUnlockedAt   DateTime?
+  sensitiveUnlockNote   String?
+  sensitiveUnlockedById String?
+  sensitiveUnlockedBy   AdminUser?  @relation(fields: [sensitiveUnlockedById], references: [id], onDelete: SetNull)
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+  characters            Character[]
 }
 
 model Character {
@@ -140,6 +146,7 @@ model AdminUser {
   sessions         AdminSession[]
   auditLogs        AuditLog[]
   classifications  Character[]
+  universeUnlocks  Universe[]
   reviews          Asset[]
 }
 

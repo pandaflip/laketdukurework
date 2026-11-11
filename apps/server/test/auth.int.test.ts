@@ -127,6 +127,11 @@ describe('sessions', () => {
     expect((await anonymous.post('/characters/bulk-status', {})).statusCode).toBe(401);
     expect((await anonymous.put('/characters/x/classification', {})).statusCode).toBe(401);
     expect((await anonymous.post('/audit/x/restore')).statusCode).toBe(401);
+    expect(
+      (await anonymous.put('/universes/x/sensitive-unlock', { note: 'x', confirm: true }))
+        .statusCode,
+    ).toBe(401);
+    expect((await anonymous.delete('/universes/x/sensitive-unlock')).statusCode).toBe(401);
   });
 
   it('rejects a forged session cookie', async () => {

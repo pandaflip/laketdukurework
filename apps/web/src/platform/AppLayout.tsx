@@ -9,7 +9,7 @@ export function AppLayout() {
   return (
     <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-4">
       <header className="flex flex-wrap items-center justify-between gap-4 py-6">
-        <Link to="/" className="text-xl font-bold tracking-tight" aria-label={t('nav.home')}>
+        <Link to="/" className="text-xl font-bold tracking-tight">
           {t('name', { ns: 'platform' })}
         </Link>
         <LanguageSwitcher />

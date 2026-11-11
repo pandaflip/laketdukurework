@@ -4,6 +4,7 @@ export * from './catalog/dto';
 export * from './catalog/enums';
 export * from './catalog/schemas';
 export * from './i18n/locales';
+export * from './policy/classification';
 export * from './policy/core-exclusions';
 export * from './policy/eligibility';
 export * from './registry/games';

@@ -8,10 +8,15 @@ import { normalizeName } from '../text/normalize';
  */
 
 /**
- * Universes that never offer sensitive modes, whatever their configuration.
- * Matched on the normalized slug and name.
+ * Universes associated with a young audience. Sensitive modes stay locked
+ * there until an administrator performs an explicit, justified and logged
+ * unlock (see `sensitiveUnlocked`). The unlock is only one of the conditions:
+ * every character must still be an individually verified adult with an
+ * approved image. Matched on the normalized slug and name.
  */
-const NEVER_SENSITIVE_UNIVERSES: readonly string[] = ['pokemon', 'minecraft'];
+const YOUTH_AUDIENCE_UNIVERSES: readonly string[] = ['pokemon', 'minecraft'];
+
+export type UniverseAudience = 'GENERAL' | 'YOUTH';
 
 /**
  * Characters that can never be eligible to sensitive modes, whatever their
@@ -47,9 +52,9 @@ function identityKeys(slug: string, others: readonly (string | undefined)[]): Se
   return keys;
 }
 
-export function isNeverSensitiveUniverse(universe: UniverseIdentity): boolean {
+export function universeAudience(universe: UniverseIdentity): UniverseAudience {
   const keys = identityKeys(universe.slug, [universe.name]);
-  return NEVER_SENSITIVE_UNIVERSES.some((entry) => keys.has(entry));
+  return YOUTH_AUDIENCE_UNIVERSES.some((entry) => keys.has(entry)) ? 'YOUTH' : 'GENERAL';
 }
 
 export function isCoreExcludedCharacter(

@@ -47,6 +47,9 @@ test('searches, creates and bulk-edits characters', async ({ page }) => {
   await expect(row(page, 'caitlyn').getByRole('combobox')).toHaveValue('RESTRICTED');
   await expect(row(page, 'caitlyn')).toContainText('Not reviewed');
   await expect(row(page, 'caitlyn')).toContainText('Sensitive modes: no');
+  await expect(row(page, 'caitlyn')).toContainText('No image');
+  // The table only shows summary badges: reasons are on the character page.
+  await expect(row(page, 'caitlyn')).not.toContainText('not classified as a verified adult');
 
   // Bulk status change, then restore the whole batch from the history.
   await row(page, 'jett').getByRole('checkbox').check();
@@ -64,6 +67,23 @@ test('searches, creates and bulk-edits characters', async ({ page }) => {
   await expect(row(page, 'jett').getByRole('combobox')).toHaveValue('RESTRICTED');
 });
 
+test('the table links to the detailed reasons on the character page', async ({ page }) => {
+  await signIn(page);
+  await row(page, 'ashe')
+    .getByRole('link', { name: /eligibility details for Ashe/i })
+    .click();
+  await expect(page).toHaveURL(/#eligibility$/);
+  const card = page.locator('#eligibility');
+  await expect(card).toBeVisible();
+  await expect(card.locator('li[data-mode-id="historic"]')).toContainText(
+    'not classified as a verified adult',
+  );
+  // Chaos Mix is not a round mode of its own: its rounds are checked per mode.
+  await expect(card.locator('li[data-mode-id="chaos-mix"]')).toContainText('Checked per round');
+  // Images are reported apart from the eligibility of the character.
+  await expect(card.locator('li[data-mode-id="zoom-out"]')).toContainText('0 usable images');
+});
+
 test('a verified adult needs a justification and a confirmation; Annie can never be one', async ({
   page,
 }) => {
@@ -74,15 +94,32 @@ test('a verified adult needs a justification and a confirmation; Annie can never
   const lol = page.locator('[data-universe="league-of-legends"]');
   await lol.getByRole('checkbox', { name: /Ziasskwest/ }).check();
   await lol.getByRole('button', { name: 'Save' }).click();
-  await expect(
-    page.locator('[data-universe="pokemon"]').getByRole('checkbox', { name: /Ziasskwest/ }),
-  ).toBeDisabled();
-  await expect(page.locator('[data-universe="pokemon"]')).toContainText(
-    'Sensitive modes can never be enabled',
-  );
+  const pokemon = page.locator('[data-universe="pokemon"]');
+  const sensitiveBox = pokemon.getByRole('checkbox', { name: /Ziasskwest/ });
+  await expect(sensitiveBox).toBeDisabled();
+  await expect(pokemon).toContainText('young audience');
+
+  // Unlocking is a deliberate exception: confirmation and a long justification.
+  await pokemon
+    .getByLabel('Justification')
+    .fill(
+      'Explicit product decision: sensitive modes may be offered for individually verified adults only.',
+    );
+  await pokemon.getByRole('checkbox', { name: /I understand this is an exception/ }).check();
+  await pokemon.getByRole('button', { name: 'Unlock sensitive modes' }).click();
+  await expect(pokemon.getByRole('button', { name: 'Lock again' })).toBeVisible();
+  await expect(sensitiveBox).toBeEnabled();
+  await sensitiveBox.check();
+  await pokemon.getByRole('button', { name: 'Save', exact: true }).click();
+
+  // Locking again switches the sensitive mode off at once.
+  await pokemon.getByRole('button', { name: 'Lock again' }).click();
+  await expect(pokemon.getByRole('button', { name: 'Unlock sensitive modes' })).toBeVisible();
+  await expect(sensitiveBox).toBeDisabled();
+  await expect(sensitiveBox).not.toBeChecked();
 
   await page.getByRole('link', { name: 'Characters' }).click();
-  await row(page, 'ashe').getByRole('link').click();
+  await row(page, 'ashe').getByRole('link', { name: 'Ashe', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Ashe' })).toBeVisible();
 
   const historic = page.locator('li[data-mode-id="historic"]');
@@ -113,7 +150,7 @@ test('a verified adult needs a justification and a confirmation; Annie can never
 
   // Annie: the option is disabled and the server explains why.
   await page.getByRole('link', { name: '← Characters' }).click();
-  await row(page, 'annie').getByRole('link').click();
+  await row(page, 'annie').getByRole('link', { name: 'Annie', exact: true }).click();
   await expect(page.getByText('permanently excluded from sensitive modes').first()).toBeVisible();
   await expect(
     page.getByLabel('Safety classification').locator('option[value="ADULT_VERIFIED"]'),

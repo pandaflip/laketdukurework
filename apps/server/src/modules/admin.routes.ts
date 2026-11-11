@@ -7,6 +7,7 @@ import {
   setBlockedModesSchema,
   setCharacterStatusSchema,
   setClassificationSchema,
+  unlockSensitiveSchema,
   updateCharacterLabelsSchema,
   updateUniverseSchema,
   variantSchema,
@@ -33,7 +34,13 @@ import {
   updateLabels,
   updateVariant,
 } from './catalog/characters.service';
-import { createUniverse, listUniverses, updateUniverse } from './catalog/universes.service';
+import {
+  createUniverse,
+  listUniverses,
+  lockSensitive,
+  unlockSensitive,
+  updateUniverse,
+} from './catalog/universes.service';
 
 const idParams = z.object({ id: z.string().min(1).max(64) });
 
@@ -83,6 +90,17 @@ export function registerAdminRoutes(
         idOf(request),
         parse(updateUniverseSchema, request.body),
       ),
+    );
+    secured.put('/universes/:id/sensitive-unlock', (request) =>
+      unlockSensitive(
+        db,
+        context(request),
+        idOf(request),
+        parse(unlockSensitiveSchema, request.body),
+      ),
+    );
+    secured.delete('/universes/:id/sensitive-unlock', (request) =>
+      lockSensitive(db, context(request), idOf(request)),
     );
 
     // Characters

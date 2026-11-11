@@ -1,6 +1,6 @@
 import type { AgeClass, AssetReview, CharacterStatus } from '../catalog/enums';
-import { MODES, MODE_IDS, type ModeId } from '../registry/modes';
-import { isCoreExcludedCharacter, isNeverSensitiveUniverse } from './core-exclusions';
+import { isCompositeMode, MODES, MODE_IDS, type ModeId } from '../registry/modes';
+import { isCoreExcludedCharacter, universeAudience } from './core-exclusions';
 
 /**
  * Single source of truth for "may this character (or challenge) appear in this
@@ -13,10 +13,11 @@ import { isCoreExcludedCharacter, isNeverSensitiveUniverse } from './core-exclus
  */
 
 export const INELIGIBILITY_REASONS = [
+  'MODE_IS_COMPOSITE',
   'CHARACTER_EXCLUDED',
   'MODE_DISABLED_FOR_UNIVERSE',
   'MODE_BLOCKED_FOR_CHARACTER',
-  'UNIVERSE_NEVER_SENSITIVE',
+  'UNIVERSE_SENSITIVE_LOCKED',
   'CORE_EXCLUSION',
   'STATUS_RESTRICTED',
   'NOT_ADULT_VERIFIED',
@@ -35,6 +36,11 @@ export interface EligibilityUniverse {
   readonly slug: string;
   readonly name?: string;
   readonly enabledModes: readonly string[];
+  /**
+   * Whether an administrator explicitly unlocked sensitive modes. Only
+   * consulted for universes with a young audience; absent means locked.
+   */
+  readonly sensitiveUnlocked?: boolean;
 }
 
 export interface EligibilityCharacter {
@@ -59,6 +65,10 @@ function characterReasons(
   universe: EligibilityUniverse,
   character: EligibilityCharacter,
 ): IneligibilityReason[] {
+  // A composite mode (Chaos Mix) is never a valid round mode: every round is
+  // checked under the concrete mode it was drawn for.
+  if (isCompositeMode(modeId)) return ['MODE_IS_COMPOSITE'];
+
   const reasons: IneligibilityReason[] = [];
   const sensitive = MODES[modeId].sensitivity !== 'neutral';
 
@@ -69,7 +79,9 @@ function characterReasons(
   if (character.blockedModes.includes(modeId)) reasons.push('MODE_BLOCKED_FOR_CHARACTER');
 
   if (sensitive) {
-    if (isNeverSensitiveUniverse(universe)) reasons.push('UNIVERSE_NEVER_SENSITIVE');
+    if (universeAudience(universe) === 'YOUTH' && universe.sensitiveUnlocked !== true) {
+      reasons.push('UNIVERSE_SENSITIVE_LOCKED');
+    }
     if (isCoreExcludedCharacter(universe, character)) reasons.push('CORE_EXCLUSION');
     if (active && character.status !== 'ALLOWED') reasons.push('STATUS_RESTRICTED');
     if (character.ageClass !== 'ADULT_VERIFIED') reasons.push('NOT_ADULT_VERIFIED');
@@ -98,6 +110,7 @@ export function challengeEligibility(
   asset: EligibilityAsset,
 ): EligibilityResult {
   const reasons = characterReasons(modeId, universe, character);
+  if (isCompositeMode(modeId)) return result(reasons);
   const sensitive = MODES[modeId].sensitivity !== 'neutral';
 
   if (asset.review === 'REJECTED') {

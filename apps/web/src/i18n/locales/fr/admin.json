@@ -60,18 +60,26 @@
     "neutralYes": "Modes neutres : oui",
     "neutralNo": "Modes neutres : non",
     "sensitiveYes": "Modes sensibles : oui",
-    "sensitiveNo": "Modes sensibles : non"
+    "sensitiveNo": "Modes sensibles : non",
+    "perRound": "Vérifié par manche",
+    "compositeNote": "Chaos Mix n'a pas de contenu propre. Chaque manche tirée est vérifiée côté serveur selon le mode dont elle provient et l'image utilisée.",
+    "detailsLink": "Pourquoi ?",
+    "legendSummary": "Comment lire ces colonnes",
+    "legendEligibility": "Éligibilité : ce à quoi le personnage peut servir, d'après son statut, sa classification de sécurité et les réglages de son univers.",
+    "legendImages": "Images : combien de ses images ont été approuvées une par une. Un défi jouable exige les deux.",
+    "detailsFor": "(détails d'éligibilité de {{name}})"
   },
   "reasons": {
     "CHARACTER_EXCLUDED": "Le personnage est exclu du jeu.",
     "MODE_DISABLED_FOR_UNIVERSE": "Ce mode n'est pas activé pour l'univers.",
     "MODE_BLOCKED_FOR_CHARACTER": "Ce mode est bloqué pour ce personnage.",
-    "UNIVERSE_NEVER_SENSITIVE": "Cet univers ne propose jamais de mode sensible.",
     "CORE_EXCLUSION": "Exclusion fondamentale : impossible à lever depuis cette interface.",
     "STATUS_RESTRICTED": "Le statut est Restreint (modes neutres uniquement).",
     "NOT_ADULT_VERIFIED": "Le personnage n'est pas classé adulte vérifié.",
     "ASSET_NOT_APPROVED": "L'image n'a pas été approuvée pour ce mode.",
-    "ASSET_REJECTED": "L'image a été rejetée."
+    "ASSET_REJECTED": "L'image a été rejetée.",
+    "UNIVERSE_SENSITIVE_LOCKED": "Les modes sensibles sont verrouillés pour cet univers (franchise à jeune public).",
+    "MODE_IS_COMPOSITE": "Mélange d'autres modes : chaque manche est vérifiée selon son propre mode."
   },
   "characters": {
     "title": "Personnages",
@@ -122,9 +130,18 @@
     "add": "Ajouter",
     "addHint": "Un nouvel univers démarre avec les modes neutres uniquement.",
     "sensitive": "Sensible",
-    "neverSensitive": "Les modes sensibles ne peuvent jamais être activés pour cet univers.",
     "characterCount_one": "{{count}} personnage",
-    "characterCount_other": "{{count}} personnages"
+    "characterCount_other": "{{count}} personnages",
+    "youthNotice": "Franchise associée à un jeune public. Les modes sensibles y restent verrouillés tant que vous ne les déverrouillez pas explicitement. Même alors, seuls des adultes vérifiés individuellement, avec des images approuvées individuellement, peuvent y apparaître.",
+    "locked": "Verrouillé",
+    "unlocked": "Déverrouillé",
+    "unlockIntro": "Le déverrouillage est une exception délibérée, jamais un défaut. Il est enregistré avec votre justification. Les personnages et les images conservent chacune de leurs propres vérifications.",
+    "unlockNote": "Justification",
+    "unlockNoteHint": "Au moins {{count}} caractères.",
+    "unlockConfirm": "Je comprends qu'il s'agit d'une exception : seuls des adultes vérifiés avec des images approuvées individuellement peuvent être éligibles, et les personnages mineurs, d'apparence enfantine ou d'âge ambigu ne le sont jamais.",
+    "unlockAction": "Déverrouiller les modes sensibles",
+    "lockAction": "Reverrouiller",
+    "lockHint": "Le reverrouillage désactive immédiatement tous les modes sensibles de cet univers."
   },
   "history": {
     "title": "Historique",
@@ -147,7 +164,22 @@
       "character.blocked-modes": "Modes bloqués modifiés",
       "variant.create": "Variante ajoutée",
       "variant.update": "Variante renommée",
-      "variant.delete": "Variante supprimée"
+      "variant.delete": "Variante supprimée",
+      "universe.sensitive-unlock": "Modes sensibles déverrouillés",
+      "universe.sensitive-lock": "Modes sensibles reverrouillés"
     }
+  },
+  "images": {
+    "title": "Images",
+    "none": "Aucune image",
+    "badge": "{{approved}}/{{total}} approuvées",
+    "intro": "L'éligibilité d'un personnage et l'approbation de chacune de ses images sont deux choses distinctes : un défi exige les deux.",
+    "approvedNeutral": "Approuvées pour les modes neutres",
+    "approvedSensitive": "Approuvées pour les modes sensibles",
+    "unverified": "En attente de relecture",
+    "rejected": "Rejetées",
+    "usable_one": "{{count}} image utilisable",
+    "usable_other": "{{count}} images utilisables",
+    "importLater": "L'import et l'approbation des images arrivent avec le prochain lot."
   }
 }

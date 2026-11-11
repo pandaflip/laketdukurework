@@ -1,10 +1,14 @@
 import {
-  ADULT_NOTE_MIN_LENGTH,
+  adultNoteMinLength,
   canBeClassifiedAdult,
   characterEligibility,
+  challengeEligibility,
   characterEligibilityByMode,
+  isCompositeMode,
   isCoreExcludedCharacter,
   localizedNamesSchema,
+  MODE_IDS,
+  universeAudience,
   normalizeName,
   slugify,
   SUPPORTED_LOCALES,
@@ -16,6 +20,7 @@ import {
   type CreateCharacterRequest,
   type EligibilityCharacter,
   type EligibilityUniverse,
+  type ImageSummaryDto,
   type LabelKind,
   type Locale,
   type LocalizedAliases,
@@ -37,10 +42,10 @@ const include = {
   universe: true,
   labels: true,
   blockedModes: true,
-  variants: { orderBy: { slug: 'asc' } },
+  variants: { orderBy: { slug: 'asc' }, include: { assets: { select: { review: true } } } },
 } satisfies Prisma.CharacterInclude;
 
-type Row = Prisma.CharacterGetPayload<{ include: typeof include }>;
+export type Row = Prisma.CharacterGetPayload<{ include: typeof include }>;
 
 // ---------------------------------------------------------------------------
 // Facets: the independently editable (and restorable) parts of a character.
@@ -101,7 +106,7 @@ function assertExpected(expected: unknown, current: unknown): void {
 // Mapping
 // ---------------------------------------------------------------------------
 
-function eligibilityInputs(row: Row): {
+export function eligibilityInputs(row: Row): {
   universe: EligibilityUniverse;
   character: EligibilityCharacter;
 } {
@@ -110,6 +115,7 @@ function eligibilityInputs(row: Row): {
       slug: row.universe.slug,
       name: row.universe.name,
       enabledModes: row.universe.enabledModes,
+      sensitiveUnlocked: row.universe.sensitiveUnlockedAt !== null,
     },
     character: {
       slug: row.slug,
@@ -130,13 +136,46 @@ function toVariantDto(variant: { id: string; slug: string; names: unknown }): Va
   };
 }
 
+function summarizeImages(row: Row): ImageSummaryDto {
+  const reviews = row.variants.flatMap((variant) => variant.assets.map((asset) => asset.review));
+  const count = (review: string): number => reviews.filter((value) => value === review).length;
+  return {
+    total: reviews.length,
+    approvedNeutral: count('APPROVED_NEUTRAL'),
+    approvedSensitive: count('APPROVED_SENSITIVE'),
+    rejected: count('REJECTED'),
+    unverified: count('UNVERIFIED'),
+  };
+}
+
+function usableImages(row: Row): Record<ModeId, number> {
+  const { universe, character } = eligibilityInputs(row);
+  const assets = row.variants.flatMap((variant) => variant.assets);
+  return Object.fromEntries(
+    MODE_IDS.map((modeId) => [
+      modeId,
+      isCompositeMode(modeId)
+        ? 0
+        : assets.filter(
+            (asset) => challengeEligibility(modeId, universe, character, asset).eligible,
+          ).length,
+    ]),
+  ) as Record<ModeId, number>;
+}
+
 function toDto(row: Row): CharacterDto {
   const { universe, character } = eligibilityInputs(row);
   const labels = labelsFacet(row);
   return {
     id: row.id,
     slug: row.slug,
-    universe: { id: row.universe.id, slug: row.universe.slug, name: row.universe.name },
+    universe: {
+      id: row.universe.id,
+      slug: row.universe.slug,
+      name: row.universe.name,
+      audience: universeAudience(row.universe),
+    },
+    adultNoteMinLength: adultNoteMinLength(universeAudience(row.universe)),
     names: labels.names,
     aliases: labels.aliases,
     status: row.status,
@@ -145,15 +184,34 @@ function toDto(row: Row): CharacterDto {
     blockedModes: blockedModesFacet(row).modeIds,
     coreExcluded: isCoreExcludedCharacter(universe, character),
     eligibility: characterEligibilityByMode(universe, character),
+    images: summarizeImages(row),
+    usableImages: usableImages(row),
     variants: row.variants.map(toVariantDto),
     updatedAt: row.updatedAt.toISOString(),
   };
 }
 
-async function loadRow(db: DbOrTx, id: string): Promise<Row> {
-  const row = await db.character.findUnique({ where: { id }, include });
-  if (!row) throw notFound();
-  return row;
+/**
+ * Loads one character with everything its eligibility depends on.
+ *
+ * The relations are fetched one query after the other on purpose: asking
+ * Prisma for four or more relations at once inside a transaction makes it
+ * run them in parallel on the transaction's single connection, which the
+ * `pg` driver reports as a deprecation warning (and will refuse in pg 9).
+ */
+export async function loadRow(db: DbOrTx, id: string): Promise<Row> {
+  const base = await db.character.findUnique({
+    where: { id },
+    include: { universe: true, labels: true },
+  });
+  if (!base) throw notFound();
+  const variants = await db.variant.findMany({
+    where: { characterId: id },
+    orderBy: { slug: 'asc' },
+    include: { assets: { select: { review: true } } },
+  });
+  const blockedModes = await db.characterBlockedMode.findMany({ where: { characterId: id } });
+  return { ...base, variants, blockedModes };
 }
 
 interface LabelRow {
@@ -409,7 +467,7 @@ export async function setClassification(
         throw new AppError(422, 'CLASSIFICATION_FORBIDDEN');
       }
       if (input.confirm !== true) throw new AppError(422, 'CONFIRMATION_REQUIRED');
-      if (input.note.length < ADULT_NOTE_MIN_LENGTH) {
+      if (input.note.length < adultNoteMinLength(universeAudience(universe))) {
         throw new AppError(422, 'JUSTIFICATION_REQUIRED');
       }
     }

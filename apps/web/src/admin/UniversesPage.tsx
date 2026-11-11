@@ -1,8 +1,24 @@
-import { MODE_IDS, MODES, type ModeId, type UniverseDto } from '@app/shared';
+import {
+  MODE_IDS,
+  MODES,
+  STRICT_NOTE_MIN_LENGTH,
+  type ModeId,
+  type UniverseDto,
+} from '@app/shared';
 import { useQuery } from '@tanstack/react-query';
 import { useState, type SyntheticEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Badge, Button, Card, CardTitle, Checkbox, Field, Input, Notice } from '../design/ui';
+import {
+  Badge,
+  Button,
+  Card,
+  CardTitle,
+  Checkbox,
+  Field,
+  Input,
+  Notice,
+  Textarea,
+} from '../design/ui';
 import { adminApi } from '../lib/api';
 import { ErrorNotice, useAdminMutation } from './shared';
 
@@ -11,11 +27,11 @@ const NEUTRAL_MODES = MODE_IDS.filter((id) => MODES[id].sensitivity === 'neutral
 function ModeChecklist({
   value,
   onChange,
-  neverSensitive,
+  sensitiveLocked,
 }: {
   value: readonly ModeId[];
   onChange: (next: ModeId[]) => void;
-  neverSensitive: boolean;
+  sensitiveLocked: boolean;
 }) {
   const { t } = useTranslation(['admin', 'modes']);
   return (
@@ -27,7 +43,7 @@ function ModeChecklist({
             key={modeId}
             name={`mode-${modeId}`}
             checked={value.includes(modeId)}
-            disabled={sensitive && neverSensitive}
+            disabled={sensitive && sensitiveLocked}
             onChange={(event) => {
               onChange(
                 MODE_IDS.filter((id) =>
@@ -44,6 +60,89 @@ function ModeChecklist({
           />
         );
       })}
+    </div>
+  );
+}
+
+/**
+ * Universes associated with a young audience keep sensitive modes locked. The
+ * unlock is a deliberate, justified and logged exception; locking again is
+ * immediate. Neither changes any character or image check.
+ */
+function SensitiveLockPanel({ universe }: { universe: UniverseDto }) {
+  const { t } = useTranslation('admin');
+  const [note, setNote] = useState('');
+  const [confirm, setConfirm] = useState(false);
+  const unlock = useAdminMutation(() =>
+    adminApi.unlockSensitive(universe.id, { note, ...(confirm ? { confirm } : {}) }),
+  );
+  const lock = useAdminMutation(() => adminApi.lockSensitive(universe.id));
+
+  if (universe.audience !== 'YOUTH') return null;
+
+  return (
+    <div className="space-y-3 border-t border-line pt-4" data-testid="sensitive-lock">
+      <Notice tone="warning">{t('universes.youthNotice')}</Notice>
+      {universe.sensitiveUnlocked ? (
+        <div className="space-y-3">
+          <p className="flex items-center gap-2 text-sm">
+            <Badge tone="warning">{t('universes.unlocked')}</Badge>
+            <span className="text-fg-muted">{universe.sensitiveUnlockNote}</span>
+          </p>
+          <p className="text-xs text-fg-muted">{t('universes.lockHint')}</p>
+          <Button
+            variant="danger"
+            disabled={lock.isPending}
+            onClick={() => {
+              lock.mutate(undefined);
+            }}
+          >
+            {t('universes.lockAction')}
+          </Button>
+        </div>
+      ) : (
+        <form
+          className="space-y-3"
+          onSubmit={(event: SyntheticEvent) => {
+            event.preventDefault();
+            unlock.mutate(undefined);
+          }}
+        >
+          <p className="flex items-center gap-2 text-sm">
+            <Badge>{t('universes.locked')}</Badge>
+          </p>
+          <p className="text-sm text-fg-muted">{t('universes.unlockIntro')}</p>
+          <Field
+            label={t('universes.unlockNote')}
+            hint={t('universes.unlockNoteHint', { count: STRICT_NOTE_MIN_LENGTH })}
+          >
+            <Textarea
+              name="unlock-note"
+              required
+              minLength={STRICT_NOTE_MIN_LENGTH}
+              maxLength={1000}
+              value={note}
+              onChange={(event) => {
+                setNote(event.target.value);
+              }}
+            />
+          </Field>
+          <Checkbox
+            name="unlock-confirm"
+            required
+            checked={confirm}
+            onChange={(event) => {
+              setConfirm(event.target.checked);
+            }}
+            label={t('universes.unlockConfirm')}
+          />
+          <Button type="submit" disabled={unlock.isPending}>
+            {t('universes.unlockAction')}
+          </Button>
+        </form>
+      )}
+      <ErrorNotice error={unlock.error} />
+      <ErrorNotice error={lock.error} />
     </div>
   );
 }
@@ -77,13 +176,19 @@ function UniverseCard({ universe }: { universe: UniverseDto }) {
           </Field>
           <Badge>{t('universes.characterCount', { count: universe.characterCount })}</Badge>
         </div>
-        <ModeChecklist value={modes} onChange={setModes} neverSensitive={universe.neverSensitive} />
-        {universe.neverSensitive && <Notice tone="warning">{t('universes.neverSensitive')}</Notice>}
+        <ModeChecklist
+          value={modes}
+          onChange={setModes}
+          sensitiveLocked={universe.audience === 'YOUTH' && !universe.sensitiveUnlocked}
+        />
         <ErrorNotice error={update.error} />
         <Button type="submit" variant="primary" disabled={update.isPending}>
           {t('actions.save')}
         </Button>
       </form>
+      <div className="mt-4">
+        <SensitiveLockPanel universe={universe} />
+      </div>
     </Card>
   );
 }
@@ -141,7 +246,7 @@ export function UniversesPage() {
         {universes.data?.map((universe) => (
           // Remount when the server data changes so the form shows the saved values.
           <UniverseCard
-            key={`${universe.id}:${universe.name}:${universe.enabledModes.join(',')}`}
+            key={`${universe.id}:${universe.name}:${universe.enabledModes.join(',')}:${universe.sensitiveUnlocked}`}
             universe={universe}
           />
         ))}

@@ -9,10 +9,11 @@
   "INVALID_CREDENTIALS": "Usuário ou senha incorretos, ou tentativas demais. Aguarde alguns minutos antes de tentar de novo.",
   "FORBIDDEN_ORIGIN": "Esta requisição foi recusada por motivos de segurança.",
   "CONFLICT": "Isso já existe.",
-  "SENSITIVE_MODE_FORBIDDEN": "Os modos sensíveis nunca podem ser ativados para este universo.",
+  "SENSITIVE_MODE_FORBIDDEN": "Os modos sensíveis estão bloqueados para este universo.",
   "CLASSIFICATION_FORBIDDEN": "Este personagem está permanentemente excluído dos modos sensíveis e não pode ser classificado como adulto verificado.",
   "CONFIRMATION_REQUIRED": "Marque a caixa de confirmação para classificar um personagem como adulto verificado.",
   "JUSTIFICATION_REQUIRED": "Escreva uma justificativa mais detalhada antes de classificar um personagem como adulto verificado.",
   "RESTORE_CONFLICT": "Isso foi alterado de novo depois, então não pode ser restaurado automaticamente.",
-  "RESTORE_NOT_ALLOWED": "Esta alteração não pode ser restaurada. Uma classificação de adulto verificado deve sempre ser registrada manualmente."
+  "RESTORE_NOT_ALLOWED": "Esta alteração não pode ser restaurada. Uma classificação de adulto verificado deve sempre ser registrada manualmente.",
+  "INELIGIBLE_CONTENT": "Este conteúdo não é elegível para este modo."
 }

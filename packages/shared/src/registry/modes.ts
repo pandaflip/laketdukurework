@@ -25,6 +25,12 @@ export type ModeSensitivity = 'neutral' | 'sensitive';
 export interface ModeDefinition {
   readonly id: ModeId;
   readonly sensitivity: ModeSensitivity;
+  /**
+   * A composite mode (Chaos Mix) has no content of its own: it draws rounds
+   * from other modes. A round is always played, and checked, under the
+   * concrete mode it was drawn for, never under the composite one.
+   */
+  readonly composite?: true;
 }
 
 export const MODES: Readonly<Record<ModeId, ModeDefinition>> = {
@@ -33,9 +39,13 @@ export const MODES: Readonly<Record<ModeId, ModeDefinition>> = {
   'shadow-guess': { id: 'shadow-guess', sensitivity: 'neutral' },
   'skin-detective': { id: 'skin-detective', sensitivity: 'neutral' },
   historic: { id: 'historic', sensitivity: 'sensitive' },
-  'chaos-mix': { id: 'chaos-mix', sensitivity: 'neutral' },
+  'chaos-mix': { id: 'chaos-mix', sensitivity: 'neutral', composite: true },
 };
 
 export function isModeId(value: unknown): value is ModeId {
   return typeof value === 'string' && (MODE_IDS as readonly string[]).includes(value);
+}
+
+export function isCompositeMode(id: ModeId): boolean {
+  return MODES[id].composite === true;
 }

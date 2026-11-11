@@ -60,18 +60,26 @@
     "neutralYes": "Neutral modes: yes",
     "neutralNo": "Neutral modes: no",
     "sensitiveYes": "Sensitive modes: yes",
-    "sensitiveNo": "Sensitive modes: no"
+    "sensitiveNo": "Sensitive modes: no",
+    "perRound": "Checked per round",
+    "compositeNote": "Chaos Mix has no content of its own. Every round it draws is checked on the server against the mode it was drawn for and the image used.",
+    "detailsLink": "Why?",
+    "legendSummary": "How to read these columns",
+    "legendEligibility": "Eligibility: what the character may be used for, from its status, safety classification and universe settings.",
+    "legendImages": "Images: how many of its images were approved one by one. A playable challenge needs both.",
+    "detailsFor": "(eligibility details for {{name}})"
   },
   "reasons": {
     "CHARACTER_EXCLUDED": "The character is excluded from the game.",
     "MODE_DISABLED_FOR_UNIVERSE": "This mode is not enabled for the universe.",
     "MODE_BLOCKED_FOR_CHARACTER": "This mode is blocked for this character.",
-    "UNIVERSE_NEVER_SENSITIVE": "This universe never offers sensitive modes.",
     "CORE_EXCLUSION": "Fundamental exclusion: cannot be lifted from this interface.",
     "STATUS_RESTRICTED": "The status is Restricted (neutral modes only).",
     "NOT_ADULT_VERIFIED": "The character is not classified as a verified adult.",
     "ASSET_NOT_APPROVED": "The image has not been approved for this mode.",
-    "ASSET_REJECTED": "The image was rejected."
+    "ASSET_REJECTED": "The image was rejected.",
+    "UNIVERSE_SENSITIVE_LOCKED": "Sensitive modes are locked for this universe (young-audience franchise).",
+    "MODE_IS_COMPOSITE": "Mix of other modes: each round is checked under its own mode."
   },
   "characters": {
     "title": "Characters",
@@ -122,9 +130,18 @@
     "add": "Add",
     "addHint": "A new universe starts with neutral modes only.",
     "sensitive": "Sensitive",
-    "neverSensitive": "Sensitive modes can never be enabled for this universe.",
     "characterCount_one": "{{count}} character",
-    "characterCount_other": "{{count}} characters"
+    "characterCount_other": "{{count}} characters",
+    "youthNotice": "Franchise associated with a young audience. Sensitive modes stay locked here unless you unlock them explicitly. Even then, only individually verified adults with individually approved images can ever appear in them.",
+    "locked": "Locked",
+    "unlocked": "Unlocked",
+    "unlockIntro": "Unlocking is a deliberate exception, never a default. It is recorded with your justification. Characters and images keep every one of their own checks.",
+    "unlockNote": "Justification",
+    "unlockNoteHint": "At least {{count}} characters.",
+    "unlockConfirm": "I understand this is an exception: only verified adults with individually approved images can be eligible, and minors, childlike or ambiguous characters never are.",
+    "unlockAction": "Unlock sensitive modes",
+    "lockAction": "Lock again",
+    "lockHint": "Locking switches every sensitive mode off for this universe immediately."
   },
   "history": {
     "title": "History",
@@ -147,7 +164,22 @@
       "character.blocked-modes": "Blocked modes changed",
       "variant.create": "Variant added",
       "variant.update": "Variant renamed",
-      "variant.delete": "Variant deleted"
+      "variant.delete": "Variant deleted",
+      "universe.sensitive-unlock": "Sensitive modes unlocked",
+      "universe.sensitive-lock": "Sensitive modes locked again"
     }
+  },
+  "images": {
+    "title": "Images",
+    "none": "No image",
+    "badge": "{{approved}}/{{total}} approved",
+    "intro": "The eligibility of a character and the approval of each of its images are two separate things: a challenge needs both.",
+    "approvedNeutral": "Approved for neutral modes",
+    "approvedSensitive": "Approved for sensitive modes",
+    "unverified": "Waiting for review",
+    "rejected": "Rejected",
+    "usable_one": "{{count}} usable image",
+    "usable_other": "{{count}} usable images",
+    "importLater": "Importing and approving images arrives with the next lot."
   }
 }

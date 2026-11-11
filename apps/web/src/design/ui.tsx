@@ -108,9 +108,33 @@ const TONES: Record<Tone, string> = {
   danger: 'bg-danger-soft text-danger',
 };
 
-export function Badge({ tone = 'neutral', children }: { tone?: Tone; children: ReactNode }) {
+const OUTLINE_TONES: Record<Tone, string> = {
+  neutral: 'border-line-strong text-fg-soft',
+  success: 'border-success text-success',
+  warning: 'border-warning text-warning',
+  danger: 'border-danger text-danger',
+};
+
+/**
+ * `solid` badges describe the character; `outline` badges describe something
+ * separate attached to it (its images), so the two never read as one status.
+ */
+export function Badge({
+  tone = 'neutral',
+  outline = false,
+  children,
+}: {
+  tone?: Tone;
+  outline?: boolean;
+  children: ReactNode;
+}) {
   return (
-    <span className={cx('inline-block rounded-pill px-2 py-0.5 text-xs font-medium', TONES[tone])}>
+    <span
+      className={cx(
+        'inline-block whitespace-nowrap rounded-pill px-2 py-0.5 text-xs font-medium',
+        outline ? cx('border bg-transparent', OUTLINE_TONES[tone]) : TONES[tone],
+      )}
+    >
       {children}
     </span>
   );

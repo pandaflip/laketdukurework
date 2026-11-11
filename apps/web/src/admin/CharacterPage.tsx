@@ -1,7 +1,7 @@
 import {
-  ADULT_NOTE_MIN_LENGTH,
   AGE_CLASSES,
   CHARACTER_STATUSES,
+  isCompositeMode,
   MODE_IDS,
   SUPPORTED_LOCALES,
   type AgeClass,
@@ -13,9 +13,9 @@ import {
   type VariantDto,
 } from '@app/shared';
 import { useQuery } from '@tanstack/react-query';
-import { useState, type SyntheticEvent } from 'react';
+import { useEffect, useState, type SyntheticEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useParams } from 'react-router';
+import { Link, useLocation, useParams } from 'react-router';
 import {
   Badge,
   Button,
@@ -201,7 +201,7 @@ function ClassificationCard({ character }: { character: CharacterDto }) {
           label={t('character.note')}
           hint={
             adult
-              ? t('character.noteHintAdult', { count: ADULT_NOTE_MIN_LENGTH })
+              ? t('character.noteHintAdult', { count: character.adultNoteMinLength })
               : t('character.noteHint')
           }
         >
@@ -209,7 +209,7 @@ function ClassificationCard({ character }: { character: CharacterDto }) {
             name="note"
             maxLength={1000}
             required={adult}
-            minLength={adult ? ADULT_NOTE_MIN_LENGTH : undefined}
+            minLength={adult ? character.adultNoteMinLength : undefined}
             value={note}
             onChange={(event) => {
               setNote(event.target.value);
@@ -280,28 +280,77 @@ function BlockedModesCard({ character }: { character: CharacterDto }) {
   );
 }
 
+/**
+ * Detailed eligibility, mode by mode, with the reasons. The character's
+ * eligibility and the approval of its images are two separate columns of
+ * information: a playable challenge needs both.
+ */
 function EligibilityCard({ character }: { character: CharacterDto }) {
   const { t } = useTranslation(['admin', 'modes']);
   return (
-    <Card>
+    <Card id="eligibility" className="scroll-mt-4">
       <CardTitle>{t('fields.eligibility')}</CardTitle>
       <p className="mb-3 text-sm text-fg-muted">{t('character.eligibilityIntro')}</p>
       <ul className="divide-y divide-line">
         {MODE_IDS.map((modeId) => {
           const outcome = character.eligibility[modeId];
+          const composite = isCompositeMode(modeId);
           return (
             <li key={modeId} className="py-2" data-mode-id={modeId}>
-              <div className="flex items-center justify-between gap-3 text-sm">
+              <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
                 <span>{t(`${modeId}.name`, { ns: 'modes' })}</span>
-                <Badge tone={outcome.eligible ? 'success' : 'neutral'}>
-                  {t(outcome.eligible ? 'eligibility.eligible' : 'eligibility.notEligible')}
-                </Badge>
+                <span className="flex flex-wrap items-center gap-1">
+                  {composite ? (
+                    <Badge>{t('eligibility.perRound')}</Badge>
+                  ) : (
+                    <>
+                      <Badge tone={outcome.eligible ? 'success' : 'neutral'}>
+                        {t(outcome.eligible ? 'eligibility.eligible' : 'eligibility.notEligible')}
+                      </Badge>
+                      <Badge
+                        outline
+                        tone={character.usableImages[modeId] > 0 ? 'success' : 'neutral'}
+                      >
+                        {t('images.usable', { count: character.usableImages[modeId] })}
+                      </Badge>
+                    </>
+                  )}
+                </span>
               </div>
-              {!outcome.eligible && <ReasonList reasons={outcome.reasons} />}
+              {composite ? (
+                <p className="mt-1 text-xs text-fg-muted">{t('eligibility.compositeNote')}</p>
+              ) : (
+                !outcome.eligible && <ReasonList reasons={outcome.reasons} />
+              )}
             </li>
           );
         })}
       </ul>
+    </Card>
+  );
+}
+
+function ImagesCard({ images }: { images: CharacterDto['images'] }) {
+  const { t } = useTranslation('admin');
+  const rows = [
+    ['approvedNeutral', images.approvedNeutral],
+    ['approvedSensitive', images.approvedSensitive],
+    ['unverified', images.unverified],
+    ['rejected', images.rejected],
+  ] as const;
+  return (
+    <Card>
+      <CardTitle>{t('images.title')}</CardTitle>
+      <p className="mb-3 text-sm text-fg-muted">{t('images.intro')}</p>
+      <dl className="grid grid-cols-[1fr_auto] gap-x-4 gap-y-1 text-sm">
+        {rows.map(([key, value]) => (
+          <div key={key} className="contents">
+            <dt className="text-fg-soft">{t(`images.${key}`)}</dt>
+            <dd className="text-right font-medium">{value}</dd>
+          </div>
+        ))}
+      </dl>
+      <p className="mt-3 text-xs text-fg-muted">{t('images.importLater')}</p>
     </Card>
   );
 }
@@ -427,10 +476,18 @@ function VariantsCard({ character }: { character: CharacterDto }) {
 export function CharacterPage() {
   const { t } = useTranslation('admin');
   const { id = '' } = useParams();
+  const { hash } = useLocation();
   const character = useQuery({
     queryKey: ['admin', 'character', id],
     queryFn: () => adminApi.character(id),
   });
+
+  // The "Why?" link of the table lands on the eligibility details.
+  useEffect(() => {
+    if (hash === '#eligibility' && character.isSuccess) {
+      document.getElementById('eligibility')?.scrollIntoView({ block: 'start' });
+    }
+  }, [hash, character.isSuccess]);
 
   if (character.isPending) return <Notice>{t('loading')}</Notice>;
   if (character.isError) return <ErrorNotice error={character.error} />;
@@ -444,7 +501,7 @@ export function CharacterPage() {
   return (
     <div className="space-y-6">
       <div>
-        <Link to="/admin" className="text-sm text-accent-hover hover:underline">
+        <Link to="/admin" className="text-sm text-accent-text hover:underline">
           ← {t('nav.characters')}
         </Link>
         <h1 className="mt-2 font-display text-2xl font-bold">{localizedName(data.names)}</h1>
@@ -455,6 +512,7 @@ export function CharacterPage() {
       <div className="grid gap-4 lg:grid-cols-2">
         <LabelsCard key={labelsKey} character={data} />
         <EligibilityCard character={data} />
+        <ImagesCard images={data.images} />
         <StatusCard character={data} />
         <ClassificationCard key={classificationKey} character={data} />
         <BlockedModesCard key={blockedKey} character={data} />

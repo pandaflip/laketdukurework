@@ -5,6 +5,8 @@ import { findEligibleCharacters } from '../src/modules/catalog/characters.servic
 import { adminClient, startApp, type Client, type TestContext } from './helpers';
 
 const NEUTRAL = MODE_IDS.filter((id) => id !== 'historic');
+/** Neutral modes that hold rounds of their own (Chaos Mix only mixes the others). */
+const PLAYABLE_NEUTRAL = NEUTRAL.filter((id) => id !== 'chaos-mix');
 const ADULT_NOTE = 'Adult in the official lore; adult appearance and presentation.';
 
 let context: TestContext;
@@ -48,7 +50,8 @@ describe('universes', () => {
     const universe = await createUniverse('League of Legends', NEUTRAL);
     expect(universe).toMatchObject({
       slug: 'league-of-legends',
-      neverSensitive: false,
+      audience: 'GENERAL',
+      sensitiveUnlocked: false,
       characterCount: 0,
     });
     expect(universe.enabledModes).toEqual(NEUTRAL);
@@ -61,19 +64,22 @@ describe('universes', () => {
     expect(response.statusCode).toBe(409);
   });
 
-  it.each(['Pokémon', 'Minecraft'])('never lets %s enable a sensitive mode', async (name) => {
-    const refused = await admin.post('/universes', { name, enabledModes: ['historic'] });
-    expect(refused.statusCode).toBe(422);
-    expect(refused.json()).toEqual({ error: { code: 'SENSITIVE_MODE_FORBIDDEN' } });
+  it.each(['Pokémon', 'Minecraft'])(
+    'keeps sensitive modes locked in %s by default',
+    async (name) => {
+      const refused = await admin.post('/universes', { name, enabledModes: ['historic'] });
+      expect(refused.statusCode).toBe(422);
+      expect(refused.json()).toEqual({ error: { code: 'SENSITIVE_MODE_FORBIDDEN' } });
 
-    const universe = await createUniverse(name, NEUTRAL);
-    expect(universe.neverSensitive).toBe(true);
-    const update = await admin.put(`/universes/${universe.id}`, {
-      name,
-      enabledModes: [...NEUTRAL, 'historic'],
-    });
-    expect(update.statusCode).toBe(422);
-  });
+      const universe = await createUniverse(name, NEUTRAL);
+      expect(universe).toMatchObject({ audience: 'YOUTH', sensitiveUnlocked: false });
+      const update = await admin.put(`/universes/${universe.id}`, {
+        name,
+        enabledModes: [...NEUTRAL, 'historic'],
+      });
+      expect(update.statusCode).toBe(422);
+    },
+  );
 
   it('does not let a rename unlock sensitive modes', async () => {
     const universe = await createUniverse('Pokémon', NEUTRAL);
@@ -349,7 +355,7 @@ describe('classification', () => {
     const after = (await admin.get(`/characters/${character.id}`)).json<CharacterDto>();
     expect(after.ageClass).toBe('UNKNOWN');
     expect(after.eligibility.historic.reasons).toContain('CORE_EXCLUSION');
-    for (const modeId of NEUTRAL) expect(after.eligibility[modeId].eligible).toBe(true);
+    for (const modeId of PLAYABLE_NEUTRAL) expect(after.eligibility[modeId].eligible).toBe(true);
   });
 
   it('cannot be bypassed by a variant or by renaming a verified adult', async () => {
@@ -381,9 +387,24 @@ describe('classification', () => {
     const inValorant = await verifiedAdult(valorant.id, 'Sage');
     expect(inPokemon.eligibility.historic.reasons).toEqual([
       'MODE_DISABLED_FOR_UNIVERSE',
-      'UNIVERSE_NEVER_SENSITIVE',
+      'UNIVERSE_SENSITIVE_LOCKED',
     ]);
     expect(inValorant.eligibility.historic.reasons).toEqual(['MODE_DISABLED_FOR_UNIVERSE']);
+  });
+});
+
+describe('composite mode', () => {
+  it('is never reported as eligible for a character: rounds are checked under their real mode', async () => {
+    const universe = await createUniverse('League of Legends');
+    const ashe = await verifiedAdult(universe.id, 'Ashe');
+    expect(ashe.eligibility['chaos-mix']).toEqual({
+      eligible: false,
+      reasons: ['MODE_IS_COMPOSITE'],
+    });
+    expect(ashe.usableImages['chaos-mix']).toBe(0);
+    expect(
+      (await findEligibleCharacters(context.db, 'chaos-mix')).map((item) => item.slug),
+    ).toEqual([]);
   });
 });
 

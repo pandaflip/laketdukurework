@@ -1,9 +1,11 @@
 import {
   CHARACTER_STATUSES,
+  isCompositeMode,
   MODE_IDS,
   MODES,
   type CharacterDto,
   type CharacterStatus,
+  type ImageSummaryDto,
 } from '@app/shared';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { useDeferredValue, useState, type SyntheticEvent } from 'react';
@@ -21,32 +23,57 @@ import {
   Select,
 } from '../design/ui';
 import { adminApi } from '../lib/api';
-import { ErrorNotice, localizedName, ReasonList, useAdminMutation } from './shared';
+import { ErrorNotice, localizedName, useAdminMutation } from './shared';
 
 const SENSITIVE_MODES = MODE_IDS.filter((id) => MODES[id].sensitivity !== 'neutral');
-const NEUTRAL_MODES = MODE_IDS.filter((id) => MODES[id].sensitivity === 'neutral');
+const NEUTRAL_MODES = MODE_IDS.filter(
+  (id) => MODES[id].sensitivity === 'neutral' && !isCompositeMode(id),
+);
 
-/** Effective eligibility, as computed by the server: the status alone says little. */
-export function EligibilitySummary({ character }: { character: CharacterDto }) {
+/**
+ * Two compact badges, computed by the server: may this character be used in
+ * neutral modes, and in sensitive modes. The detailed reasons live on the
+ * character page.
+ */
+export function EligibilityBadges({ character }: { character: CharacterDto }) {
   const { t } = useTranslation('admin');
   const neutral = NEUTRAL_MODES.some((id) => character.eligibility[id].eligible);
-  const sensitiveReasons = [
-    ...new Set(SENSITIVE_MODES.flatMap((id) => character.eligibility[id].reasons)),
-  ];
   const sensitive = SENSITIVE_MODES.some((id) => character.eligibility[id].eligible);
 
   return (
-    <div className="space-y-1">
-      <div className="flex flex-wrap gap-1">
-        <Badge tone={neutral ? 'success' : 'danger'}>
-          {t(neutral ? 'eligibility.neutralYes' : 'eligibility.neutralNo')}
-        </Badge>
-        <Badge tone={sensitive ? 'warning' : 'neutral'}>
-          {t(sensitive ? 'eligibility.sensitiveYes' : 'eligibility.sensitiveNo')}
-        </Badge>
-      </div>
-      {!sensitive && <ReasonList reasons={sensitiveReasons} />}
+    <div className="flex flex-wrap items-center gap-1">
+      <Badge tone={neutral ? 'success' : 'danger'}>
+        {t(neutral ? 'eligibility.neutralYes' : 'eligibility.neutralNo')}
+      </Badge>
+      <Badge tone={sensitive ? 'warning' : 'neutral'}>
+        {t(sensitive ? 'eligibility.sensitiveYes' : 'eligibility.sensitiveNo')}
+      </Badge>
     </div>
+  );
+}
+
+/** Approval of the images, shown apart from the character's eligibility (outlined badge). */
+export function ImagesBadge({ images }: { images: ImageSummaryDto }) {
+  const { t } = useTranslation('admin');
+  if (images.total === 0) return <Badge outline>{t('images.none')}</Badge>;
+  const approved = images.approvedNeutral + images.approvedSensitive;
+  return (
+    <Badge outline tone={approved > 0 ? 'success' : 'warning'}>
+      {t('images.badge', { approved, total: images.total })}
+    </Badge>
+  );
+}
+
+function ColumnsLegend() {
+  const { t } = useTranslation('admin');
+  return (
+    <details className="mt-4 text-sm text-fg-muted">
+      <summary className="cursor-pointer text-fg-soft">{t('eligibility.legendSummary')}</summary>
+      <ul className="mt-2 list-inside list-disc space-y-1">
+        <li>{t('eligibility.legendEligibility')}</li>
+        <li>{t('eligibility.legendImages')}</li>
+      </ul>
+    </details>
   );
 }
 
@@ -281,11 +308,14 @@ export function CharactersPage() {
           <ErrorNotice error={bulk.error} />
         </div>
 
+        <ColumnsLegend />
+
         <div className="mt-4 overflow-x-auto">
           <table className="w-full text-left text-sm">
+            <caption className="sr-only">{t('characters.title')}</caption>
             <thead className="text-xs uppercase tracking-wide text-fg-muted">
               <tr>
-                <th className="p-2">
+                <th scope="col" className="p-2">
                   <Checkbox
                     label={<span className="sr-only">{t('characters.selectAll')}</span>}
                     checked={allSelected}
@@ -294,11 +324,24 @@ export function CharactersPage() {
                     }}
                   />
                 </th>
-                <th className="p-2">{t('fields.name')}</th>
-                <th className="p-2">{t('fields.universe')}</th>
-                <th className="p-2">{t('fields.status')}</th>
-                <th className="p-2">{t('fields.classification')}</th>
-                <th className="p-2">{t('fields.eligibility')}</th>
+                <th scope="col" className="p-2">
+                  {t('fields.name')}
+                </th>
+                <th scope="col" className="p-2">
+                  {t('fields.universe')}
+                </th>
+                <th scope="col" className="p-2">
+                  {t('fields.status')}
+                </th>
+                <th scope="col" className="p-2">
+                  {t('fields.classification')}
+                </th>
+                <th scope="col" className="p-2">
+                  {t('fields.eligibility')}
+                </th>
+                <th scope="col" className="p-2">
+                  {t('images.title')}
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -320,7 +363,7 @@ export function CharactersPage() {
                   <td className="p-2">
                     <Link
                       to={`/admin/characters/${character.id}`}
-                      className="font-medium text-accent-hover hover:underline"
+                      className="font-medium text-accent-text hover:underline"
                     >
                       {localizedName(character.names)}
                     </Link>
@@ -358,7 +401,22 @@ export function CharactersPage() {
                     </Badge>
                   </td>
                   <td className="p-2">
-                    <EligibilitySummary character={character} />
+                    <div className="flex flex-wrap items-center gap-2">
+                      <EligibilityBadges character={character} />
+                      <Link
+                        to={`/admin/characters/${character.id}#eligibility`}
+                        className="text-xs text-accent-text hover:underline"
+                      >
+                        {t('eligibility.detailsLink')}
+                        <span className="sr-only">
+                          {' '}
+                          {t('eligibility.detailsFor', { name: localizedName(character.names) })}
+                        </span>
+                      </Link>
+                    </div>
+                  </td>
+                  <td className="p-2">
+                    <ImagesBadge images={character.images} />
                   </td>
                 </tr>
               ))}

@@ -1,8 +1,9 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { AGE_CLASSES, ASSET_REVIEWS, CHARACTER_STATUSES } from '../catalog/enums';
-import { MODE_IDS, MODES, type ModeId } from '../registry/modes';
-import { isCoreExcludedCharacter, isNeverSensitiveUniverse } from './core-exclusions';
+import { isCompositeMode, MODE_IDS, MODES, type ModeId } from '../registry/modes';
+import { adultNoteMinLength } from './classification';
+import { isCoreExcludedCharacter, universeAudience } from './core-exclusions';
 import {
   canBeClassifiedAdult,
   challengeEligibility,
@@ -13,7 +14,9 @@ import {
 } from './eligibility';
 
 const SENSITIVE_MODES = MODE_IDS.filter((id) => MODES[id].sensitivity !== 'neutral');
-const NEUTRAL_MODES = MODE_IDS.filter((id) => MODES[id].sensitivity === 'neutral');
+const NEUTRAL_MODES = MODE_IDS.filter(
+  (id) => MODES[id].sensitivity === 'neutral' && !isCompositeMode(id),
+);
 
 const lol: EligibilityUniverse = {
   slug: 'league-of-legends',
@@ -125,14 +128,68 @@ describe('fundamental exclusions', () => {
       expect(characterEligibility(modeId, lol, zoe).eligible).toBe(true);
     }
   });
+});
 
-  it.each(['pokemon', 'minecraft'])('never allows sensitive modes in %s', (slug) => {
-    const universe: EligibilityUniverse = { slug, enabledModes: [...MODE_IDS] };
-    expect(isNeverSensitiveUniverse(universe)).toBe(true);
-    expect(characterEligibility('historic', universe, adult).reasons).toContain(
-      'UNIVERSE_NEVER_SENSITIVE',
-    );
-    expect(isNeverSensitiveUniverse({ slug: 'pkmn', name: 'Pokémon' })).toBe(true);
+describe('universes with a young audience', () => {
+  const youth = (slug: string, sensitiveUnlocked?: boolean): EligibilityUniverse => ({
+    slug,
+    enabledModes: [...MODE_IDS],
+    ...(sensitiveUnlocked === undefined ? {} : { sensitiveUnlocked }),
+  });
+
+  it.each(['pokemon', 'minecraft'])('%s is recognized, by slug and by name', (slug) => {
+    expect(universeAudience({ slug })).toBe('YOUTH');
+    expect(universeAudience({ slug: 'pkmn', name: 'Pokémon' })).toBe('YOUTH');
+    expect(universeAudience({ slug: 'x', name: 'MINECRAFT' })).toBe('YOUTH');
+    expect(universeAudience({ slug: 'valorant', name: 'Valorant' })).toBe('GENERAL');
+  });
+
+  it.each([undefined, false])('keeps sensitive modes locked by default (unlocked: %s)', (flag) => {
+    const outcome = characterEligibility('historic', youth('pokemon', flag), adult);
+    expect(outcome).toEqual({ eligible: false, reasons: ['UNIVERSE_SENSITIVE_LOCKED'] });
+  });
+
+  it('is not enough, once unlocked, to make anybody eligible', () => {
+    const universe = youth('pokemon', true);
+    expect(characterEligibility('historic', universe, adult).eligible).toBe(true);
+    for (const ageClass of ['UNKNOWN', 'MINOR', 'CHILDLIKE', 'AMBIGUOUS'] as const) {
+      expect(characterEligibility('historic', universe, { ...adult, ageClass }).reasons).toEqual([
+        'NOT_ADULT_VERIFIED',
+      ]);
+    }
+    expect(
+      challengeEligibility('historic', universe, adult, { review: 'APPROVED_NEUTRAL' }).reasons,
+    ).toEqual(['ASSET_NOT_APPROVED']);
+  });
+
+  it('does not make fundamental exclusions depend on the audience tier', () => {
+    const annie = { ...adult, slug: 'annie', labels: ['Annie'] };
+    expect(
+      characterEligibility('historic', { ...lol, sensitiveUnlocked: true }, annie).reasons,
+    ).toEqual(['CORE_EXCLUSION']);
+  });
+
+  it('asks for a longer justification', () => {
+    expect(adultNoteMinLength('GENERAL')).toBe(20);
+    expect(adultNoteMinLength('YOUTH')).toBe(60);
+  });
+
+  it('never affects neutral modes', () => {
+    expect(characterEligibility('zoom-out', youth('minecraft'), adult).eligible).toBe(true);
+  });
+});
+
+describe('composite mode (Chaos Mix)', () => {
+  it('is never a valid round mode: rounds are checked under their concrete mode', () => {
+    expect(isCompositeMode('chaos-mix')).toBe(true);
+    expect(characterEligibility('chaos-mix', lol, adult)).toEqual({
+      eligible: false,
+      reasons: ['MODE_IS_COMPOSITE'],
+    });
+    expect(
+      challengeEligibility('chaos-mix', lol, adult, { review: 'APPROVED_SENSITIVE' }).reasons,
+    ).toEqual(['MODE_IS_COMPOSITE']);
+    expect(isCompositeMode('historic')).toBe(false);
   });
 });
 
@@ -162,6 +219,7 @@ describe('properties over every combination', () => {
   const universeArb = fc.record({
     slug: fc.constantFrom('league-of-legends', 'lol', 'valorant', 'pokemon', 'minecraft', 'other'),
     enabledModes: fc.subarray([...MODE_IDS]),
+    sensitiveUnlocked: fc.boolean(),
   });
   const characterArb = fc.record({
     slug: fc.constantFrom('annie', 'zoe', 'ashe', 'jett', 'steve'),
@@ -188,11 +246,20 @@ describe('properties over every combination', () => {
           expect(asset.review).toBe('APPROVED_SENSITIVE');
           expect(universe.enabledModes).toContain(modeId);
           expect(character.blockedModes).not.toContain(modeId);
-          expect(isNeverSensitiveUniverse(universe)).toBe(false);
+          expect(universeAudience(universe) === 'GENERAL' || universe.sensitiveUnlocked).toBe(true);
           expect(isCoreExcludedCharacter(universe, character)).toBe(false);
         },
       ),
       { numRuns: 2000 },
+    );
+  });
+
+  it('a composite mode is never eligible, whatever the inputs', () => {
+    fc.assert(
+      fc.property(universeArb, characterArb, assetArb, (universe, character, asset) => {
+        expect(characterEligibility('chaos-mix', universe, character).eligible).toBe(false);
+        expect(challengeEligibility('chaos-mix', universe, character, asset).eligible).toBe(false);
+      }),
     );
   });
 

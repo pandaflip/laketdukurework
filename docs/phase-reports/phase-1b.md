@@ -57,3 +57,70 @@ d'éligibilité testée) mais aucune image ne peut encore être importée.
   apparaît dans les journaux ; il est sans effet aujourd'hui.
 - Les en-têtes de sécurité des pages web (CSP du site) seront posés au déploiement.
 - Les traductions `pt-BR` n'ont pas été relues par un locuteur natif.
+
+## Révision après la validation fonctionnelle
+
+Ajustements demandés après les tests du client, appliqués sur la même PR.
+
+### Politique des univers
+
+- L'interdiction définitive fondée sur le nom (Pokémon, Minecraft) est remplacée par un niveau
+  d'audience `YOUTH` : sensibles **verrouillés par défaut**, déverrouillage explicite par univers
+  (confirmation, justification de 60 caractères, journalisé, jamais restaurable), reverrouillage
+  immédiat qui coupe les modes sensibles. Détail et protections non configurables dans
+  `docs/content-policy.md`.
+- Le déverrouillage ne lève aucune autre condition : adulte vérifié, statut `ALLOWED`, mode
+  activé, absence d'exclusion fondamentale et image approuvée restent exigés. Un adulte vérifié
+  dans un univers `YOUTH` demande aussi la justification de 60 caractères.
+- Chaos Mix est déclaré **composite** : jamais éligible en tant que tel, chaque manche est
+  vérifiée sous son mode réel et pour l'image utilisée (`assertRoundEligible`).
+
+### Ergonomie du catalogue
+
+- Tableau : deux badges d'éligibilité (neutre / sensible) et un badge d'images en contour, pour
+  distinguer l'éligibilité du personnage de l'approbation de ses images. Les motifs détaillés
+  sont dans la fiche (section « Éligibilité effective », atteinte par le lien « Pourquoi ? »).
+  Légende repliable sous les filtres. Pagination serveur (testée avec 300 personnages).
+- Fiche : éligibilité mode par mode avec motifs et nombre d'images utilisables, carte des images.
+
+### Historique
+
+Tests ajoutés : une restauration est journalisée et liée à l'entrée d'origine ; elle peut être
+annulée, plusieurs fois de suite, et une restauration de lot est elle-même un lot restaurable ;
+une ancienne restauration est refusée dès qu'un changement plus récent existe (noms, modes
+bloqués, classification, univers) ; les validations de sécurité sont réappliquées (modes
+sensibles refusés dans un univers reverrouillé entre-temps, classification jamais rétablie par
+restauration, déverrouillage et reverrouillage non restaurables).
+
+### Infrastructure
+
+- Avertissement `pg` : origine identifiée (4 relations ou plus chargées d'un coup dans une
+  transaction) et supprimée dans le code, sans changer de version ; un test en garantit
+  l'absence.
+- Scripts Prisma ignorés par pnpm : sans conséquence (vérifié) ; le choix est consigné dans
+  `pnpm-workspace.yaml` et expliqué dans le README.
+
+### Accessibilité des composants maison
+
+Un contrôle automatique axe-core (WCAG 2.1 A et AA) couvre 7 pages. Il a révélé et fait corriger
+deux défauts : contraste du bouton d'accent (valeur provisoire) et nom accessible de deux liens.
+Reste à faire par une personne : essai au lecteur d'écran et revue du contraste avec la charte
+définitive.
+
+### Évolutions prévues (non réalisées)
+
+- **Archivage distinct d'`EXCLUDED`** : ajouter une colonne `archivedAt` sur le personnage (un
+  personnage archivé disparaît des listes et des tirages mais garde son statut et son historique)
+  sans toucher aux règles d'éligibilité. Aucun changement de politique n'est nécessaire.
+- **Double validation** : les seuls points d'entrée sensibles sont `setClassification` (vers
+  `ADULT_VERIFIED`) et `unlockSensitive`. Ajouter une validation par un second administrateur
+  reviendrait à y enregistrer une demande en attente au lieu d'appliquer le changement.
+
+### Tests
+
+| Suite                                  | Résultat                                 |
+| -------------------------------------- | ---------------------------------------- |
+| `packages/shared`                      | 50 réussis                               |
+| `apps/server` (PostgreSQL réel)        | 93 réussis, sans avertissement du pilote |
+| `apps/web`                             | 20 réussis                               |
+| `e2e` (Playwright, dont accessibilité) | 11 réussis                               |

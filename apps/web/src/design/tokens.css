@@ -23,7 +23,8 @@
   --p-mist-400: #94a3b8;
   --p-mist-300: #cbd5e1;
   --p-mist-100: #f1f5f9;
-  --p-brand-500: #6366f1;
+  --p-brand-600: #4f46e5;
+  --p-brand-700: #4338ca;
   --p-brand-400: #818cf8;
   --p-white: #ffffff;
   --p-red-400: #fb7185;
@@ -56,9 +57,12 @@
   --fg: var(--p-mist-100);
   --fg-soft: var(--p-mist-300);
   --fg-muted: var(--p-mist-400);
-  --accent: var(--p-brand-500);
-  --accent-hover: var(--p-brand-400);
+  /* Buttons: filled background with --accent-fg text (contrast >= 4.5:1 in both states). */
+  --accent: var(--p-brand-600);
+  --accent-hover: var(--p-brand-700);
   --accent-fg: var(--p-white);
+  /* Links and focus rings drawn directly on the dark surfaces. */
+  --accent-text: var(--p-brand-400);
   --danger: var(--p-red-400);
   --danger-soft: var(--p-red-950);
   --success: var(--p-green-400);
@@ -100,6 +104,7 @@
   --color-fg-muted: var(--fg-muted);
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
+  --color-accent-text: var(--accent-text);
   --color-accent-fg: var(--accent-fg);
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);

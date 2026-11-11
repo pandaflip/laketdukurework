@@ -8,7 +8,7 @@ export function NotFoundPage() {
     <div className="space-y-3">
       <h1 className="text-2xl font-bold">{t('notFound.title')}</h1>
       <p className="text-fg-muted">{t('notFound.body')}</p>
-      <Link to="/" className="text-accent-hover hover:underline">
+      <Link to="/" className="text-accent-text hover:underline">
         {t('nav.backHome')}
       </Link>
     </div>

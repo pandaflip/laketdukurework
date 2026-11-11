@@ -16,6 +16,7 @@ import {
   type ModeId,
   type Page,
   type SetClassificationRequest,
+  type UnlockSensitiveRequest,
   type UniverseDto,
   type UpdateCharacterLabelsRequest,
   type UpdateUniverseRequest,
@@ -91,6 +92,11 @@ export const adminApi = {
     request<UniverseDto>('POST', '/admin/universes', body),
   updateUniverse: (id: string, body: UpdateUniverseRequest) =>
     request<UniverseDto>('PUT', `/admin/universes/${id}`, body),
+
+  unlockSensitive: (id: string, body: UnlockSensitiveRequest) =>
+    request<UniverseDto>('PUT', `/admin/universes/${id}/sensitive-unlock`, body),
+  lockSensitive: (id: string) =>
+    request<UniverseDto>('DELETE', `/admin/universes/${id}/sensitive-unlock`),
 
   characters: (filters: CharacterFilters) =>
     request<Page<CharacterDto>>('GET', `/admin/characters${query({ ...filters })}`),

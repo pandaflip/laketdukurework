@@ -82,12 +82,10 @@ export const bulkCharacterStatusSchema = z.object({
 });
 export type BulkCharacterStatusRequest = z.infer<typeof bulkCharacterStatusSchema>;
 
-export const ADULT_NOTE_MIN_LENGTH = 20;
-
 /**
  * `ADULT_VERIFIED` additionally requires `confirm: true` and a written
- * justification of at least {@link ADULT_NOTE_MIN_LENGTH} characters
- * (enforced by the server).
+ * justification (20 characters, 60 in universes with a young audience;
+ * enforced by the server).
  */
 export const setClassificationSchema = z.object({
   ageClass: ageClassSchema,
@@ -95,6 +93,13 @@ export const setClassificationSchema = z.object({
   confirm: z.boolean().optional(),
 });
 export type SetClassificationRequest = z.infer<typeof setClassificationSchema>;
+
+/** Explicit unlock of sensitive modes for a universe with a young audience. */
+export const unlockSensitiveSchema = z.object({
+  note: z.string().trim().max(1000),
+  confirm: z.boolean().optional(),
+});
+export type UnlockSensitiveRequest = z.infer<typeof unlockSensitiveSchema>;
 
 export const setBlockedModesSchema = z.object({
   modeIds: z.array(modeIdSchema).max(MODE_IDS.length),

@@ -6,3 +6,10 @@ packages:
 # Only these dependencies may run install scripts.
 onlyBuiltDependencies:
   - esbuild
+
+# Prisma's own install scripts only pre-download database engines. The CLI fetches
+# a missing engine on first use and the generated client does not need them, so
+# they are skipped on purpose (see README, "pnpm and ignored build scripts").
+ignoredBuiltDependencies:
+  - '@prisma/engines'
+  - prisma

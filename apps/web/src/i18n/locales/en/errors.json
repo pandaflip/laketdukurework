@@ -9,10 +9,11 @@
   "INVALID_CREDENTIALS": "Wrong username or password, or too many attempts. Wait a few minutes before trying again.",
   "FORBIDDEN_ORIGIN": "This request was refused for security reasons.",
   "CONFLICT": "This already exists.",
-  "SENSITIVE_MODE_FORBIDDEN": "Sensitive modes can never be enabled for this universe.",
+  "SENSITIVE_MODE_FORBIDDEN": "Sensitive modes are locked for this universe.",
   "CLASSIFICATION_FORBIDDEN": "This character is permanently excluded from sensitive modes and cannot be classified as a verified adult.",
   "CONFIRMATION_REQUIRED": "Tick the confirmation box to classify a character as a verified adult.",
   "JUSTIFICATION_REQUIRED": "Write a longer justification before classifying a character as a verified adult.",
   "RESTORE_CONFLICT": "This was changed again since then, so it cannot be restored automatically.",
-  "RESTORE_NOT_ALLOWED": "This change cannot be restored. A verified-adult classification must always be entered by hand."
+  "RESTORE_NOT_ALLOWED": "This change cannot be restored. A verified-adult classification must always be entered by hand.",
+  "INELIGIBLE_CONTENT": "This content is not eligible for this mode."
 }

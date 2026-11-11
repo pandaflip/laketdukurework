@@ -1,4 +1,5 @@
 import type { Locale } from '../i18n/locales';
+import type { UniverseAudience } from '../policy/core-exclusions';
 import type { EligibilityByMode } from '../policy/eligibility';
 import type { ModeId } from '../registry/modes';
 import type { AgeClass, CharacterStatus } from './enums';
@@ -16,8 +17,12 @@ export interface UniverseDto {
   readonly slug: string;
   readonly name: string;
   readonly enabledModes: readonly ModeId[];
-  /** Sensitive modes can never be enabled for this universe (fundamental rule). */
-  readonly neverSensitive: boolean;
+  /** `YOUTH`: associated with a young audience; sensitive modes are locked by default. */
+  readonly audience: UniverseAudience;
+  /** Explicit unlock of sensitive modes (only meaningful for `YOUTH` universes). */
+  readonly sensitiveUnlocked: boolean;
+  readonly sensitiveUnlockNote: string | null;
+  readonly sensitiveUnlockedAt: string | null;
   readonly characterCount: number;
 }
 
@@ -27,10 +32,26 @@ export interface VariantDto {
   readonly names: LocalizedNames;
 }
 
+/** Individual review state of a character's images. */
+export interface ImageSummaryDto {
+  readonly total: number;
+  readonly approvedNeutral: number;
+  readonly approvedSensitive: number;
+  readonly rejected: number;
+  readonly unverified: number;
+}
+
 export interface CharacterDto {
   readonly id: string;
   readonly slug: string;
-  readonly universe: { readonly id: string; readonly slug: string; readonly name: string };
+  readonly universe: {
+    readonly id: string;
+    readonly slug: string;
+    readonly name: string;
+    readonly audience: UniverseAudience;
+  };
+  /** Minimum length of the justification of a verified-adult classification here. */
+  readonly adultNoteMinLength: number;
   readonly names: LocalizedNames;
   readonly aliases: Readonly<Record<Locale, readonly string[]>>;
   readonly status: CharacterStatus;
@@ -41,6 +62,13 @@ export interface CharacterDto {
   readonly coreExcluded: boolean;
   /** Computed by the server with the shared policy; never trusted from the client. */
   readonly eligibility: EligibilityByMode;
+  /** Review state of the images: a separate matter from the character's eligibility. */
+  readonly images: ImageSummaryDto;
+  /**
+   * Number of images that would make a playable challenge for each mode,
+   * i.e. images individually approved for that mode of an eligible character.
+   */
+  readonly usableImages: Readonly<Record<ModeId, number>>;
   readonly variants: readonly VariantDto[];
   readonly updatedAt: string;
 }
@@ -55,6 +83,8 @@ export interface Page<T> {
 export const AUDIT_ACTIONS = [
   'universe.create',
   'universe.update',
+  'universe.sensitive-unlock',
+  'universe.sensitive-lock',
   'character.create',
   'character.labels',
   'character.status',

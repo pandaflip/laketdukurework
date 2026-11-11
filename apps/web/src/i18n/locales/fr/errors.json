@@ -9,10 +9,11 @@
   "INVALID_CREDENTIALS": "Identifiant ou mot de passe incorrect, ou trop de tentatives. Patientez quelques minutes avant de réessayer.",
   "FORBIDDEN_ORIGIN": "Cette requête a été refusée pour des raisons de sécurité.",
   "CONFLICT": "Cet élément existe déjà.",
-  "SENSITIVE_MODE_FORBIDDEN": "Les modes sensibles ne peuvent jamais être activés pour cet univers.",
+  "SENSITIVE_MODE_FORBIDDEN": "Les modes sensibles sont verrouillés pour cet univers.",
   "CLASSIFICATION_FORBIDDEN": "Ce personnage est définitivement exclu des modes sensibles et ne peut pas être classé adulte vérifié.",
   "CONFIRMATION_REQUIRED": "Cochez la case de confirmation pour classer un personnage comme adulte vérifié.",
   "JUSTIFICATION_REQUIRED": "Rédigez une justification plus détaillée avant de classer un personnage comme adulte vérifié.",
   "RESTORE_CONFLICT": "Cet élément a été modifié depuis : il ne peut pas être restauré automatiquement.",
-  "RESTORE_NOT_ALLOWED": "Cette modification ne peut pas être restaurée. Une classification « adulte vérifié » doit toujours être saisie à la main."
+  "RESTORE_NOT_ALLOWED": "Cette modification ne peut pas être restaurée. Une classification « adulte vérifié » doit toujours être saisie à la main.",
+  "INELIGIBLE_CONTENT": "Ce contenu n'est pas éligible à ce mode."
 }
