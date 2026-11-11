@@ -1,0 +1,13 @@
+# Normalize line endings to LF for every text file, on every platform.
+# This keeps Prettier and Git consistent on Windows (no CRLF conversion).
+* text=auto eol=lf
+
+# Binary files are never converted.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
