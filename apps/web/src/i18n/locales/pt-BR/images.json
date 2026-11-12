@@ -1,0 +1,176 @@
+{
+  "loading": "Carregando…",
+  "list": {
+    "title": "Imagens",
+    "intro": "Ilustrações dos personagens, com a sequência Zoom Out de cada uma. Importar nunca aprova nada: toda imagem começa não verificada.",
+    "review": "Status de revisão",
+    "allReviews": "Todos",
+    "columns": {
+      "image": "Imagem",
+      "character": "Personagem",
+      "status": "Status",
+      "sequence": "Sequência",
+      "updated": "Última alteração"
+    },
+    "edit": "Editar",
+    "size": "{{width}} × {{height}} px",
+    "sequenceSteps_one": "{{count}} etapa",
+    "sequenceSteps_other": "{{count}} etapas",
+    "sequenceNone": "Sem sequência",
+    "empty": "Nenhuma imagem ainda.",
+    "total_one": "{{count}} imagem",
+    "total_other": "{{count}} imagens",
+    "previous": "Anterior",
+    "next": "Próxima",
+    "page": "Página {{page}} de {{pageCount}}"
+  },
+  "import": {
+    "title": "Importar",
+    "search": "Encontrar um personagem",
+    "searchHint": "Digite um nome e escolha o personagem abaixo.",
+    "character": "Personagem",
+    "noCharacter": "Escolha um personagem…",
+    "drop": "Solte as imagens aqui",
+    "or": "ou",
+    "choose": "Escolher arquivos",
+    "hint": "JPEG, PNG ou WebP. Vários arquivos podem ser importados de uma vez. As imagens importadas começam não verificadas.",
+    "pick": "Escolha um personagem primeiro: as imagens importadas pertencem ao personagem selecionado.",
+    "queue": "Andamento da importação",
+    "waiting": "Aguardando",
+    "importing": "Importando…",
+    "done": "Importada",
+    "failed": "Falhou",
+    "open": "Abrir no editor"
+  },
+  "review": {
+    "UNVERIFIED": "Não verificada",
+    "APPROVED_NEUTRAL": "Aprovada (neutro)",
+    "APPROVED_SENSITIVE": "Aprovada (sensível)",
+    "REJECTED": "Rejeitada",
+    "SEQUENCE_REQUIRED": "Salve uma sequência primeiro: a aprovação vale para os seus enquadramentos.",
+    "title": "Revisão",
+    "intro": "A aprovação vale para os enquadramentos salvos. Alterar os enquadramentos de uma imagem aprovada retira a aprovação.",
+    "saveFirst": "Salve a sequência antes de revisá-la.",
+    "approveNeutral": "Aprovar para modos neutros",
+    "approveSensitive": "Aprovar para modos sensíveis…",
+    "sensitiveIntro": "Uma aprovação para modos sensíveis é uma decisão explícita sobre estes enquadramentos. O servidor confere de novo se o personagem, o universo e os modos permitem.",
+    "note": "Justificativa",
+    "noteHint": "Pelo menos {{count}} caracteres: o que foi verificado e por que estes enquadramentos são apropriados.",
+    "confirmSensitive": "Revisei cada enquadramento desta sequência e eles são apropriados para modos sensíveis.",
+    "confirmApprove": "Aprovar para modos sensíveis",
+    "reject": "Rejeitar",
+    "reset": "Voltar a não verificada",
+    "next": "Próxima imagem a revisar",
+    "noNext": "Nenhuma outra imagem a revisar"
+  },
+  "delete": {
+    "action": "Excluir esta imagem…",
+    "confirm": "Excluir de vez a imagem, a sequência e os arquivos?",
+    "yes": "Excluir de vez",
+    "no": "Manter"
+  },
+  "editor": {
+    "back": "Imagens",
+    "characterPage": "Página do personagem"
+  },
+  "canvas": {
+    "frame": "Enquadramento da etapa selecionada",
+    "focus": "Ponto de foco, a {{x}}% na horizontal e {{y}}% na vertical. Use as setas do teclado para movê-lo.",
+    "frameHelp": "As setas movem o enquadramento, mais e menos mudam o zoom. Zoom máximo para esta imagem: ×{{max}}."
+  },
+  "mode": {
+    "label": "Modo de edição",
+    "simple": "Simples",
+    "advanced": "Avançado",
+    "random": "Aleatório"
+  },
+  "simple": {
+    "title": "Gerar a sequência",
+    "focusHint": "Clique na imagem para posicionar o ponto de foco: o centro dos primeiros enquadramentos. Arraste a cruz ou use os campos abaixo para ajustá-lo.",
+    "focusX": "Foco X (%)",
+    "focusY": "Foco Y (%)",
+    "steps": "Número de etapas",
+    "stepsHint": "De 1 a {{max}}.",
+    "zoomStart": "Zoom inicial",
+    "zoomStartHint": "Primeiro enquadramento: fechado, em um detalhe.",
+    "zoomEnd": "Zoom final",
+    "zoomEndHint": "Último enquadramento: ×1 mostra a imagem inteira.",
+    "aspect": "Proporção de exibição",
+    "generate": "Gerar",
+    "useLast": "Usar os últimos ajustes ({{steps}} etapas, de ×{{start}} a ×{{end}})",
+    "preserve": "Manter as etapas que ajustei à mão",
+    "staleRatio": "Os enquadramentos foram feitos para outra proporção. Gere de novo para aplicar a nova."
+  },
+  "advanced": {
+    "title": "Gerar a sequência",
+    "stepsTitle": "Etapas",
+    "noSteps": "Gere uma sequência primeiro e depois ajuste as etapas aqui.",
+    "stepName": "Nome da etapa",
+    "stepNameHint": "Opcional. Se ficar vazio, a etapa se chama “Etapa N”.",
+    "frameX": "Centro X (%)",
+    "frameY": "Centro Y (%)",
+    "frameZoom": "Zoom",
+    "frameHint": "Arraste o enquadramento na imagem ou use os campos. Editar um enquadramento marca a etapa como ajustada à mão.",
+    "add": "Adicionar etapa",
+    "duplicate": "Duplicar",
+    "moveUp": "Subir",
+    "moveDown": "Descer",
+    "remove": "Excluir etapa"
+  },
+  "preview": {
+    "title": "Pré-visualização",
+    "region": "Pré-visualização das etapas. As setas esquerda e direita mudam de etapa.",
+    "frameLabel": "Enquadramento: {{name}}",
+    "previous": "Anterior",
+    "next": "Próxima",
+    "position": "Etapa {{n}} de {{total}}",
+    "zoom": "Zoom ×{{zoom}}",
+    "empty": "Gere uma sequência para vê-la aqui, na proporção de exibição do jogo."
+  },
+  "strip": {
+    "label": "Etapas",
+    "select": "Mostrar {{name}}"
+  },
+  "steps": {
+    "defaultName": "Etapa {{n}}",
+    "manual": "Ajustada à mão"
+  },
+  "problems": {
+    "INVALID_IMAGE_SIZE": "A imagem não tem um tamanho utilizável.",
+    "INVALID_RATIO": "A proporção de exibição não é válida.",
+    "INVALID_STEP_COUNT": "Escolha um número inteiro de etapas entre 1 e {{max}}.",
+    "INVALID_FOCUS": "Posicione o ponto de foco dentro da imagem.",
+    "INVALID_ZOOM": "O zoom deve ser um número positivo.",
+    "INVALID_RECT": "Um enquadramento sai da imagem.",
+    "START_NOT_TIGHTER": "O zoom inicial deve ser mais fechado (maior) que o zoom final."
+  },
+  "warnings": {
+    "ZOOM_RAISED_TO_FIT": "Um zoom abaixo de ×1 foi elevado a ×1, o enquadramento mais amplo que esta proporção permite (etapa {{steps}}).",
+    "ZOOM_LIMITED": "Um zoom foi reduzido ao máximo que esta imagem permite, para que os enquadramentos continuem legíveis (etapa {{steps}}).",
+    "RECT_ADJUSTED_TO_RATIO": "Um enquadramento não tinha a proporção de exibição: foi ajustado em torno do seu centro (etapa {{steps}}).",
+    "FRAME_SHIFTED_INSIDE_IMAGE": "Alguns enquadramentos foram deslocados para ficar dentro da imagem, por exemplo um quase tão grande quanto a imagem ou perto de uma borda (etapas {{steps}}).",
+    "MANUAL_DROPPED_one": "{{count}} etapa ajustada à mão não coube no novo tamanho e foi removida.",
+    "MANUAL_DROPPED_other": "{{count}} etapas ajustadas à mão não couberam no novo tamanho e foram removidas."
+  },
+  "save": {
+    "save": "Salvar",
+    "saveAndAdd": "Salvar e adicionar outra imagem",
+    "unsaved": "Alterações não salvas",
+    "saved": "Salvo",
+    "withdrawsApproval": "Esta imagem está aprovada. Salvar enquadramentos alterados retira a aprovação, e ela precisará ser revisada de novo."
+  },
+  "random": {
+    "title": "Sorteio aleatório",
+    "hint": "Um ponto de foco é sorteado automaticamente e a sequência é gerada para ele. Sorteie de novo, veja a pré-visualização e passe ao modo avançado para ajustar as etapas.",
+    "zoomStart": "Zoom inicial",
+    "zoomStartHint": "Primeiro enquadramento: ×12 por padrão.",
+    "zoomEnd": "Zoom final",
+    "zoomEndHint": "Último enquadramento: ×1 por padrão, a imagem inteira.",
+    "zone": "Zona de sorteio (%)",
+    "zoneHint": "O foco é sorteado nos {{zone}}% centrais da imagem, longe das bordas.",
+    "relaunch": "Sortear de novo",
+    "focusDrawn": "Foco sorteado: a {{x}}% na horizontal, {{y}}% na vertical.",
+    "fixed": "Depois de salvo, o sorteio fica fixo: nada é sorteado de novo durante as partidas.",
+    "replacesManual": "Sortear de novo substitui todas as etapas, inclusive as que você ajustou à mão."
+  }
+}

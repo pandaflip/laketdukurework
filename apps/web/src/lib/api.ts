@@ -11,6 +11,12 @@ import {
   type CreateCharacterRequest,
   type CreateUniverseRequest,
   type ErrorCode,
+  type ImageDetailDto,
+  type ImageDto,
+  type ImageFileKind,
+  type ReviewImageRequest,
+  type SaveSequenceRequest,
+  type AssetReview,
   type HealthResponse,
   type LoginRequest,
   type ModeId,
@@ -47,7 +53,9 @@ async function request<T>(method: string, url: string, body?: unknown): Promise<
       credentials: 'same-origin',
       ...(body === undefined
         ? {}
-        : { headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) }),
+        : body instanceof FormData
+          ? { body } // the browser sets the multipart boundary itself
+          : { headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) }),
     });
   } catch {
     throw new ApiError('NETWORK_ERROR');
@@ -82,6 +90,16 @@ export interface CharacterFilters {
   status?: CharacterStatus | '';
   page?: number;
 }
+
+export interface ImageFilters {
+  characterId?: string;
+  review?: AssetReview | '';
+  page?: number;
+}
+
+/** Image files are only served to a signed-in administrator, through the API. */
+export const imageUrl = (id: string, kind: ImageFileKind): string =>
+  `/api/admin/images/${id}/file/${kind}`;
 
 export const adminApi = {
   me: () => request<{ admin: AdminDto }>('GET', '/admin/auth/me'),
@@ -122,6 +140,20 @@ export const adminApi = {
   updateVariant: (id: string, body: VariantRequest) =>
     request<CharacterDto>('PUT', `/admin/variants/${id}`, body),
   deleteVariant: (id: string) => request<CharacterDto>('DELETE', `/admin/variants/${id}`),
+
+  images: (filters: ImageFilters) =>
+    request<Page<ImageDto>>('GET', `/admin/images${query({ ...filters })}`),
+  image: (id: string) => request<ImageDetailDto>('GET', `/admin/images/${id}`),
+  importImage: (characterId: string, file: File) => {
+    const form = new FormData();
+    form.append('file', file, file.name);
+    return request<ImageDto>('POST', `/admin/characters/${characterId}/images`, form);
+  },
+  saveSequence: (id: string, body: SaveSequenceRequest) =>
+    request<ImageDetailDto>('PUT', `/admin/images/${id}/sequence`, body),
+  reviewImage: (id: string, body: ReviewImageRequest) =>
+    request<ImageDetailDto>('PUT', `/admin/images/${id}/review`, body),
+  deleteImage: (id: string) => request<{ ok: true }>('DELETE', `/admin/images/${id}`),
 
   audit: (params: { entityId?: string; page?: number }) =>
     request<Page<AuditEntryDto>>('GET', `/admin/audit${query(params)}`),

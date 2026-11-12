@@ -25,6 +25,16 @@ const envSchema = z.object({
     .url()
     .refine((value) => /^postgres(ql)?:\/\//.test(value), { message: 'must be a postgres:// URL' }),
   TRUST_PROXY: booleanFlag.default(false),
+  /** Private directory holding the image files. Never served statically. */
+  STORAGE_DIR: z.string().min(1).default('./storage'),
+  /** Largest accepted upload, in bytes. */
+  UPLOAD_MAX_BYTES: z.coerce.number().int().min(1024).max(200_000_000).default(15_000_000),
+  /** Largest accepted image, in pixels (width x height). Protects memory and CPU. */
+  IMAGE_MAX_PIXELS: z.coerce.number().int().min(10_000).max(400_000_000).default(40_000_000),
+  /** Smallest accepted side, in pixels. */
+  IMAGE_MIN_SIDE: z.coerce.number().int().min(24).max(10_000).default(256),
+  /** Images processed at the same time. */
+  IMAGE_CONCURRENCY: z.coerce.number().int().min(1).max(16).default(2),
 });
 
 export type AppConfig = Readonly<z.infer<typeof envSchema>>;

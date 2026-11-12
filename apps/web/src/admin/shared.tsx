@@ -10,15 +10,21 @@ export function localizedName(names: LocalizedNames, locale: Locale = currentLoc
   return names[locale] ?? names.en;
 }
 
-/** Runs an admin change, then refreshes every admin list and detail view. */
+/**
+ * Runs an admin change, then refreshes every admin list and detail view.
+ * `beforeRefresh` runs first: use it to leave a page whose data the change
+ * has just deleted, so nothing tries to reload it.
+ */
 export function useAdminMutation<Input, Output>(
   action: (input: Input) => Promise<Output>,
   onDone?: (output: Output) => void,
+  beforeRefresh?: (output: Output) => void,
 ): UseMutationResult<Output, Error, Input> {
   const client = useQueryClient();
   return useMutation({
     mutationFn: action,
     onSuccess: async (output) => {
+      beforeRefresh?.(output);
       await client.invalidateQueries({ queryKey: ['admin'] });
       onDone?.(output);
     },

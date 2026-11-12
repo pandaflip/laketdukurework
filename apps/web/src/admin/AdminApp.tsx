@@ -6,6 +6,8 @@ import { adminApi, errorCodeOf } from '../lib/api';
 import { NotFoundPage } from '../platform/NotFoundPage';
 import { CharacterPage } from './CharacterPage';
 import { CharactersPage } from './CharactersPage';
+import { ImageEditorPage } from './images/ImageEditorPage';
+import { ImagesPage } from './images/ImagesPage';
 import { HistoryPage } from './HistoryPage';
 import { LoginPage } from './LoginPage';
 import { ErrorNotice, useAdminMutation } from './shared';
@@ -13,6 +15,7 @@ import { UniversesPage } from './UniversesPage';
 
 const NAV = [
   { to: '/admin', key: 'characters', end: true },
+  { to: '/admin/images', key: 'images', end: false },
   { to: '/admin/universes', key: 'universes', end: false },
   { to: '/admin/history', key: 'history', end: false },
 ] as const;
@@ -69,6 +72,8 @@ export default function AdminApp() {
       <Routes>
         <Route index element={<CharactersPage />} />
         <Route path="characters/:id" element={<CharacterPage />} />
+        <Route path="images" element={<ImagesPage />} />
+        <Route path="images/:id" element={<ImageEditorPage />} />
         <Route path="universes" element={<UniversesPage />} />
         <Route path="history" element={<HistoryPage />} />
         <Route path="*" element={<NotFoundPage />} />
