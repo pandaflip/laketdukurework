@@ -38,14 +38,22 @@ Spécification et règles détaillées : `docs/images-et-sequences.md`.
 
 | Suite                                                                            | Résultat                                       |
 | -------------------------------------------------------------------------------- | ---------------------------------------------- |
-| `packages/shared` (dont générateur et propriétés)                                | 101 réussis (56 avant)                         |
-| `apps/server` (PostgreSQL réel, Sharp réel)                                      | 175 réussis (110 avant)                        |
+| `packages/shared` (dont générateur et propriétés)                                | 122 réussis (56 avant)                         |
+| `apps/server` (PostgreSQL réel, Sharp réel)                                      | 182 réussis (110 avant)                        |
 | `apps/web`                                                                       | 23 réussis (20 avant)                          |
-| Playwright (dont import, 15 étapes, ajustement, clavier, accessibilité)          | 25 réussis (13 avant), stable sur 3 exécutions |
+| Playwright (dont import, 15 étapes, ajustement, clavier, accessibilité)          | 27 réussis (13 avant), stable sur 3 exécutions |
 | Build de production, secrets absents des bundles, serveur compilé essayé en réel | Vérifiés                                       |
 | Migration sur base vierge et sur base contenant un `Asset` du lot 1B             | Vérifiée                                       |
 
 Les tests utilisent uniquement des images synthétiques générées en mémoire.
+
+**Mode aléatoire (ajout au lot)** : tirage du focus dans la zone centrale testé par propriétés
+(toujours dans la zone et dans l'image, paysage et portrait, bords et zones minimale/maximale,
+générateur de nombres défaillant, déterminisme à graine fixe), régénération (un nouveau tirage
+remplace tout), persistance (la séquence enregistrée reste identique à la relecture, le serveur
+revalide comme toute séquence, une séquence hors cadre est refusée) et deux scénarios Playwright
+(tirage, relance, passage en avancé, enregistrement). Limite : pas de détection de contenu, le
+tirage peut donc tomber sur une zone peu parlante ; l'aperçu et « Relancer » servent à cela.
 
 Contrôles faits exprès : deux règles de sécurité ont été cassées volontairement (approbation
 sensible qui ignore l'éligibilité ; modification des cadrages qui conserve l'approbation) et la

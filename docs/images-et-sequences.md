@@ -18,6 +18,16 @@ joueurs dans ce lot.
 - **Mode avancé** : sélectionner une étape, déplacer et redimensionner son cadrage (souris ou
   clavier), ajouter, dupliquer, supprimer, réordonner, renommer, et régénérer depuis les réglages
   simples en conservant ou non les étapes ajustées à la main.
+- **Mode aléatoire** : nombre d'étapes libre, zoom initial ×12 et final ×1 par défaut
+  (modifiables), tirage automatique d'un focus dans une **zone centrale** (60 % de l'image par
+  défaut, réglable de 20 % à 100 %). La séquence est produite par le même générateur que les autres
+  modes (aucun second moteur) et prévisualisée avant enregistrement. « Relancer » tire un nouveau
+  focus et remplace toutes les étapes. On peut passer en mode avancé pour retoucher les étapes
+  générées. Le tirage se fait dans le navigateur ; **une fois enregistrée, la séquence est figée** :
+  le serveur ne tire jamais rien et rien n'est retiré automatiquement pendant une partie. Le tirage
+  est uniforme, sans détection de contenu : il peut tomber sur une zone vide ou peu parlante, d'où
+  « Relancer » et l'aperçu. En entrant dans ce mode, un tirage n'est lancé automatiquement que si
+  aucune séquence n'existe encore.
 - **Aperçu** : au ratio du jeu (16:9 par défaut, 4:3 ou 1:1), étape précédente/suivante,
   sélection directe, flèches gauche/droite.
 - **Productivité** : « Enregistrer et ajouter une autre image » (le personnage reste choisi),

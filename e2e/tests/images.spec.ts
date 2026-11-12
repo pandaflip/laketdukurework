@@ -328,6 +328,110 @@ test('the image pages have no automatic accessibility violation', async ({ page 
   await scan('images list');
 });
 
+const focusValues = async (page: Page): Promise<[number, number]> => [
+  Number(await page.getByLabel('Focus X (%)').inputValue()),
+  Number(await page.getByLabel('Focus Y (%)').inputValue()),
+];
+
+test('random mode draws a focus and a sequence, relaunches, lets you adjust, and the saved draw stays fixed', async ({
+  page,
+}) => {
+  await signIn(page);
+  await openImport(page);
+  await importAndOpen(page, pngFile('random.png', 1215, 717, 20));
+
+  // Entering Random mode on a new picture draws at once: ×12 to ×1 by default.
+  await page.getByRole('button', { name: 'Random' }).click();
+  await expect(stepList(page)).toHaveCount(5);
+  await expect(page.getByLabel('Initial zoom')).toHaveValue('12');
+  await expect(page.getByLabel('Final zoom')).toHaveValue('1');
+  const [firstX, firstY] = await focusValues(page);
+  expect(firstX).toBeGreaterThanOrEqual(20);
+  expect(firstX).toBeLessThanOrEqual(80);
+  expect(firstY).toBeGreaterThanOrEqual(20);
+  expect(firstY).toBeLessThanOrEqual(80);
+  await expect(page.getByTestId('drawn-focus')).toContainText('Focus drawn');
+
+  // Preview before saving.
+  await expect(page.getByTestId('preview-position')).toContainText('Step 1 of 5');
+  await page.getByRole('button', { name: 'Show Step 5' }).click();
+  await expect(page.getByTestId('preview-position')).toContainText('Step 5 of 5');
+
+  // Relaunch: a new focus and a new sequence.
+  await page.getByLabel('Number of steps').fill('9');
+  await page.getByTestId('relaunch').click();
+  await expect(stepList(page)).toHaveCount(9);
+  const [secondX, secondY] = await focusValues(page);
+  expect([secondX, secondY]).not.toEqual([firstX, firstY]);
+
+  // A narrower zone keeps the draw closer to the center, whatever the draw.
+  await page.getByLabel('Draw zone (%)').fill('20');
+  for (let i = 0; i < 6; i += 1) {
+    await page.getByTestId('relaunch').click();
+    const [x, y] = await focusValues(page);
+    expect(x).toBeGreaterThanOrEqual(40);
+    expect(x).toBeLessThanOrEqual(60);
+    expect(y).toBeGreaterThanOrEqual(40);
+    expect(y).toBeLessThanOrEqual(60);
+  }
+
+  // Adjust a step in Advanced mode, then save.
+  await page.getByRole('button', { name: 'Advanced' }).click();
+  await page.getByRole('list', { name: 'Steps' }).getByRole('button').nth(3).click();
+  await page.getByLabel('Zoom', { exact: true }).fill('2');
+  await expect(page.getByText('Adjusted by hand').first()).toBeVisible();
+  const drawn = await focusValues(page);
+  await page.getByTestId('save-sequence').click();
+  await expect(page.getByText('Saved', { exact: true })).toBeVisible();
+
+  // Once saved, nothing is drawn again: not on reload, not when switching modes.
+  await page.reload();
+  await expect(stepList(page)).toHaveCount(9);
+  expect(await focusValues(page)).toEqual(drawn);
+  await page.getByRole('button', { name: 'Random' }).click();
+  await expect(stepList(page)).toHaveCount(9);
+  expect(await focusValues(page)).toEqual(drawn);
+  await page.getByRole('button', { name: 'Simple' }).click();
+  expect(await focusValues(page)).toEqual(drawn);
+  await expect(page.getByText('Adjusted by hand').first()).toBeVisible();
+});
+
+test('random mode works on portrait pictures, refuses unusable zooms and stays accessible', async ({
+  page,
+}) => {
+  await signIn(page);
+  await openImport(page);
+  await importAndOpen(page, pngFile('random-portrait.png', 1000, 1600, 21));
+  await page.getByRole('button', { name: 'Random' }).click();
+  await expect(stepList(page)).toHaveCount(5);
+
+  await page.getByLabel('Number of steps').fill('15');
+  await page.getByTestId('relaunch').click();
+  await expect(stepList(page)).toHaveCount(15);
+  await page.getByTestId('save-sequence').click();
+  await expect(page.getByText('Saved', { exact: true })).toBeVisible();
+
+  // An initial zoom that is not tighter than the final one cannot be drawn.
+  await page.getByLabel('Initial zoom').fill('1');
+  await expect(page.getByTestId('relaunch')).toBeDisabled();
+  await expect(page.getByText('must be tighter')).toBeVisible();
+  await page.getByLabel('Initial zoom').fill('12');
+  await expect(page.getByTestId('relaunch')).toBeEnabled();
+
+  const results = await new AxeBuilder({ page })
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+    .analyze();
+  expect(
+    results.violations.map(
+      (v) =>
+        `${v.id}: ${v.nodes
+          .slice(0, 2)
+          .map((n) => n.target.join(' '))
+          .join(' | ')}`,
+    ),
+  ).toEqual([]);
+});
+
 test('the images pages are available in French and Brazilian Portuguese', async ({ page }) => {
   await signIn(page);
   await page.getByRole('link', { name: 'Images', exact: true }).click();

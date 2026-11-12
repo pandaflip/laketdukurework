@@ -81,7 +81,8 @@
   "mode": {
     "label": "Modo de edição",
     "simple": "Simples",
-    "advanced": "Avançado"
+    "advanced": "Avançado",
+    "random": "Aleatório"
   },
   "simple": {
     "title": "Gerar a sequência",
@@ -147,7 +148,7 @@
     "ZOOM_RAISED_TO_FIT": "Um zoom abaixo de ×1 foi elevado a ×1, o enquadramento mais amplo que esta proporção permite (etapa {{steps}}).",
     "ZOOM_LIMITED": "Um zoom foi reduzido ao máximo que esta imagem permite, para que os enquadramentos continuem legíveis (etapa {{steps}}).",
     "RECT_ADJUSTED_TO_RATIO": "Um enquadramento não tinha a proporção de exibição: foi ajustado em torno do seu centro (etapa {{steps}}).",
-    "FRAME_SHIFTED_INSIDE_IMAGE": "O foco está perto de uma borda: alguns enquadramentos foram deslocados para ficar dentro da imagem (etapas {{steps}}).",
+    "FRAME_SHIFTED_INSIDE_IMAGE": "Alguns enquadramentos foram deslocados para ficar dentro da imagem, por exemplo um quase tão grande quanto a imagem ou perto de uma borda (etapas {{steps}}).",
     "MANUAL_DROPPED_one": "{{count}} etapa ajustada à mão não coube no novo tamanho e foi removida.",
     "MANUAL_DROPPED_other": "{{count}} etapas ajustadas à mão não couberam no novo tamanho e foram removidas."
   },
@@ -157,5 +158,19 @@
     "unsaved": "Alterações não salvas",
     "saved": "Salvo",
     "withdrawsApproval": "Esta imagem está aprovada. Salvar enquadramentos alterados retira a aprovação, e ela precisará ser revisada de novo."
+  },
+  "random": {
+    "title": "Sorteio aleatório",
+    "hint": "Um ponto de foco é sorteado automaticamente e a sequência é gerada para ele. Sorteie de novo, veja a pré-visualização e passe ao modo avançado para ajustar as etapas.",
+    "zoomStart": "Zoom inicial",
+    "zoomStartHint": "Primeiro enquadramento: ×12 por padrão.",
+    "zoomEnd": "Zoom final",
+    "zoomEndHint": "Último enquadramento: ×1 por padrão, a imagem inteira.",
+    "zone": "Zona de sorteio (%)",
+    "zoneHint": "O foco é sorteado nos {{zone}}% centrais da imagem, longe das bordas.",
+    "relaunch": "Sortear de novo",
+    "focusDrawn": "Foco sorteado: a {{x}}% na horizontal, {{y}}% na vertical.",
+    "fixed": "Depois de salvo, o sorteio fica fixo: nada é sorteado de novo durante as partidas.",
+    "replacesManual": "Sortear de novo substitui todas as etapas, inclusive as que você ajustou à mão."
   }
 }

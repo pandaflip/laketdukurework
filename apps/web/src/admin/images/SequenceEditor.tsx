@@ -3,7 +3,13 @@ import {
   centerRect,
   checkGenerateInput,
   DEFAULT_ASPECT,
+  DEFAULT_RANDOM_ZONE,
+  DEFAULT_RANDOM_ZOOM_END,
+  DEFAULT_RANDOM_ZOOM_START,
   DEFAULT_STEPS,
+  generateRandomSequence,
+  MAX_RANDOM_ZONE,
+  MIN_RANDOM_ZONE,
   ASPECT_PRESETS,
   aspectRatio,
   fitFrame,
@@ -51,10 +57,15 @@ const toNumber = (value: string, fallback: number): number => {
   return Number.isFinite(parsed) ? parsed : fallback;
 };
 
-type Mode = 'simple' | 'advanced';
+type Mode = 'simple' | 'random' | 'advanced';
+const MODES: readonly Mode[] = ['simple', 'random', 'advanced'];
 
 /**
  * The editor of the Zoom Out sequence of one image.
+ *
+ * Random mode: the focus point is drawn automatically (in a central zone) and the
+ * sequence generated for it, with the same generator; Relaunch draws again.
+ * Nothing is drawn after saving: the saved sequence is fixed.
  *
  * Simple mode: click the focus point, choose the number of steps and the first
  * and last zoom, generate. Advanced mode: select a step, move or resize its
@@ -83,6 +94,16 @@ export function SequenceEditor({ image }: { image: ImageDetailDto }) {
   const [steps, setSteps] = useState<readonly StepDraft[]>(saved?.steps ?? []);
   const [selected, setSelected] = useState(0);
   const [mode, setMode] = useState<Mode>('simple');
+  // Random mode has its own zooms (×12 to ×1 by default) and the zone the focus is drawn in.
+  const [randomStart, setRandomStart] = useState(DEFAULT_RANDOM_ZOOM_START);
+  const [randomEnd, setRandomEnd] = useState(DEFAULT_RANDOM_ZOOM_END);
+  const [zonePercent, setZonePercent] = useState(Math.round(DEFAULT_RANDOM_ZONE * 100));
+  // The settings the current frames were generated from: what is saved with the sequence.
+  const [generated, setGenerated] = useState({
+    steps: saved?.params.steps ?? last?.steps ?? DEFAULT_STEPS,
+    zoomStart: saved?.params.zoomStart ?? last?.zoomStart ?? DEFAULT_SETTINGS.zoomStart,
+    zoomEnd: saved?.params.zoomEnd ?? last?.zoomEnd ?? DEFAULT_SETTINGS.zoomEnd,
+  });
   const [preserve, setPreserve] = useState(false);
   const [warnings, setWarnings] = useState<readonly GenerationWarning[]>([]);
   const [dropped, setDropped] = useState(0);
@@ -121,8 +142,40 @@ export function SequenceEditor({ image }: { image: ImageDetailDto }) {
     setFramesAspect(aspect);
     setWarnings(result.warnings);
     setDropped(result.droppedManual);
+    setGenerated({ steps: stepCount, zoomStart, zoomEnd });
     setSelected(0);
     touch();
+  };
+
+  // Random mode: new focus, new sequence, from the same generator. Always replaces every step.
+  const randomRequest = {
+    image: size,
+    ratio,
+    start: { kind: 'zoom', zoom: randomStart },
+    end: { kind: 'zoom', zoom: randomEnd },
+    steps: stepCount,
+  } as const;
+  const randomProblem = checkGenerateInput({ ...randomRequest, focus });
+  const draw = (): void => {
+    if (randomProblem) return;
+    const result = generateRandomSequence(
+      { ...randomRequest, zone: zonePercent / 100 },
+      Math.random,
+    );
+    setFocus(result.focus);
+    setSteps(result.steps);
+    setFramesAspect(aspect);
+    setWarnings(result.warnings);
+    setDropped(0);
+    setGenerated({ steps: stepCount, zoomStart: randomStart, zoomEnd: randomEnd });
+    setSelected(0);
+    touch();
+  };
+  const enterMode = (value: Mode): void => {
+    setMode(value);
+    // Entering Random mode on a picture with no sequence yet draws one right away;
+    // an existing (for instance saved) sequence is never redrawn by switching modes.
+    if (value === 'random' && steps.length === 0) draw();
   };
 
   const useLast = (): void => {
@@ -164,11 +217,11 @@ export function SequenceEditor({ image }: { image: ImageDetailDto }) {
     () =>
       adminApi.saveSequence(image.id, {
         aspect: framesAspect ?? aspect,
-        params: { focus, steps: stepCount, zoomStart, zoomEnd },
+        params: { focus, ...generated },
         steps: steps.map((step) => ({ name: step.name, rect: step.rect, manual: step.manual })),
       }),
     () => {
-      rememberSettings({ steps: stepCount, zoomStart, zoomEnd, aspect: framesAspect ?? aspect });
+      rememberSettings({ ...generated, aspect: framesAspect ?? aspect });
       setDirty(false);
       setJustSaved(true);
     },
@@ -197,6 +250,44 @@ export function SequenceEditor({ image }: { image: ImageDetailDto }) {
     t(`warnings.${warning.code}`, {
       steps: warning.steps.map((step) => step + 1).join(', '),
     });
+
+  const stepsField = (
+    <Field label={t('simple.steps')} hint={t('simple.stepsHint', { max: MAX_STEPS })}>
+      <Input
+        name="step-count"
+        type="number"
+        min={1}
+        max={MAX_STEPS}
+        step={1}
+        value={stepCount}
+        onChange={(event) => {
+          setStepCount(Math.round(toNumber(event.target.value, DEFAULT_STEPS)));
+          touch();
+        }}
+      />
+    </Field>
+  );
+  const aspectField = (
+    <Field label={t('simple.aspect')}>
+      <Select
+        name="aspect"
+        value={aspectKey(aspect)}
+        onChange={(event) => {
+          setAspect(
+            ASPECT_PRESETS.find((preset) => aspectKey(preset) === event.target.value) ??
+              DEFAULT_ASPECT,
+          );
+          touch();
+        }}
+      >
+        {ASPECT_PRESETS.map((preset) => (
+          <option key={aspectKey(preset)} value={aspectKey(preset)}>
+            {aspectKey(preset)}
+          </option>
+        ))}
+      </Select>
+    </Field>
+  );
 
   return (
     <div className="space-y-6">
@@ -359,15 +450,15 @@ export function SequenceEditor({ image }: { image: ImageDetailDto }) {
       {/* ------------------------------------------------ settings */}
       <Card>
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <CardTitle>{mode === 'simple' ? t('simple.title') : t('advanced.title')}</CardTitle>
+          <CardTitle>{t(`${mode}.title`)}</CardTitle>
           <div role="group" aria-label={t('mode.label')} className="flex gap-1">
-            {(['simple', 'advanced'] as const).map((value) => (
+            {MODES.map((value) => (
               <Button
                 key={value}
                 variant={mode === value ? 'primary' : 'secondary'}
                 aria-pressed={mode === value}
                 onClick={() => {
-                  setMode(value);
+                  enterMode(value);
                 }}
               >
                 {t(`mode.${value}`)}
@@ -376,95 +467,140 @@ export function SequenceEditor({ image }: { image: ImageDetailDto }) {
           </div>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5 lg:items-end">
-          <Field label={t('simple.steps')} hint={t('simple.stepsHint', { max: MAX_STEPS })}>
-            <Input
-              name="step-count"
-              type="number"
-              min={1}
-              max={MAX_STEPS}
-              step={1}
-              value={stepCount}
-              onChange={(event) => {
-                setStepCount(Math.round(toNumber(event.target.value, DEFAULT_STEPS)));
-                touch();
-              }}
-            />
-          </Field>
-          <Field label={t('simple.zoomStart')} hint={t('simple.zoomStartHint')}>
-            <Input
-              name="zoom-start"
-              type="number"
-              min={MIN_ZOOM}
-              max={zoomLimit}
-              step={0.1}
-              value={zoomStart}
-              onChange={(event) => {
-                setZoomStart(toNumber(event.target.value, zoomStart));
-                touch();
-              }}
-            />
-          </Field>
-          <Field label={t('simple.zoomEnd')} hint={t('simple.zoomEndHint')}>
-            <Input
-              name="zoom-end"
-              type="number"
-              min={MIN_ZOOM}
-              max={zoomLimit}
-              step={0.1}
-              value={zoomEnd}
-              onChange={(event) => {
-                setZoomEnd(toNumber(event.target.value, zoomEnd));
-                touch();
-              }}
-            />
-          </Field>
-          <Field label={t('simple.aspect')}>
-            <Select
-              name="aspect"
-              value={aspectKey(aspect)}
-              onChange={(event) => {
-                setAspect(
-                  ASPECT_PRESETS.find((preset) => aspectKey(preset) === event.target.value) ??
-                    DEFAULT_ASPECT,
-                );
-                touch();
-              }}
-            >
-              {ASPECT_PRESETS.map((preset) => (
-                <option key={aspectKey(preset)} value={aspectKey(preset)}>
-                  {aspectKey(preset)}
-                </option>
-              ))}
-            </Select>
-          </Field>
-          <Button
-            variant="primary"
-            disabled={problem !== null}
-            onClick={generate}
-            data-testid="generate"
-          >
-            {t('simple.generate')}
-          </Button>
-        </div>
+        {mode === 'random' ? (
+          <div className="space-y-3">
+            <p className="text-sm text-fg-muted">{t('random.hint')}</p>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5 lg:items-start">
+              {stepsField}
+              <Field label={t('random.zoomStart')} hint={t('random.zoomStartHint')}>
+                <Input
+                  name="random-zoom-start"
+                  type="number"
+                  min={MIN_ZOOM}
+                  max={zoomLimit}
+                  step={0.1}
+                  value={randomStart}
+                  onChange={(event) => {
+                    setRandomStart(toNumber(event.target.value, randomStart));
+                  }}
+                />
+              </Field>
+              <Field label={t('random.zoomEnd')} hint={t('random.zoomEndHint')}>
+                <Input
+                  name="random-zoom-end"
+                  type="number"
+                  min={MIN_ZOOM}
+                  max={zoomLimit}
+                  step={0.1}
+                  value={randomEnd}
+                  onChange={(event) => {
+                    setRandomEnd(toNumber(event.target.value, randomEnd));
+                  }}
+                />
+              </Field>
+              <Field label={t('random.zone')} hint={t('random.zoneHint', { zone: zonePercent })}>
+                <Input
+                  name="random-zone"
+                  type="number"
+                  min={MIN_RANDOM_ZONE * 100}
+                  max={MAX_RANDOM_ZONE * 100}
+                  step={5}
+                  value={zonePercent}
+                  onChange={(event) => {
+                    setZonePercent(toNumber(event.target.value, zonePercent));
+                  }}
+                />
+              </Field>
+              {aspectField}
+            </div>
+            <div className="flex flex-wrap items-center gap-4">
+              <Button
+                variant="primary"
+                disabled={randomProblem !== null}
+                onClick={draw}
+                data-testid="relaunch"
+              >
+                {t('random.relaunch')}
+              </Button>
+              <p className="text-sm text-fg-muted" aria-live="polite" data-testid="drawn-focus">
+                {t('random.focusDrawn', {
+                  x: Math.round(focus.x * 100),
+                  y: Math.round(focus.y * 100),
+                })}
+              </p>
+            </div>
+            <p className="text-xs text-fg-muted">{t('random.fixed')}</p>
+            {hasManual && <Notice tone="warning">{t('random.replacesManual')}</Notice>}
+            {randomProblem !== null && (
+              <Notice tone="warning">{t(`problems.${randomProblem}`, { max: MAX_STEPS })}</Notice>
+            )}
+          </div>
+        ) : (
+          <>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5 lg:items-end">
+              {stepsField}
+              <Field label={t('simple.zoomStart')} hint={t('simple.zoomStartHint')}>
+                <Input
+                  name="zoom-start"
+                  type="number"
+                  min={MIN_ZOOM}
+                  max={zoomLimit}
+                  step={0.1}
+                  value={zoomStart}
+                  onChange={(event) => {
+                    setZoomStart(toNumber(event.target.value, zoomStart));
+                    touch();
+                  }}
+                />
+              </Field>
+              <Field label={t('simple.zoomEnd')} hint={t('simple.zoomEndHint')}>
+                <Input
+                  name="zoom-end"
+                  type="number"
+                  min={MIN_ZOOM}
+                  max={zoomLimit}
+                  step={0.1}
+                  value={zoomEnd}
+                  onChange={(event) => {
+                    setZoomEnd(toNumber(event.target.value, zoomEnd));
+                    touch();
+                  }}
+                />
+              </Field>
+              {aspectField}
+              <Button
+                variant="primary"
+                disabled={problem !== null}
+                onClick={generate}
+                data-testid="generate"
+              >
+                {t('simple.generate')}
+              </Button>
+            </div>
 
-        <div className="mt-3 flex flex-wrap items-center gap-4 text-sm">
-          {last && (
-            <Button variant="ghost" onClick={useLast}>
-              {t('simple.useLast', { steps: last.steps, start: last.zoomStart, end: last.zoomEnd })}
-            </Button>
-          )}
-          {hasManual && !framesStale && (
-            <Checkbox
-              name="preserve-manual"
-              checked={preserve}
-              onChange={(event) => {
-                setPreserve(event.target.checked);
-              }}
-              label={t('simple.preserve')}
-            />
-          )}
-        </div>
+            <div className="mt-3 flex flex-wrap items-center gap-4 text-sm">
+              {last && (
+                <Button variant="ghost" onClick={useLast}>
+                  {t('simple.useLast', {
+                    steps: last.steps,
+                    start: last.zoomStart,
+                    end: last.zoomEnd,
+                  })}
+                </Button>
+              )}
+              {hasManual && !framesStale && (
+                <Checkbox
+                  name="preserve-manual"
+                  checked={preserve}
+                  onChange={(event) => {
+                    setPreserve(event.target.checked);
+                  }}
+                  label={t('simple.preserve')}
+                />
+              )}
+            </div>
+          </>
+        )}
 
         <div className="mt-3 space-y-2">
           {problem !== null && (

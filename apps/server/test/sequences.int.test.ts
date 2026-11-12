@@ -6,7 +6,13 @@ import type {
   Page,
   UniverseDto,
 } from '@app/shared';
-import { generateSequence, MAX_STEPS, aspectRatio } from '@app/shared';
+import {
+  aspectRatio,
+  createRng,
+  generateRandomSequence,
+  generateSequence,
+  MAX_STEPS,
+} from '@app/shared';
 import { execFileSync } from 'node:child_process';
 import { utimes, writeFile, mkdir } from 'node:fs/promises';
 import path from 'node:path';
@@ -260,6 +266,116 @@ describe('saving a sequence', () => {
     expect(after.review).toBe('APPROVED_NEUTRAL');
     expect(after.sequence?.params.zoomStart).toBe(7);
     expect((await history(character.id)).length).toBe(before);
+  });
+});
+
+describe('a randomly drawn sequence', () => {
+  const drawBody = (
+    image: { width: number; height: number },
+    random: () => number,
+    options: { zone?: number; steps?: number } = {},
+  ) => {
+    const steps = options.steps ?? 9;
+    const drawn = generateRandomSequence(
+      {
+        image,
+        ratio: 16 / 9,
+        start: { kind: 'zoom', zoom: 12 },
+        end: { kind: 'zoom', zoom: 1 },
+        steps,
+        ...(options.zone === undefined ? {} : { zone: options.zone }),
+      },
+      random,
+    );
+    return {
+      drawn,
+      body: {
+        aspect: { w: 16, h: 9 },
+        params: { focus: drawn.focus, steps, zoomStart: 12, zoomEnd: 1 },
+        steps: drawn.steps.map((step) => ({
+          name: step.name,
+          rect: step.rect,
+          manual: step.manual,
+        })),
+      },
+    };
+  };
+
+  it.each([
+    ['landscape', { width: 1215, height: 717 }],
+    ['portrait', { width: 1000, height: 1800 }],
+    ['square', { width: 1500, height: 1500 }],
+  ])(
+    'is accepted by the server on a %s picture, saved like any other and kept fixed',
+    async (_name, size) => {
+      const image = await importPicture(admin, character.id, { ...size, seed: size.width });
+      const random = createRng(size.height);
+      for (let attempt = 0; attempt < 8; attempt += 1) {
+        const { drawn, body } = drawBody(image, random);
+        const response = await admin.put(`/images/${image.id}/sequence`, body);
+        expect(response.statusCode, response.body).toBe(200);
+
+        // Reading it back, as often as wanted, never draws anything new.
+        for (let read = 0; read < 3; read += 1) {
+          const saved = (await detail(image.id)).sequence;
+          expect(saved?.params.focus).toEqual(drawn.focus);
+          expect(saved?.steps.map((step) => step.rect)).toEqual(
+            drawn.steps.map((step) => step.rect),
+          );
+        }
+      }
+    },
+  );
+
+  it('is replaced as a whole by the next draw: only the last one is kept', async () => {
+    const image = await importPicture(admin, character.id);
+    const random = createRng(5);
+    const first = drawBody(image, random, { steps: 12 });
+    const second = drawBody(image, random, { steps: 7 });
+    await admin.put(`/images/${image.id}/sequence`, first.body);
+    await admin.put(`/images/${image.id}/sequence`, second.body);
+
+    const saved = (await detail(image.id)).sequence;
+    expect(saved?.steps).toHaveLength(7);
+    expect(saved?.params.focus).toEqual(second.drawn.focus);
+    expect(saved?.params.focus).not.toEqual(first.drawn.focus);
+    expect(await context.db.sequence.count({ where: { assetId: image.id } })).toBe(1);
+  });
+
+  it('keeps its focus when the steps are then adjusted by hand', async () => {
+    const image = await importPicture(admin, character.id);
+    const { drawn, body } = drawBody(image, createRng(11));
+    const adjusted = {
+      ...body,
+      steps: body.steps.map((step, index) =>
+        index === 3 ? { ...step, name: 'Adjusted', manual: true } : step,
+      ),
+    };
+    await admin.put(`/images/${image.id}/sequence`, adjusted);
+    const saved = (await detail(image.id)).sequence;
+    expect(saved?.params.focus).toEqual(drawn.focus);
+    expect(saved?.steps[3]).toMatchObject({ name: 'Adjusted', manual: true });
+  });
+
+  it('is accepted even when the draw lands on the very edge of the picture', async () => {
+    const image = await importPicture(admin, character.id, { width: 1000, height: 1800 });
+    for (const value of [0, 0.999999999]) {
+      const { body } = drawBody(image, () => value, { zone: 1, steps: 15 });
+      const response = await admin.put(`/images/${image.id}/sequence`, body);
+      expect(response.statusCode, response.body).toBe(200);
+    }
+  });
+
+  it('still goes through the server checks: a frame that is not valid is refused', async () => {
+    const image = await importPicture(admin, character.id);
+    const { body } = drawBody(image, createRng(2));
+    const first = must(body.steps[0]);
+    const response = await admin.put(`/images/${image.id}/sequence`, {
+      ...body,
+      steps: [{ ...first, rect: { ...first.rect, x: 0.95 } }],
+    });
+    expect(response.statusCode).toBe(422);
+    expect(response.json()).toEqual({ error: { code: 'INVALID_SEQUENCE' } });
   });
 });
 

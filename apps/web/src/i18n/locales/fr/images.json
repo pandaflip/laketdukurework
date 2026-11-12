@@ -81,7 +81,8 @@
   "mode": {
     "label": "Mode d'édition",
     "simple": "Simple",
-    "advanced": "Avancé"
+    "advanced": "Avancé",
+    "random": "Aléatoire"
   },
   "simple": {
     "title": "Générer la séquence",
@@ -147,7 +148,7 @@
     "ZOOM_RAISED_TO_FIT": "Un zoom inférieur à ×1 a été remonté à ×1, le cadrage le plus large permis par ce ratio (étape {{steps}}).",
     "ZOOM_LIMITED": "Un zoom a été abaissé au maximum permis par cette image, pour que les cadrages restent lisibles (étape {{steps}}).",
     "RECT_ADJUSTED_TO_RATIO": "Un cadrage n'avait pas le ratio d'affichage : il a été ajusté autour de son centre (étape {{steps}}).",
-    "FRAME_SHIFTED_INSIDE_IMAGE": "Le focus est près d'un bord : certains cadrages ont été décalés pour rester dans l'image (étapes {{steps}}).",
+    "FRAME_SHIFTED_INSIDE_IMAGE": "Certains cadrages ont été décalés pour rester dans l'image, par exemple un cadrage presque aussi grand que l'image ou proche d'un bord (étapes {{steps}}).",
     "MANUAL_DROPPED_one": "{{count}} étape ajustée à la main ne tenait pas dans la nouvelle longueur et a été retirée.",
     "MANUAL_DROPPED_other": "{{count}} étapes ajustées à la main ne tenaient pas dans la nouvelle longueur et ont été retirées."
   },
@@ -157,5 +158,19 @@
     "unsaved": "Modifications non enregistrées",
     "saved": "Enregistré",
     "withdrawsApproval": "Cette image est approuvée. Enregistrer des cadrages modifiés retire l'approbation : elle devra être relue."
+  },
+  "random": {
+    "title": "Tirage aléatoire",
+    "hint": "Un point de focus est tiré automatiquement, puis la séquence est générée pour lui. Relancez pour tirer à nouveau, regardez l'aperçu, et passez en mode avancé pour ajuster les étapes.",
+    "zoomStart": "Zoom initial",
+    "zoomStartHint": "Premier cadrage : ×12 par défaut.",
+    "zoomEnd": "Zoom final",
+    "zoomEndHint": "Dernier cadrage : ×1 par défaut, toute l'image.",
+    "zone": "Zone de tirage (%)",
+    "zoneHint": "Le focus est tiré dans les {{zone}} % centraux de l'image, loin des bords.",
+    "relaunch": "Relancer",
+    "focusDrawn": "Focus tiré : à {{x}} % en largeur, {{y}} % en hauteur.",
+    "fixed": "Une fois enregistré, le tirage reste fixe : rien n'est jamais retiré pendant les parties.",
+    "replacesManual": "Relancer remplace toutes les étapes, y compris celles que vous avez ajustées à la main."
   }
 }

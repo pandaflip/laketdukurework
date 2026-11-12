@@ -81,7 +81,8 @@
   "mode": {
     "label": "Editing mode",
     "simple": "Simple",
-    "advanced": "Advanced"
+    "advanced": "Advanced",
+    "random": "Random"
   },
   "simple": {
     "title": "Generate the sequence",
@@ -147,7 +148,7 @@
     "ZOOM_RAISED_TO_FIT": "A zoom below ×1 was raised to ×1, the widest frame this ratio allows (step {{steps}}).",
     "ZOOM_LIMITED": "A zoom was lowered to the highest this picture allows, so that frames stay readable (step {{steps}}).",
     "RECT_ADJUSTED_TO_RATIO": "A frame did not have the display ratio: it was adjusted around its center (step {{steps}}).",
-    "FRAME_SHIFTED_INSIDE_IMAGE": "The focus is near an edge: some frames were shifted to stay inside the picture (steps {{steps}}).",
+    "FRAME_SHIFTED_INSIDE_IMAGE": "Some frames were shifted to stay inside the picture, for instance a frame almost as large as the picture, or one near an edge (steps {{steps}}).",
     "MANUAL_DROPPED_one": "{{count}} step adjusted by hand did not fit in the new length and was dropped.",
     "MANUAL_DROPPED_other": "{{count}} steps adjusted by hand did not fit in the new length and were dropped."
   },
@@ -157,5 +158,19 @@
     "unsaved": "Unsaved changes",
     "saved": "Saved",
     "withdrawsApproval": "This image is approved. Saving changed frames withdraws the approval, and it will have to be reviewed again."
+  },
+  "random": {
+    "title": "Random draw",
+    "hint": "A focus point is drawn automatically, then the sequence is generated for it. Relaunch to draw again, preview the result, and switch to Advanced mode to adjust the steps.",
+    "zoomStart": "Initial zoom",
+    "zoomStartHint": "First frame: ×12 by default.",
+    "zoomEnd": "Final zoom",
+    "zoomEndHint": "Last frame: ×1 by default, the whole picture.",
+    "zone": "Draw zone (%)",
+    "zoneHint": "The focus is drawn in the central {{zone}}% of the picture, away from the borders.",
+    "relaunch": "Relaunch",
+    "focusDrawn": "Focus drawn: {{x}}% across, {{y}}% down.",
+    "fixed": "Once saved, the draw stays fixed: nothing is ever drawn again during games.",
+    "replacesManual": "Relaunching replaces every step, including the ones you adjusted by hand."
   }
 }
