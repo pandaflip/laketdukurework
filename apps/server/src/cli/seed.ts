@@ -1,10 +1,18 @@
-import { MODE_IDS, MODES, normalizeName, type AgeClass, type Locale } from '@app/shared';
+import {
+  MODE_IDS,
+  MODES,
+  normalizeName,
+  type AgeClass,
+  type Locale,
+  type UniverseAudience,
+} from '@app/shared';
 import { fileURLToPath } from 'node:url';
 import { loadConfig } from '../config';
 import { createDb, type Db } from '../db';
 
 /**
- * Safe demonstration catalog: a handful of characters, no image.
+ * Safe demonstration catalog: a handful of characters, no image. Universes get an explicit
+ * audience classification; sensitive modes are enabled nowhere.
  *
  * Everything follows the defaults a real import would get: every character is
  * RESTRICTED and nobody is ADULT_VERIFIED, so no sensitive mode is playable
@@ -22,10 +30,16 @@ interface SeedCharacter {
   variants?: { slug: string; names: Partial<Record<Locale, string>> & { en: string } }[];
 }
 
-const CATALOG: { slug: string; name: string; characters: SeedCharacter[] }[] = [
+const CATALOG: {
+  slug: string;
+  name: string;
+  audience: Exclude<UniverseAudience, 'UNREVIEWED'>;
+  characters: SeedCharacter[];
+}[] = [
   {
     slug: 'league-of-legends',
     name: 'League of Legends',
+    audience: 'GENERAL',
     characters: [
       {
         slug: 'ashe',
@@ -63,6 +77,7 @@ const CATALOG: { slug: string; name: string; characters: SeedCharacter[] }[] = [
   {
     slug: 'valorant',
     name: 'Valorant',
+    audience: 'GENERAL',
     characters: [
       { slug: 'jett', names: { en: 'Jett' } },
       { slug: 'sage', names: { en: 'Sage' } },
@@ -71,6 +86,7 @@ const CATALOG: { slug: string; name: string; characters: SeedCharacter[] }[] = [
   {
     slug: 'overwatch',
     name: 'Overwatch',
+    audience: 'GENERAL',
     characters: [
       { slug: 'tracer', names: { en: 'Tracer' } },
       { slug: 'mercy', names: { en: 'Mercy', fr: 'Ange' } },
@@ -79,6 +95,7 @@ const CATALOG: { slug: string; name: string; characters: SeedCharacter[] }[] = [
   {
     slug: 'pokemon',
     name: 'Pokémon',
+    audience: 'YOUTH',
     characters: [
       { slug: 'pikachu', names: { en: 'Pikachu' } },
       {
@@ -92,6 +109,7 @@ const CATALOG: { slug: string; name: string; characters: SeedCharacter[] }[] = [
   {
     slug: 'minecraft',
     name: 'Minecraft',
+    audience: 'YOUTH',
     characters: [
       { slug: 'steve', names: { en: 'Steve' } },
       { slug: 'creeper', names: { en: 'Creeper' } },
@@ -108,7 +126,16 @@ export async function seedDemoCatalog(db: Db): Promise<{ universes: number; char
     let universe = await db.universe.findUnique({ where: { slug: entry.slug } });
     if (!universe) {
       universe = await db.universe.create({
-        data: { slug: entry.slug, name: entry.name, enabledModes: NEUTRAL_MODES },
+        data: {
+          slug: entry.slug,
+          name: entry.name,
+          enabledModes: NEUTRAL_MODES,
+          // Explicit demonstration classification. A real catalog starts UNREVIEWED.
+          audience: entry.audience,
+          audienceNote:
+            'Demonstration seed: classified by the seed script, to review before real use.',
+          audienceSetAt: new Date(),
+        },
       });
       universes += 1;
     }

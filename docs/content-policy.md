@@ -25,7 +25,7 @@ Un défi n'est éligible à un mode sensible que si **toutes** ces conditions so
 1. le personnage est classé `ADULT_VERIFIED` ;
 2. son statut est `ALLOWED` ;
 3. le mode est activé pour son univers ;
-4. si l'univers est à jeune public : il a été explicitement déverrouillé (voir plus bas) ;
+4. l'univers a été relu et classé `GENERAL`, ou classé `YOUTH` **et** explicitement déverrouillé (voir plus bas) ; jamais s'il est `UNREVIEWED` ;
 5. le mode n'est pas bloqué pour ce personnage ;
 6. aucune exclusion fondamentale ne s'applique ;
 7. l'image a été approuvée individuellement pour un usage sensible (`APPROVED_SENSITIVE`).
@@ -36,25 +36,42 @@ et une image approuvée (neutre ou sensible).
 L'éligibilité d'un **personnage** (conditions 1 à 6) et l'approbation de ses **images**
 (condition 7) sont affichées séparément dans l'interface : un défi jouable exige les deux.
 
-## Univers à jeune public (Pokémon, Minecraft)
+## Classification d'audience des univers
 
-Il n'y a plus d'interdiction définitive fondée sur le nom de l'univers : les personnages d'un
-univers ne sont pas tenus pour mineurs ou inadaptés du seul fait de l'univers. À la place,
-ces univers appartiennent à un niveau d'audience `YOUTH`, défini dans le code, avec une
-approche prudente :
+Chaque univers porte une classification explicite, choisie par un administrateur :
 
-- **Verrouillés par défaut.** Un nouvel univers de ce type ne peut activer aucun mode sensible.
-  La détection porte sur l'identifiant immuable et sur le nom : renommer l'univers ne la contourne pas.
-- **Déverrouillage explicite.** Une action distincte, par univers, demande une case de
-  confirmation et une justification d'au moins 60 caractères. Elle est journalisée (auteur,
-  date, justification) et **n'est jamais restaurable**. Elle n'active aucun mode par elle-même.
-- **Reverrouillage immédiat.** Sans confirmation, il désactive aussitôt tous les modes
-  sensibles de l'univers. Il n'est pas non plus restaurable.
-- **Justification renforcée.** Classer un personnage `ADULT_VERIFIED` dans un univers `YOUTH`
-  demande 60 caractères au lieu de 20.
-- **Rien d'autre ne change.** Le déverrouillage ne dispense d'aucune autre condition : les
+| Valeur                | Sens                                | Modes sensibles                                       |
+| --------------------- | ----------------------------------- | ----------------------------------------------------- |
+| `UNREVIEWED` (défaut) | personne n'a relu l'univers         | impossibles                                           |
+| `YOUTH`               | destiné à un jeune public           | possibles seulement après un déverrouillage explicite |
+| `GENERAL`             | relu, pas destiné à un jeune public | possibles, sous toutes les autres conditions          |
+
+Les personnages d'un univers ne sont jamais tenus pour mineurs ou inadaptés du seul fait de son
+nom : c'est la relecture de l'univers, puis la classification de chaque personnage, qui décident.
+
+- **Refus par défaut.** Tout nouvel univers est `UNREVIEWED`, côté base de données comme côté
+  code. La création ne peut pas choisir une autre valeur ni activer un mode sensible.
+- **Passage à `GENERAL`** : action explicite, par univers, avec case de confirmation et
+  justification d'au moins 60 caractères ; journalisée (auteur, date, texte) et jamais
+  restaurable. Elle n'active aucun mode par elle-même.
+- **Passage à `YOUTH` ou `UNREVIEWED`** (sens plus strict) : immédiat, sans confirmation. Tous
+  les modes sensibles de l'univers sont coupés et tout déverrouillage est effacé, de sorte
+  qu'une classification plus permissive ne réactive jamais un mode en silence.
+- **Plancher dans le code.** Pokémon et Minecraft (détectés sur l'identifiant immuable et sur le
+  nom) sont toujours `YOUTH`, quelle que soit la valeur enregistrée : l'interface peut les
+  rendre plus stricts, jamais plus permissifs (`AUDIENCE_FORBIDDEN`). Même une modification
+  directe de la base ne les relâche pas.
+- **Déverrouillage (`YOUTH` seulement).** Action distincte, avec confirmation et justification
+  de 60 caractères, journalisée et jamais restaurable. Un univers `UNREVIEWED` ne peut pas être
+  déverrouillé : il doit d'abord être classé. Le reverrouillage est immédiat et coupe les modes
+  sensibles.
+- **Justification renforcée.** Classer un personnage `ADULT_VERIFIED` demande 20 caractères dans
+  un univers `GENERAL`, 60 dans un univers `YOUTH` ou `UNREVIEWED`.
+- **Rien d'autre ne change.** Aucune classification ne dispense d'une autre condition : les
   personnages mineurs, d'apparence enfantine ou d'âge ambigu restent inéligibles, et chaque
-  image doit être approuvée.
+  image doit être approuvée individuellement.
+- **Données existantes.** La migration remet tous les univers existants à `UNREVIEWED`, coupe
+  leurs modes sensibles et efface les déverrouillages : il faut les relire.
 
 ## Ce qui reste non configurable
 
@@ -104,14 +121,15 @@ Règles d'application :
   être annulée, tant que rien de plus récent n'a modifié la donnée.
 - Une restauration repasse par les services normaux : toutes les validations de sécurité sont
   réappliquées. Elle refuse d'écraser un changement plus récent (`RESTORE_CONFLICT`).
-- Ne sont jamais restaurables : l'attribution de `ADULT_VERIFIED`, le déverrouillage et le
-  reverrouillage d'un univers, la création et la suppression d'éléments.
+- Ne sont jamais restaurables : l'attribution de `ADULT_VERIFIED`, la classification d'audience,
+  le déverrouillage et le reverrouillage d'un univers, la création et la suppression d'éléments.
 
 ## Limites connues
 
 - Le système empêche les erreurs, pas la fraude délibérée : un administrateur peut créer un
-  personnage sous un faux nom et le classer adulte, ou créer un univers à jeune public sous un
-  autre nom. Les garde-fous sont la justification obligatoire, l'historique nominatif et la
-  relecture individuelle de chaque image (lot 1C).
-- La liste des univers à jeune public et des exclusions fondamentales est volontairement courte :
-  toute extension passe par une modification de code relue.
+  personnage sous un faux nom et le classer adulte, ou classer `GENERAL` un univers qui vise en
+  réalité un jeune public sous un autre nom (le plancher du code ne reconnaît que les noms qu'il
+  liste). Les garde-fous sont la relecture obligatoire de chaque univers, la justification de 60
+  caractères, l'historique nominatif et la relecture individuelle de chaque image (lot 1C).
+- Le plancher du code (univers toujours `YOUTH`, exclusions fondamentales) est volontairement
+  court : toute extension passe par une modification de code relue.

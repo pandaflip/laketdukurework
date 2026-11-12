@@ -79,7 +79,8 @@
     "ASSET_NOT_APPROVED": "L'image n'a pas été approuvée pour ce mode.",
     "ASSET_REJECTED": "L'image a été rejetée.",
     "UNIVERSE_SENSITIVE_LOCKED": "Les modes sensibles sont verrouillés pour cet univers (franchise à jeune public).",
-    "MODE_IS_COMPOSITE": "Mélange d'autres modes : chaque manche est vérifiée selon son propre mode."
+    "MODE_IS_COMPOSITE": "Mélange d'autres modes : chaque manche est vérifiée selon son propre mode.",
+    "UNIVERSE_UNREVIEWED": "Cet univers n'a pas encore été relu : les modes sensibles restent verrouillés tant qu'il n'est pas classé."
   },
   "characters": {
     "title": "Personnages",
@@ -128,7 +129,7 @@
     "title": "Univers",
     "addTitle": "Ajouter un univers",
     "add": "Ajouter",
-    "addHint": "Un nouvel univers démarre avec les modes neutres uniquement.",
+    "addHint": "Un nouvel univers démarre avec les modes neutres uniquement et doit être relu avant de pouvoir activer un mode sensible.",
     "sensitive": "Sensible",
     "characterCount_one": "{{count}} personnage",
     "characterCount_other": "{{count}} personnages",
@@ -141,7 +142,25 @@
     "unlockConfirm": "Je comprends qu'il s'agit d'une exception : seuls des adultes vérifiés avec des images approuvées individuellement peuvent être éligibles, et les personnages mineurs, d'apparence enfantine ou d'âge ambigu ne le sont jamais.",
     "unlockAction": "Déverrouiller les modes sensibles",
     "lockAction": "Reverrouiller",
-    "lockHint": "Le reverrouillage désactive immédiatement tous les modes sensibles de cet univers."
+    "lockHint": "Le reverrouillage désactive immédiatement tous les modes sensibles de cet univers.",
+    "audience": {
+      "GENERAL": "Tout public",
+      "YOUTH": "Jeune public",
+      "UNREVIEWED": "À relire"
+    },
+    "audienceTitle": "Classification d'audience",
+    "audienceHint": {
+      "GENERAL": "Relu : pas destiné à un jeune public. Les modes sensibles peuvent y être activés, pour des adultes vérifiés individuellement et des images approuvées uniquement.",
+      "YOUTH": "Destiné à un jeune public. Les modes sensibles restent verrouillés tant que vous ne les déverrouillez pas explicitement ci-dessous.",
+      "UNREVIEWED": "Personne n'a encore relu cet univers. Les modes sensibles restent verrouillés tant qu'il n'est pas classé."
+    },
+    "audienceNote": "Justification",
+    "audienceNoteHint": "Au moins {{count}} caractères. Expliquez pourquoi cet univers n'est pas destiné à un jeune public.",
+    "audienceConfirm": "J'ai relu cet univers : il n'est pas destiné à un jeune public. Cela ne change rien pour les personnages mineurs, d'apparence enfantine ou d'âge ambigu, qui restent exclus des modes sensibles.",
+    "audienceSave": "Enregistrer la classification",
+    "audienceFixed": "Le code fixe cet univers comme jeune public. Il peut être rendu plus strict, jamais plus permissif.",
+    "audienceStricter": "Une classification plus stricte s'applique immédiatement et désactive tous les modes sensibles de cet univers.",
+    "unreviewedNotice": "Cet univers n'a pas été relu. Les modes sensibles restent verrouillés tant que vous ne le classez pas ci-dessous."
   },
   "history": {
     "title": "Historique",
@@ -166,7 +185,8 @@
       "variant.update": "Variante renommée",
       "variant.delete": "Variante supprimée",
       "universe.sensitive-unlock": "Modes sensibles déverrouillés",
-      "universe.sensitive-lock": "Modes sensibles reverrouillés"
+      "universe.sensitive-lock": "Modes sensibles reverrouillés",
+      "universe.audience": "Classification d'audience modifiée"
     }
   },
   "images": {

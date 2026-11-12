@@ -6,7 +6,13 @@ import {
   assertRoundEligible,
   checkRoundEligibility,
 } from '../src/modules/catalog/selection.service';
-import { adminClient, startApp, type Client, type TestContext } from './helpers';
+import {
+  adminClient,
+  createReviewedUniverse,
+  startApp,
+  type Client,
+  type TestContext,
+} from './helpers';
 
 const ADULT_NOTE = 'Adult in the official lore; adult appearance and presentation.';
 
@@ -14,9 +20,7 @@ let context: TestContext;
 let admin: Client;
 
 async function setup(name = 'Ashe') {
-  const universe = (
-    await admin.post('/universes', { name: 'League of Legends', enabledModes: MODE_IDS })
-  ).json<{ id: string }>();
+  const universe = await createReviewedUniverse(admin, 'League of Legends');
   const created = (
     await admin.post('/characters', { universeId: universe.id, names: { en: name } })
   ).json<CharacterDto>();

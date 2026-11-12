@@ -2,7 +2,13 @@ import type { CharacterDto, UniverseDto } from '@app/shared';
 import { MODE_IDS } from '@app/shared';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { findEligibleCharacters } from '../src/modules/catalog/characters.service';
-import { adminClient, startApp, type Client, type TestContext } from './helpers';
+import {
+  adminClient,
+  createReviewedUniverse,
+  startApp,
+  type Client,
+  type TestContext,
+} from './helpers';
 
 const NEUTRAL = MODE_IDS.filter((id) => id !== 'historic');
 const SHORT_NOTE = 'Adult in the official lore; adult appearance.'; // under 60 characters
@@ -17,9 +23,8 @@ let context: TestContext;
 let admin: Client;
 
 async function createUniverse(name: string, enabledModes: readonly string[] = NEUTRAL) {
-  const response = await admin.post('/universes', { name, enabledModes });
-  expect(response.statusCode, response.body).toBe(200);
-  return response.json<UniverseDto>();
+  const audience = /pok[eé]mon|minecraft/i.test(name) ? 'YOUTH' : 'GENERAL';
+  return createReviewedUniverse(admin, name, enabledModes, audience);
 }
 
 async function createCharacter(universeId: string, name: string): Promise<CharacterDto> {

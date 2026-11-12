@@ -15,5 +15,6 @@
   "JUSTIFICATION_REQUIRED": "Escreva uma justificativa mais detalhada antes de classificar um personagem como adulto verificado.",
   "RESTORE_CONFLICT": "Isso foi alterado de novo depois, então não pode ser restaurado automaticamente.",
   "RESTORE_NOT_ALLOWED": "Esta alteração não pode ser restaurada. Uma classificação de adulto verificado deve sempre ser registrada manualmente.",
-  "INELIGIBLE_CONTENT": "Este conteúdo não é elegível para este modo."
+  "INELIGIBLE_CONTENT": "Este conteúdo não é elegível para este modo.",
+  "AUDIENCE_FORBIDDEN": "O código fixa este universo como público jovem: ele não pode ser classificado como público geral."
 }

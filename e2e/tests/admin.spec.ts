@@ -67,6 +67,59 @@ test('searches, creates and bulk-edits characters', async ({ page }) => {
   await expect(row(page, 'jett').getByRole('combobox')).toHaveValue('RESTRICTED');
 });
 
+test('a new universe must be reviewed before any sensitive mode can be enabled', async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.getByRole('link', { name: 'Universes' }).click();
+
+  await page.getByLabel('Name', { exact: true }).first().fill('Brand New Game');
+  await page.getByRole('button', { name: 'Add', exact: true }).click();
+  const card = page.locator('[data-universe="brand-new-game"]');
+  await expect(card).toBeVisible();
+  await expect(card).toContainText('To review');
+  await expect(card).toContainText('has not been reviewed');
+  const sensitiveBox = card.getByRole('checkbox', { name: /Ziasskwest/ });
+  await expect(sensitiveBox).toBeDisabled();
+  // Unreviewed universes cannot use the young-audience unlock either.
+  await expect(card.getByRole('button', { name: 'Unlock sensitive modes' })).toHaveCount(0);
+
+  // General audience needs a justification and a confirmation.
+  await card.getByLabel('Audience classification').selectOption('GENERAL');
+  await card
+    .getByLabel('Justification')
+    .fill('Reviewed by hand: a competitive adult-oriented game, no young-audience positioning.');
+  await card.getByRole('checkbox', { name: /I have reviewed this universe/ }).check();
+  await card.getByRole('button', { name: 'Save classification' }).click();
+  await expect(card).toContainText('General audience');
+  await expect(sensitiveBox).toBeEnabled();
+  await sensitiveBox.check();
+  await card.getByRole('button', { name: 'Save', exact: true }).click();
+  await expect(sensitiveBox).toBeChecked();
+
+  // A stricter classification applies at once and switches the sensitive mode off.
+  await card.getByLabel('Audience classification').selectOption('YOUTH');
+  await card.getByRole('button', { name: 'Save classification' }).click();
+  await expect(card).toContainText('Young audience');
+  await expect(sensitiveBox).toBeDisabled();
+  await expect(sensitiveBox).not.toBeChecked();
+  await expect(card.getByRole('button', { name: 'Unlock sensitive modes' })).toBeVisible();
+});
+
+test('universes fixed as young-audience by the code cannot be made general audience', async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.getByRole('link', { name: 'Universes' }).click();
+  const minecraft = page.locator('[data-universe="minecraft"]');
+  await expect(minecraft).toContainText('Young audience');
+  await expect(minecraft).toContainText('The code fixes this universe as young-audience');
+  // Asserted on the attribute: Playwright's disabled state is unreliable for <option> elements.
+  await expect(
+    minecraft.getByLabel('Audience classification').locator('option[value="GENERAL"]'),
+  ).toHaveAttribute('disabled', '');
+});
+
 test('the table links to the detailed reasons on the character page', async ({ page }) => {
   await signIn(page);
   await row(page, 'ashe')
@@ -93,7 +146,7 @@ test('a verified adult needs a justification and a confirmation; Annie can never
   await page.getByRole('link', { name: 'Universes' }).click();
   const lol = page.locator('[data-universe="league-of-legends"]');
   await lol.getByRole('checkbox', { name: /Ziasskwest/ }).check();
-  await lol.getByRole('button', { name: 'Save' }).click();
+  await lol.getByRole('button', { name: 'Save', exact: true }).click();
   const pokemon = page.locator('[data-universe="pokemon"]');
   const sensitiveBox = pokemon.getByRole('checkbox', { name: /Ziasskwest/ });
   await expect(sensitiveBox).toBeDisabled();

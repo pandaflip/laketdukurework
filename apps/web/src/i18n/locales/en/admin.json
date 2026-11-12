@@ -79,7 +79,8 @@
     "ASSET_NOT_APPROVED": "The image has not been approved for this mode.",
     "ASSET_REJECTED": "The image was rejected.",
     "UNIVERSE_SENSITIVE_LOCKED": "Sensitive modes are locked for this universe (young-audience franchise).",
-    "MODE_IS_COMPOSITE": "Mix of other modes: each round is checked under its own mode."
+    "MODE_IS_COMPOSITE": "Mix of other modes: each round is checked under its own mode.",
+    "UNIVERSE_UNREVIEWED": "This universe has not been reviewed yet: sensitive modes stay locked until it is classified."
   },
   "characters": {
     "title": "Characters",
@@ -128,7 +129,7 @@
     "title": "Universes",
     "addTitle": "Add a universe",
     "add": "Add",
-    "addHint": "A new universe starts with neutral modes only.",
+    "addHint": "A new universe starts with neutral modes only and must be reviewed before any sensitive mode can be enabled.",
     "sensitive": "Sensitive",
     "characterCount_one": "{{count}} character",
     "characterCount_other": "{{count}} characters",
@@ -141,7 +142,25 @@
     "unlockConfirm": "I understand this is an exception: only verified adults with individually approved images can be eligible, and minors, childlike or ambiguous characters never are.",
     "unlockAction": "Unlock sensitive modes",
     "lockAction": "Lock again",
-    "lockHint": "Locking switches every sensitive mode off for this universe immediately."
+    "lockHint": "Locking switches every sensitive mode off for this universe immediately.",
+    "audience": {
+      "GENERAL": "General audience",
+      "YOUTH": "Young audience",
+      "UNREVIEWED": "To review"
+    },
+    "audienceTitle": "Audience classification",
+    "audienceHint": {
+      "GENERAL": "Reviewed: not aimed at a young audience. Sensitive modes can be enabled here, for individually verified adults and approved images only.",
+      "YOUTH": "Aimed at a young audience. Sensitive modes stay locked unless you unlock them explicitly below.",
+      "UNREVIEWED": "Nobody has reviewed this universe yet. Sensitive modes stay locked until it is classified."
+    },
+    "audienceNote": "Justification",
+    "audienceNoteHint": "At least {{count}} characters. Say why this universe is not aimed at a young audience.",
+    "audienceConfirm": "I have reviewed this universe: it is not aimed at a young audience. This changes nothing for minors, childlike or ambiguous characters, who stay excluded from sensitive modes.",
+    "audienceSave": "Save classification",
+    "audienceFixed": "The code fixes this universe as young-audience. It can be made stricter, never more permissive.",
+    "audienceStricter": "A stricter classification applies at once and switches every sensitive mode off for this universe.",
+    "unreviewedNotice": "This universe has not been reviewed. Sensitive modes stay locked until you classify it below."
   },
   "history": {
     "title": "History",
@@ -166,7 +185,8 @@
       "variant.update": "Variant renamed",
       "variant.delete": "Variant deleted",
       "universe.sensitive-unlock": "Sensitive modes unlocked",
-      "universe.sensitive-lock": "Sensitive modes locked again"
+      "universe.sensitive-lock": "Sensitive modes locked again",
+      "universe.audience": "Audience classification changed"
     }
   },
   "images": {

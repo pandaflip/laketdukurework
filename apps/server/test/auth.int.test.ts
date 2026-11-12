@@ -132,6 +132,15 @@ describe('sessions', () => {
         .statusCode,
     ).toBe(401);
     expect((await anonymous.delete('/universes/x/sensitive-unlock')).statusCode).toBe(401);
+    expect(
+      (
+        await anonymous.put('/universes/x/audience', {
+          audience: 'GENERAL',
+          note: 'x',
+          confirm: true,
+        })
+      ).statusCode,
+    ).toBe(401);
   });
 
   it('rejects a forged session cookie', async () => {

@@ -4,11 +4,11 @@ import {
   characterEligibility,
   challengeEligibility,
   characterEligibilityByMode,
+  effectiveAudience,
   isCompositeMode,
   isCoreExcludedCharacter,
   localizedNamesSchema,
   MODE_IDS,
-  universeAudience,
   normalizeName,
   slugify,
   SUPPORTED_LOCALES,
@@ -115,6 +115,7 @@ export function eligibilityInputs(row: Row): {
       slug: row.universe.slug,
       name: row.universe.name,
       enabledModes: row.universe.enabledModes,
+      audience: row.universe.audience,
       sensitiveUnlocked: row.universe.sensitiveUnlockedAt !== null,
     },
     character: {
@@ -173,9 +174,9 @@ function toDto(row: Row): CharacterDto {
       id: row.universe.id,
       slug: row.universe.slug,
       name: row.universe.name,
-      audience: universeAudience(row.universe),
+      audience: effectiveAudience(row.universe),
     },
-    adultNoteMinLength: adultNoteMinLength(universeAudience(row.universe)),
+    adultNoteMinLength: adultNoteMinLength(effectiveAudience(row.universe)),
     names: labels.names,
     aliases: labels.aliases,
     status: row.status,
@@ -467,7 +468,7 @@ export async function setClassification(
         throw new AppError(422, 'CLASSIFICATION_FORBIDDEN');
       }
       if (input.confirm !== true) throw new AppError(422, 'CONFIRMATION_REQUIRED');
-      if (input.note.length < adultNoteMinLength(universeAudience(universe))) {
+      if (input.note.length < adultNoteMinLength(effectiveAudience(universe))) {
         throw new AppError(422, 'JUSTIFICATION_REQUIRED');
       }
     }

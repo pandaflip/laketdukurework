@@ -1,8 +1,13 @@
-import type { CharacterDto, UniverseDto } from '@app/shared';
-import { MODE_IDS } from '@app/shared';
+import type { CharacterDto } from '@app/shared';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { checkRoundEligibility } from '../src/modules/catalog/selection.service';
-import { adminClient, startApp, type Client, type TestContext } from './helpers';
+import {
+  adminClient,
+  createReviewedUniverse,
+  startApp,
+  type Client,
+  type TestContext,
+} from './helpers';
 
 let context: TestContext;
 let admin: Client;
@@ -25,9 +30,7 @@ afterEach(async () => {
 
 describe('database driver', () => {
   it('emits no deprecation warning during the usual administration flows', async () => {
-    const universe = (
-      await admin.post('/universes', { name: 'League of Legends', enabledModes: MODE_IDS })
-    ).json<UniverseDto>();
+    const universe = await createReviewedUniverse(admin, 'League of Legends');
     const created = (
       await admin.post('/characters', {
         universeId: universe.id,

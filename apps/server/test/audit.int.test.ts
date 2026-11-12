@@ -1,7 +1,13 @@
 import type { AuditEntryDto, CharacterDto, Page, UniverseDto } from '@app/shared';
 import { MODE_IDS } from '@app/shared';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { adminClient, startApp, type Client, type TestContext } from './helpers';
+import {
+  adminClient,
+  createReviewedUniverse,
+  startApp,
+  type Client,
+  type TestContext,
+} from './helpers';
 
 const ADULT_NOTE = 'Adult in the official lore; adult appearance and presentation.';
 
@@ -25,9 +31,7 @@ async function character(id: string): Promise<CharacterDto> {
 beforeEach(async () => {
   context = await startApp();
   admin = await adminClient(context);
-  universe = (
-    await admin.post('/universes', { name: 'League of Legends', enabledModes: MODE_IDS })
-  ).json();
+  universe = await createReviewedUniverse(admin, 'League of Legends');
 });
 
 afterEach(async () => {
@@ -51,7 +55,14 @@ describe('history', () => {
       revertedAt: null,
     });
     expect(entries[1]?.restorable).toBe(false);
-    expect((await history()).length).toBe(3); // + universe.create
+    // The whole log, newest first: the universe was created, reviewed, then given its modes.
+    expect((await history()).map((entry) => entry.action)).toEqual([
+      'character.status',
+      'character.create',
+      'universe.update',
+      'universe.audience',
+      'universe.create',
+    ]);
   });
 });
 

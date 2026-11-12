@@ -25,6 +25,10 @@ function useSummarize(): (entry: AuditEntryDto, value: unknown) => string {
         return Array.isArray(value.modeIds) && value.modeIds.length > 0
           ? value.modeIds.join(', ')
           : t('history.none');
+      case 'universe.audience':
+        return t(`universes.audience.${String(value.audience)}`, {
+          defaultValue: String(value.audience),
+        });
       case 'universe.sensitive-unlock':
       case 'universe.sensitive-lock':
         return t(value.unlocked === true ? 'universes.unlocked' : 'universes.locked');

@@ -15,6 +15,7 @@ import {
   type LoginRequest,
   type ModeId,
   type Page,
+  type SetAudienceRequest,
   type SetClassificationRequest,
   type UnlockSensitiveRequest,
   type UniverseDto,
@@ -93,6 +94,8 @@ export const adminApi = {
   updateUniverse: (id: string, body: UpdateUniverseRequest) =>
     request<UniverseDto>('PUT', `/admin/universes/${id}`, body),
 
+  setAudience: (id: string, body: SetAudienceRequest) =>
+    request<UniverseDto>('PUT', `/admin/universes/${id}/audience`, body),
   unlockSensitive: (id: string, body: UnlockSensitiveRequest) =>
     request<UniverseDto>('PUT', `/admin/universes/${id}/sensitive-unlock`, body),
   lockSensitive: (id: string) =>

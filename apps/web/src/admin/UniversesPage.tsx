@@ -1,8 +1,11 @@
 import {
   MODE_IDS,
   MODES,
+  sensitiveModesAvailable,
   STRICT_NOTE_MIN_LENGTH,
+  UNIVERSE_AUDIENCES,
   type ModeId,
+  type UniverseAudience,
   type UniverseDto,
 } from '@app/shared';
 import { useQuery } from '@tanstack/react-query';
@@ -17,6 +20,7 @@ import {
   Field,
   Input,
   Notice,
+  Select,
   Textarea,
 } from '../design/ui';
 import { adminApi } from '../lib/api';
@@ -61,6 +65,104 @@ function ModeChecklist({
         );
       })}
     </div>
+  );
+}
+
+const AUDIENCE_TONE = { GENERAL: 'success', YOUTH: 'warning', UNREVIEWED: 'danger' } as const;
+
+/**
+ * Audience review. Stricter classifications apply at once and switch the
+ * sensitive modes off; `General audience` is the permissive direction and
+ * needs a confirmation and a written justification. Universes the code fixes
+ * as young-audience cannot be relaxed.
+ */
+function AudiencePanel({ universe }: { universe: UniverseDto }) {
+  const { t } = useTranslation('admin');
+  const [value, setValue] = useState<UniverseAudience>(universe.audienceSetting);
+  const [note, setNote] = useState('');
+  const [confirm, setConfirm] = useState(false);
+  const save = useAdminMutation(() =>
+    adminApi.setAudience(universe.id, {
+      audience: value,
+      note,
+      ...(confirm ? { confirm } : {}),
+    }),
+  );
+  const toGeneral = value === 'GENERAL';
+
+  return (
+    <form
+      className="space-y-3 border-t border-line pt-4"
+      onSubmit={(event: SyntheticEvent) => {
+        event.preventDefault();
+        save.mutate(undefined);
+      }}
+    >
+      {universe.audience === 'UNREVIEWED' && (
+        <Notice tone="danger">{t('universes.unreviewedNotice')}</Notice>
+      )}
+      <Field label={t('universes.audienceTitle')} hint={t(`universes.audienceHint.${value}`)}>
+        <Select
+          name="audience"
+          value={value}
+          onChange={(event) => {
+            setValue(event.target.value as UniverseAudience);
+            setConfirm(false);
+          }}
+        >
+          {UNIVERSE_AUDIENCES.map((audience) => (
+            <option
+              key={audience}
+              value={audience}
+              disabled={audience === 'GENERAL' && universe.audienceLockedByPolicy}
+            >
+              {t(`universes.audience.${audience}`)}
+            </option>
+          ))}
+        </Select>
+      </Field>
+      {universe.audienceLockedByPolicy && (
+        <p className="text-xs text-fg-muted">{t('universes.audienceFixed')}</p>
+      )}
+      {toGeneral && (
+        <>
+          <Field
+            label={t('universes.audienceNote')}
+            hint={t('universes.audienceNoteHint', { count: STRICT_NOTE_MIN_LENGTH })}
+          >
+            <Textarea
+              name="audience-note"
+              required
+              minLength={STRICT_NOTE_MIN_LENGTH}
+              maxLength={1000}
+              value={note}
+              onChange={(event) => {
+                setNote(event.target.value);
+              }}
+            />
+          </Field>
+          <Checkbox
+            name="audience-confirm"
+            required
+            checked={confirm}
+            onChange={(event) => {
+              setConfirm(event.target.checked);
+            }}
+            label={t('universes.audienceConfirm')}
+          />
+        </>
+      )}
+      {!toGeneral && value !== universe.audienceSetting && (
+        <p className="text-xs text-fg-muted">{t('universes.audienceStricter')}</p>
+      )}
+      {universe.audienceNote !== null && universe.audienceSetting === 'GENERAL' && (
+        <p className="text-xs text-fg-muted">{universe.audienceNote}</p>
+      )}
+      <ErrorNotice error={save.error} />
+      <Button type="submit" disabled={save.isPending || value === universe.audienceSetting}>
+        {t('universes.audienceSave')}
+      </Button>
+    </form>
   );
 }
 
@@ -147,7 +249,7 @@ function SensitiveLockPanel({ universe }: { universe: UniverseDto }) {
   );
 }
 
-function UniverseCard({ universe }: { universe: UniverseDto }) {
+function UniverseForm({ universe }: { universe: UniverseDto }) {
   const { t } = useTranslation('admin');
   const [name, setName] = useState(universe.name);
   const [modes, setModes] = useState<ModeId[]>([...universe.enabledModes]);
@@ -161,33 +263,62 @@ function UniverseCard({ universe }: { universe: UniverseDto }) {
   };
 
   return (
-    <Card data-universe={universe.slug}>
-      <form onSubmit={submit} className="space-y-4">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <Field label={t('fields.name')} hint={universe.slug}>
-            <Input
-              required
-              maxLength={80}
-              value={name}
-              onChange={(event) => {
-                setName(event.target.value);
-              }}
-            />
-          </Field>
+    <form onSubmit={submit} className="space-y-4">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <Field label={t('fields.name')} hint={universe.slug}>
+          <Input
+            required
+            maxLength={80}
+            value={name}
+            onChange={(event) => {
+              setName(event.target.value);
+            }}
+          />
+        </Field>
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge tone={AUDIENCE_TONE[universe.audience]}>
+            {t(`universes.audience.${universe.audience}`)}
+          </Badge>
           <Badge>{t('universes.characterCount', { count: universe.characterCount })}</Badge>
         </div>
-        <ModeChecklist
-          value={modes}
-          onChange={setModes}
-          sensitiveLocked={universe.audience === 'YOUTH' && !universe.sensitiveUnlocked}
+      </div>
+      <ModeChecklist
+        value={modes}
+        onChange={setModes}
+        sensitiveLocked={
+          !sensitiveModesAvailable({
+            slug: universe.slug,
+            name: universe.name,
+            audience: universe.audience,
+            sensitiveUnlocked: universe.sensitiveUnlocked,
+          })
+        }
+      />
+      <ErrorNotice error={update.error} />
+      <Button type="submit" variant="primary" disabled={update.isPending}>
+        {t('actions.save')}
+      </Button>
+    </form>
+  );
+}
+
+/**
+ * Each panel is remounted only when ITS OWN stored values change, so saving one
+ * never discards what is being typed in another (a justification, for instance).
+ */
+function UniverseCard({ universe }: { universe: UniverseDto }) {
+  return (
+    <Card data-universe={universe.slug}>
+      <UniverseForm
+        key={`${universe.name}:${universe.enabledModes.join(',')}:${universe.audience}:${universe.sensitiveUnlocked}`}
+        universe={universe}
+      />
+      <div className="mt-4 space-y-4">
+        <AudiencePanel
+          key={`${universe.audienceSetting}:${universe.audienceNote ?? ''}`}
+          universe={universe}
         />
-        <ErrorNotice error={update.error} />
-        <Button type="submit" variant="primary" disabled={update.isPending}>
-          {t('actions.save')}
-        </Button>
-      </form>
-      <div className="mt-4">
-        <SensitiveLockPanel universe={universe} />
+        <SensitiveLockPanel key={String(universe.sensitiveUnlocked)} universe={universe} />
       </div>
     </Card>
   );
@@ -244,11 +375,7 @@ export function UniversesPage() {
       <ErrorNotice error={universes.error} />
       <div className="grid gap-4 lg:grid-cols-2">
         {universes.data?.map((universe) => (
-          // Remount when the server data changes so the form shows the saved values.
-          <UniverseCard
-            key={`${universe.id}:${universe.name}:${universe.enabledModes.join(',')}:${universe.sensitiveUnlocked}`}
-            universe={universe}
-          />
+          <UniverseCard key={universe.id} universe={universe} />
         ))}
       </div>
     </div>

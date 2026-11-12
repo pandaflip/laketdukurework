@@ -5,6 +5,7 @@ import {
   createCharacterSchema,
   createUniverseSchema,
   setBlockedModesSchema,
+  setAudienceSchema,
   setCharacterStatusSchema,
   setClassificationSchema,
   unlockSensitiveSchema,
@@ -38,6 +39,7 @@ import {
   createUniverse,
   listUniverses,
   lockSensitive,
+  setAudience,
   unlockSensitive,
   updateUniverse,
 } from './catalog/universes.service';
@@ -90,6 +92,9 @@ export function registerAdminRoutes(
         idOf(request),
         parse(updateUniverseSchema, request.body),
       ),
+    );
+    secured.put('/universes/:id/audience', (request) =>
+      setAudience(db, context(request), idOf(request), parse(setAudienceSchema, request.body)),
     );
     secured.put('/universes/:id/sensitive-unlock', (request) =>
       unlockSensitive(

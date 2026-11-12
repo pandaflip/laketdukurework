@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { UNIVERSE_AUDIENCES } from '../policy/audience';
 import { MODE_IDS } from '../registry/modes';
 import { SLUG_PATTERN } from '../text/normalize';
 import { AGE_CLASSES, CHARACTER_STATUSES } from './enums';
@@ -93,6 +94,18 @@ export const setClassificationSchema = z.object({
   confirm: z.boolean().optional(),
 });
 export type SetClassificationRequest = z.infer<typeof setClassificationSchema>;
+
+/**
+ * Audience review of a universe. Moving to `YOUTH` or `UNREVIEWED` (stricter)
+ * applies at once; moving to `GENERAL` needs `confirm: true` and a written
+ * justification (enforced by the server).
+ */
+export const setAudienceSchema = z.object({
+  audience: z.enum(UNIVERSE_AUDIENCES),
+  note: z.string().trim().max(1000).default(''),
+  confirm: z.boolean().optional(),
+});
+export type SetAudienceRequest = z.infer<typeof setAudienceSchema>;
 
 /** Explicit unlock of sensitive modes for a universe with a young audience. */
 export const unlockSensitiveSchema = z.object({

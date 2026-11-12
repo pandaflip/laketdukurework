@@ -26,6 +26,14 @@ enum AgeClass {
   AMBIGUOUS
 }
 
+/// Audience classification of a universe, set explicitly by an administrator.
+/// UNREVIEWED (default) is the strictest tier: no sensitive mode until reviewed.
+enum UniverseAudience {
+  GENERAL
+  YOUTH
+  UNREVIEWED
+}
+
 enum LabelKind {
   NAME
   ALIAS
@@ -40,20 +48,27 @@ enum AssetReview {
 }
 
 model Universe {
-  id                    String      @id @default(cuid())
+  id                    String           @id @default(cuid())
   /// Immutable technical identifier.
-  slug                  String      @unique
+  slug                  String           @unique
   name                  String
   /// Mode identifiers (see the shared mode registry) offered for this universe.
   enabledModes          String[]
-  /// Universes with a young audience keep sensitive modes locked until an
-  /// administrator unlocks them explicitly (the audience tier itself is code, not data).
+  /// Stored classification. Universes listed in the code (see shared policy) are
+  /// young-audience whatever is stored here.
+  audience              UniverseAudience @default(UNREVIEWED)
+  audienceNote          String?
+  audienceSetAt         DateTime?
+  audienceSetById       String?
+  audienceSetBy         AdminUser?       @relation("UniverseAudienceSetBy", fields: [audienceSetById], references: [id], onDelete: SetNull)
+  /// Young-audience universes keep sensitive modes locked until an administrator
+  /// unlocks them explicitly.
   sensitiveUnlockedAt   DateTime?
   sensitiveUnlockNote   String?
   sensitiveUnlockedById String?
-  sensitiveUnlockedBy   AdminUser?  @relation(fields: [sensitiveUnlockedById], references: [id], onDelete: SetNull)
-  createdAt             DateTime    @default(now())
-  updatedAt             DateTime    @updatedAt
+  sensitiveUnlockedBy   AdminUser?       @relation("UniverseUnlockedBy", fields: [sensitiveUnlockedById], references: [id], onDelete: SetNull)
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
   characters            Character[]
 }
 
@@ -135,19 +150,20 @@ model Asset {
 }
 
 model AdminUser {
-  id               String         @id @default(cuid())
-  username         String         @unique
+  id                String         @id @default(cuid())
+  username          String         @unique
   /// argon2id hash. The password itself is never stored or logged.
-  passwordHash     String
-  failedLoginCount Int            @default(0)
-  lockedUntil      DateTime?
-  disabledAt       DateTime?
-  createdAt        DateTime       @default(now())
-  sessions         AdminSession[]
-  auditLogs        AuditLog[]
-  classifications  Character[]
-  universeUnlocks  Universe[]
-  reviews          Asset[]
+  passwordHash      String
+  failedLoginCount  Int            @default(0)
+  lockedUntil       DateTime?
+  disabledAt        DateTime?
+  createdAt         DateTime       @default(now())
+  sessions          AdminSession[]
+  auditLogs         AuditLog[]
+  classifications   Character[]
+  universeUnlocks   Universe[]     @relation("UniverseUnlockedBy")
+  universeAudiences Universe[]     @relation("UniverseAudienceSetBy")
+  reviews           Asset[]
 }
 
 model AdminSession {

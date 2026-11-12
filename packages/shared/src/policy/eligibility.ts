@@ -1,6 +1,7 @@
 import type { AgeClass, AssetReview, CharacterStatus } from '../catalog/enums';
 import { isCompositeMode, MODES, MODE_IDS, type ModeId } from '../registry/modes';
-import { isCoreExcludedCharacter, universeAudience } from './core-exclusions';
+import { effectiveAudience, type UniverseAudience } from './audience';
+import { isCoreExcludedCharacter } from './core-exclusions';
 
 /**
  * Single source of truth for "may this character (or challenge) appear in this
@@ -17,6 +18,7 @@ export const INELIGIBILITY_REASONS = [
   'CHARACTER_EXCLUDED',
   'MODE_DISABLED_FOR_UNIVERSE',
   'MODE_BLOCKED_FOR_CHARACTER',
+  'UNIVERSE_UNREVIEWED',
   'UNIVERSE_SENSITIVE_LOCKED',
   'CORE_EXCLUSION',
   'STATUS_RESTRICTED',
@@ -36,9 +38,11 @@ export interface EligibilityUniverse {
   readonly slug: string;
   readonly name?: string;
   readonly enabledModes: readonly string[];
+  /** The stored audience classification; absent means unreviewed. */
+  readonly audience?: UniverseAudience;
   /**
    * Whether an administrator explicitly unlocked sensitive modes. Only
-   * consulted for universes with a young audience; absent means locked.
+   * consulted for young-audience universes; absent means locked.
    */
   readonly sensitiveUnlocked?: boolean;
 }
@@ -79,7 +83,9 @@ function characterReasons(
   if (character.blockedModes.includes(modeId)) reasons.push('MODE_BLOCKED_FOR_CHARACTER');
 
   if (sensitive) {
-    if (universeAudience(universe) === 'YOUTH' && universe.sensitiveUnlocked !== true) {
+    const audience = effectiveAudience(universe);
+    if (audience === 'UNREVIEWED') reasons.push('UNIVERSE_UNREVIEWED');
+    else if (audience === 'YOUTH' && universe.sensitiveUnlocked !== true) {
       reasons.push('UNIVERSE_SENSITIVE_LOCKED');
     }
     if (isCoreExcludedCharacter(universe, character)) reasons.push('CORE_EXCLUSION');

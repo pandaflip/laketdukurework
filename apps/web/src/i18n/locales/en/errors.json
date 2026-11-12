@@ -15,5 +15,6 @@
   "JUSTIFICATION_REQUIRED": "Write a longer justification before classifying a character as a verified adult.",
   "RESTORE_CONFLICT": "This was changed again since then, so it cannot be restored automatically.",
   "RESTORE_NOT_ALLOWED": "This change cannot be restored. A verified-adult classification must always be entered by hand.",
-  "INELIGIBLE_CONTENT": "This content is not eligible for this mode."
+  "INELIGIBLE_CONTENT": "This content is not eligible for this mode.",
+  "AUDIENCE_FORBIDDEN": "The code fixes this universe as young-audience: it cannot be classified as general audience."
 }

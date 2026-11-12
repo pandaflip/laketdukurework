@@ -72,10 +72,13 @@ Excluded), the safety classification, the fundamental exclusions written in code
 (`packages/shared/src/policy/`) and the individual approval of each image. The status never opens
 a sensitive mode on its own, and the server recomputes eligibility from all five every time.
 
-Universes associated with a young audience (Pokémon, Minecraft) keep sensitive modes locked until
-an administrator unlocks them explicitly, with a confirmation and a written justification. The
-unlock lifts nothing else: minors, childlike or ambiguous characters and unapproved images stay
-excluded.
+Every universe carries an explicit audience classification: `UNREVIEWED` (the default for every
+new universe, no sensitive mode possible), `YOUTH` (sensitive modes only after an explicit unlock)
+or `GENERAL` (reviewed, not aimed at a young audience). Moving to `GENERAL` needs a confirmation
+and a written justification; a stricter classification applies at once and switches the sensitive
+modes off. Pokémon and Minecraft are always `YOUTH`, whatever is stored: the interface can make
+them stricter, never more permissive. No classification lifts any other condition: minors,
+childlike or ambiguous characters and unapproved images stay excluded.
 
 ## Known warnings and ignored scripts
 

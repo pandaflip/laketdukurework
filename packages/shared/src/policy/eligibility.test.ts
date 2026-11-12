@@ -2,8 +2,14 @@ import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { AGE_CLASSES, ASSET_REVIEWS, CHARACTER_STATUSES } from '../catalog/enums';
 import { isCompositeMode, MODE_IDS, MODES, type ModeId } from '../registry/modes';
+import {
+  DEFAULT_UNIVERSE_AUDIENCE,
+  effectiveAudience,
+  sensitiveModesAvailable,
+  UNIVERSE_AUDIENCES,
+} from './audience';
 import { adultNoteMinLength } from './classification';
-import { isCoreExcludedCharacter, universeAudience } from './core-exclusions';
+import { isCoreExcludedCharacter, isPolicyYouthUniverse } from './core-exclusions';
 import {
   canBeClassifiedAdult,
   challengeEligibility,
@@ -22,6 +28,7 @@ const lol: EligibilityUniverse = {
   slug: 'league-of-legends',
   name: 'League of Legends',
   enabledModes: [...MODE_IDS],
+  audience: 'GENERAL',
 };
 
 const adult: EligibilityCharacter = {
@@ -134,14 +141,25 @@ describe('universes with a young audience', () => {
   const youth = (slug: string, sensitiveUnlocked?: boolean): EligibilityUniverse => ({
     slug,
     enabledModes: [...MODE_IDS],
+    audience: 'YOUTH',
     ...(sensitiveUnlocked === undefined ? {} : { sensitiveUnlocked }),
   });
 
   it.each(['pokemon', 'minecraft'])('%s is recognized, by slug and by name', (slug) => {
-    expect(universeAudience({ slug })).toBe('YOUTH');
-    expect(universeAudience({ slug: 'pkmn', name: 'Pokémon' })).toBe('YOUTH');
-    expect(universeAudience({ slug: 'x', name: 'MINECRAFT' })).toBe('YOUTH');
-    expect(universeAudience({ slug: 'valorant', name: 'Valorant' })).toBe('GENERAL');
+    expect(isPolicyYouthUniverse({ slug })).toBe(true);
+    expect(isPolicyYouthUniverse({ slug: 'pkmn', name: 'Pokémon' })).toBe(true);
+    expect(isPolicyYouthUniverse({ slug: 'x', name: 'MINECRAFT' })).toBe(true);
+    expect(isPolicyYouthUniverse({ slug: 'valorant', name: 'Valorant' })).toBe(false);
+  });
+
+  it('cannot be relaxed by the stored classification of the universe', () => {
+    for (const audience of UNIVERSE_AUDIENCES) {
+      expect(effectiveAudience({ slug: 'pokemon', audience })).toBe('YOUTH');
+    }
+    const relaxed: EligibilityUniverse = { ...youth('pokemon'), audience: 'GENERAL' };
+    expect(characterEligibility('historic', relaxed, adult).reasons).toEqual([
+      'UNIVERSE_SENSITIVE_LOCKED',
+    ]);
   });
 
   it.each([undefined, false])('keeps sensitive modes locked by default (unlocked: %s)', (flag) => {
@@ -176,6 +194,54 @@ describe('universes with a young audience', () => {
 
   it('never affects neutral modes', () => {
     expect(characterEligibility('zoom-out', youth('minecraft'), adult).eligible).toBe(true);
+  });
+});
+
+describe('universe audience classification', () => {
+  const universe = (audience?: (typeof UNIVERSE_AUDIENCES)[number]): EligibilityUniverse => ({
+    slug: 'some-game',
+    enabledModes: [...MODE_IDS],
+    ...(audience === undefined ? {} : { audience }),
+  });
+
+  it('treats a missing or unreviewed classification as the strictest one', () => {
+    expect(DEFAULT_UNIVERSE_AUDIENCE).toBe('UNREVIEWED');
+    for (const input of [undefined, 'UNREVIEWED'] as const) {
+      expect(effectiveAudience({ slug: 'some-game', ...(input ? { audience: input } : {}) })).toBe(
+        'UNREVIEWED',
+      );
+      expect(characterEligibility('historic', universe(input), adult)).toEqual({
+        eligible: false,
+        reasons: ['UNIVERSE_UNREVIEWED'],
+      });
+    }
+  });
+
+  it('does not let an unlock open an unreviewed universe', () => {
+    const unlocked = { ...universe('UNREVIEWED'), sensitiveUnlocked: true };
+    expect(characterEligibility('historic', unlocked, adult).reasons).toEqual([
+      'UNIVERSE_UNREVIEWED',
+    ]);
+    expect(sensitiveModesAvailable(unlocked)).toBe(false);
+  });
+
+  it('opens sensitive modes for a reviewed general-audience universe only', () => {
+    expect(characterEligibility('historic', universe('GENERAL'), adult).eligible).toBe(true);
+    expect(sensitiveModesAvailable(universe('GENERAL'))).toBe(true);
+    expect(sensitiveModesAvailable(universe('YOUTH'))).toBe(false);
+    expect(sensitiveModesAvailable({ ...universe('YOUTH'), sensitiveUnlocked: true })).toBe(true);
+  });
+
+  it('never affects neutral modes', () => {
+    for (const audience of UNIVERSE_AUDIENCES) {
+      expect(characterEligibility('zoom-out', universe(audience), adult).eligible).toBe(true);
+    }
+  });
+
+  it('asks for the strict justification everywhere but in reviewed general audience universes', () => {
+    expect(adultNoteMinLength('GENERAL')).toBe(20);
+    expect(adultNoteMinLength('YOUTH')).toBe(60);
+    expect(adultNoteMinLength('UNREVIEWED')).toBe(60);
   });
 });
 
@@ -219,6 +285,7 @@ describe('properties over every combination', () => {
   const universeArb = fc.record({
     slug: fc.constantFrom('league-of-legends', 'lol', 'valorant', 'pokemon', 'minecraft', 'other'),
     enabledModes: fc.subarray([...MODE_IDS]),
+    audience: fc.constantFrom(...UNIVERSE_AUDIENCES),
     sensitiveUnlocked: fc.boolean(),
   });
   const characterArb = fc.record({
@@ -246,7 +313,8 @@ describe('properties over every combination', () => {
           expect(asset.review).toBe('APPROVED_SENSITIVE');
           expect(universe.enabledModes).toContain(modeId);
           expect(character.blockedModes).not.toContain(modeId);
-          expect(universeAudience(universe) === 'GENERAL' || universe.sensitiveUnlocked).toBe(true);
+          expect(sensitiveModesAvailable(universe)).toBe(true);
+          expect(effectiveAudience(universe)).not.toBe('UNREVIEWED');
           expect(isCoreExcludedCharacter(universe, character)).toBe(false);
         },
       ),

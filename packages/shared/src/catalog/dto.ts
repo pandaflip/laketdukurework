@@ -1,5 +1,5 @@
 import type { Locale } from '../i18n/locales';
-import type { UniverseAudience } from '../policy/core-exclusions';
+import type { UniverseAudience } from '../policy/audience';
 import type { EligibilityByMode } from '../policy/eligibility';
 import type { ModeId } from '../registry/modes';
 import type { AgeClass, CharacterStatus } from './enums';
@@ -17,8 +17,14 @@ export interface UniverseDto {
   readonly slug: string;
   readonly name: string;
   readonly enabledModes: readonly ModeId[];
-  /** `YOUTH`: associated with a young audience; sensitive modes are locked by default. */
+  /** The audience that applies (the code-listed floor included). */
   readonly audience: UniverseAudience;
+  /** The classification stored by an administrator. */
+  readonly audienceSetting: UniverseAudience;
+  /** True when the code fixes this universe as young-audience: it cannot be relaxed. */
+  readonly audienceLockedByPolicy: boolean;
+  readonly audienceNote: string | null;
+  readonly audienceSetAt: string | null;
   /** Explicit unlock of sensitive modes (only meaningful for `YOUTH` universes). */
   readonly sensitiveUnlocked: boolean;
   readonly sensitiveUnlockNote: string | null;
@@ -83,6 +89,7 @@ export interface Page<T> {
 export const AUDIT_ACTIONS = [
   'universe.create',
   'universe.update',
+  'universe.audience',
   'universe.sensitive-unlock',
   'universe.sensitive-lock',
   'character.create',

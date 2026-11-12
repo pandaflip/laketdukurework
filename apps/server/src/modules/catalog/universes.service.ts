@@ -1,12 +1,16 @@
 import {
+  effectiveAudience,
+  isPolicyYouthUniverse,
   MODE_IDS,
   MODES,
+  sensitiveModesAvailable,
   slugify,
   STRICT_NOTE_MIN_LENGTH,
-  universeAudience,
   type CreateUniverseRequest,
   type ModeId,
+  type SetAudienceRequest,
   type UnlockSensitiveRequest,
+  type UniverseAudience,
   type UniverseDto,
   type UpdateUniverseRequest,
 } from '@app/shared';
@@ -32,6 +36,9 @@ interface UniverseRow {
   slug: string;
   name: string;
   enabledModes: string[];
+  audience: UniverseAudience;
+  audienceNote: string | null;
+  audienceSetAt: Date | null;
   sensitiveUnlockedAt: Date | null;
   sensitiveUnlockNote: string | null;
   _count: { characters: number };
@@ -43,7 +50,11 @@ function toDto(row: UniverseRow): UniverseDto {
     slug: row.slug,
     name: row.name,
     enabledModes: knownModes(row.enabledModes),
-    audience: universeAudience(row),
+    audience: effectiveAudience(row),
+    audienceSetting: row.audience,
+    audienceLockedByPolicy: isPolicyYouthUniverse(row),
+    audienceNote: row.audienceNote,
+    audienceSetAt: row.audienceSetAt?.toISOString() ?? null,
     sensitiveUnlocked: row.sensitiveUnlockedAt !== null,
     sensitiveUnlockNote: row.sensitiveUnlockNote,
     sensitiveUnlockedAt: row.sensitiveUnlockedAt?.toISOString() ?? null,
@@ -52,15 +63,20 @@ function toDto(row: UniverseRow): UniverseDto {
 }
 
 /**
- * A universe with a young audience cannot enable a sensitive mode while it is
- * locked. Checked on every write path, including restorations.
+ * Sensitive modes can only be enabled where they are available: a universe
+ * reviewed as general audience, or a young-audience one that was explicitly
+ * unlocked. Never for an unreviewed universe. Checked on every write path,
+ * restorations included.
  */
 function assertModesAllowed(
-  identity: { slug: string; name: string },
+  identity: { slug: string; name: string; audience: UniverseAudience },
   unlocked: boolean,
   modes: readonly ModeId[],
 ): void {
-  if (modes.some(isSensitive) && universeAudience(identity) === 'YOUTH' && !unlocked) {
+  if (
+    modes.some(isSensitive) &&
+    !sensitiveModesAvailable({ ...identity, sensitiveUnlocked: unlocked })
+  ) {
     throw new AppError(422, 'SENSITIVE_MODE_FORBIDDEN');
   }
 }
@@ -80,8 +96,8 @@ export async function createUniverse(
   const slug = input.slug ?? slugify(input.name);
   if (slug === '') throw invalid();
   const enabledModes = knownModes(input.enabledModes);
-  // A new universe is never unlocked: unlocking is a separate, explicit step.
-  assertModesAllowed({ slug, name: input.name }, false, enabledModes);
+  // A new universe is always UNREVIEWED and locked: reviewing it is a separate, explicit step.
+  assertModesAllowed({ slug, name: input.name, audience: 'UNREVIEWED' }, false, enabledModes);
 
   try {
     return await db.$transaction(async (tx) => {
@@ -125,8 +141,17 @@ export async function updateUniverse(
     }
     // Checked against both the old and the new name: a rename cannot unlock anything.
     const unlocked = current.sensitiveUnlockedAt !== null;
-    assertModesAllowed({ slug: current.slug, name: current.name }, unlocked, after.enabledModes);
-    assertModesAllowed({ slug: current.slug, name: after.name }, unlocked, after.enabledModes);
+    const { audience } = current;
+    assertModesAllowed(
+      { slug: current.slug, name: current.name, audience },
+      unlocked,
+      after.enabledModes,
+    );
+    assertModesAllowed(
+      { slug: current.slug, name: after.name, audience },
+      unlocked,
+      after.enabledModes,
+    );
 
     const row = await tx.universe.update({ where: { id }, data: after, include: withCount });
     if (JSON.stringify(before) !== JSON.stringify(after)) {
@@ -139,6 +164,72 @@ export async function updateUniverse(
         after: { ...after },
       });
     }
+    return toDto(row);
+  });
+}
+
+/**
+ * Records the audience review of a universe.
+ *
+ * Stricter classifications (YOUTH, UNREVIEWED) apply at once: every sensitive
+ * mode is switched off and any unlock is cleared, so that a later, more
+ * permissive classification never silently re-activates a mode. GENERAL is the
+ * permissive direction: it needs a confirmation and a long written
+ * justification, and is refused for universes the code fixes as young-audience.
+ * Never restorable.
+ */
+export async function setAudience(
+  db: Db,
+  context: AuditContext,
+  id: string,
+  input: SetAudienceRequest,
+): Promise<UniverseDto> {
+  return db.$transaction(async (tx) => {
+    const current = await tx.universe.findUnique({ where: { id } });
+    if (!current) throw notFound();
+
+    const target = input.audience;
+    if (target === 'GENERAL' && isPolicyYouthUniverse(current)) {
+      throw new AppError(422, 'AUDIENCE_FORBIDDEN');
+    }
+    if (target === current.audience) return toDto({ ...current, ...(await count(tx, id)) });
+    if (target === 'GENERAL') {
+      if (input.confirm !== true) throw new AppError(422, 'CONFIRMATION_REQUIRED');
+      if (input.note.length < STRICT_NOTE_MIN_LENGTH) {
+        throw new AppError(422, 'JUSTIFICATION_REQUIRED');
+      }
+    }
+
+    const previousModes = knownModes(current.enabledModes);
+    // A reviewed-general universe keeps whatever is enabled; every other target starts clean.
+    const enabledModes =
+      target === 'GENERAL' ? previousModes : previousModes.filter((modeId) => !isSensitive(modeId));
+    const row = await tx.universe.update({
+      where: { id },
+      data: {
+        audience: target,
+        audienceNote: input.note === '' ? null : input.note,
+        audienceSetAt: new Date(),
+        audienceSetById: context.adminId,
+        enabledModes,
+        sensitiveUnlockedAt: null,
+        sensitiveUnlockNote: null,
+        sensitiveUnlockedById: null,
+      },
+      include: withCount,
+    });
+    await writeAudit(tx, context, {
+      action: 'universe.audience',
+      entityType: 'universe',
+      entityId: id,
+      entityLabel: row.name,
+      before: {
+        audience: current.audience,
+        unlocked: current.sensitiveUnlockedAt !== null,
+        enabledModes: previousModes,
+      },
+      after: { audience: target, note: input.note, unlocked: false, enabledModes },
+    });
     return toDto(row);
   });
 }
@@ -158,7 +249,8 @@ export async function unlockSensitive(
   return db.$transaction(async (tx) => {
     const current = await tx.universe.findUnique({ where: { id } });
     if (!current) throw notFound();
-    if (universeAudience(current) !== 'YOUTH') throw invalid();
+    // Only a young-audience universe can be unlocked; an unreviewed one must be reviewed first.
+    if (effectiveAudience(current) !== 'YOUTH') throw invalid();
     if (current.sensitiveUnlockedAt !== null) throw conflict();
     if (input.confirm !== true) throw new AppError(422, 'CONFIRMATION_REQUIRED');
     if (input.note.length < STRICT_NOTE_MIN_LENGTH) {

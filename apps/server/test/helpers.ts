@@ -1,3 +1,5 @@
+import { MODE_IDS, MODES, type UniverseAudience, type UniverseDto } from '@app/shared';
+import { expect } from 'vitest';
 import type { FastifyInstance, InjectOptions, LightMyRequestResponse } from 'fastify';
 import { buildApp, type AppOptions } from '../src/app';
 import { loadConfig, type AppConfig } from '../src/config';
@@ -97,4 +99,44 @@ export function client(app: FastifyInstance, cookie?: string): Client {
 export async function adminClient(context: TestContext): Promise<Client> {
   await createAdmin(context.db);
   return client(context.app, sessionCookie(await loginAs(context.app)));
+}
+
+export const REVIEW_NOTE =
+  'Reviewed for the tests: a competitive game that is not aimed at a young audience, checked by hand.';
+
+/**
+ * Creates a universe the way an administrator has to: it starts UNREVIEWED
+ * with neutral modes only, then it is reviewed, then sensitive modes are
+ * enabled if requested. Pass `YOUTH` or `UNREVIEWED` to stop earlier.
+ */
+export async function createReviewedUniverse(
+  admin: Client,
+  name: string,
+  enabledModes: readonly string[] = MODE_IDS,
+  audience: UniverseAudience = 'GENERAL',
+): Promise<UniverseDto> {
+  const isSensitive = (id: string): boolean =>
+    MODES[id as keyof typeof MODES].sensitivity !== 'neutral';
+  const created = await admin.post('/universes', {
+    name,
+    enabledModes: enabledModes.filter((id) => !isSensitive(id)),
+  });
+  expect(created.statusCode, created.body).toBe(200);
+  let universe = created.json<UniverseDto>();
+
+  if (audience !== 'UNREVIEWED') {
+    const reviewed = await admin.put(`/universes/${universe.id}/audience`, {
+      audience,
+      note: REVIEW_NOTE,
+      confirm: true,
+    });
+    expect(reviewed.statusCode, reviewed.body).toBe(200);
+    universe = reviewed.json<UniverseDto>();
+  }
+  if (enabledModes.some(isSensitive)) {
+    const updated = await admin.put(`/universes/${universe.id}`, { name, enabledModes });
+    expect(updated.statusCode, updated.body).toBe(200);
+    universe = updated.json<UniverseDto>();
+  }
+  return universe;
 }
