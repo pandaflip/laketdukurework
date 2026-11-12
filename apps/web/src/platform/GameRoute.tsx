@@ -10,5 +10,10 @@ export function GameRoute() {
   if (!game) return <NotFoundPage />;
 
   const GameComponent = GAME_COMPONENTS[game.id];
-  return <GameComponent />;
+  // Each game can restyle the shared components through its own theme (see tokens.css).
+  return (
+    <div data-theme={game.id}>
+      <GameComponent />
+    </div>
+  );
 }

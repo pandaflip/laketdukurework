@@ -2,10 +2,18 @@ import { defineConfig, devices } from '@playwright/test';
 
 const isCI = process.env.CI !== undefined;
 
-// Starts the real server and web app. The database is not used yet (lot 1A),
-// but the server requires a well-formed DATABASE_URL to boot.
+/**
+ * Credentials of the administrator created in the throw-away `<name>_e2e`
+ * database. They exist only there and are not a secret.
+ */
+export const E2E_ADMIN = { username: 'e2e-admin', password: 'e2e-only-password-123' };
+
+// Starts the real server and web app. The server command resets and seeds a
+// dedicated `<name>_e2e` database derived from DATABASE_URL (.env or environment).
 export default defineConfig({
   testDir: './tests',
+  // The admin tests share one database: run them one after the other.
+  workers: 1,
   forbidOnly: isCI,
   retries: isCI ? 1 : 0,
   reporter: isCI ? 'github' : 'list',
@@ -13,16 +21,18 @@ export default defineConfig({
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: [
     {
-      command: 'pnpm --filter @app/server dev',
+      command: 'pnpm --filter @app/server e2e:serve',
       url: 'http://127.0.0.1:3001/api/health',
-      reuseExistingServer: !isCI,
+      reuseExistingServer: false,
+      timeout: 120_000,
       env: {
         NODE_ENV: 'test',
         HOST: '127.0.0.1',
         PORT: '3001',
         LOG_LEVEL: 'warn',
         WEB_ORIGIN: 'http://localhost:5173',
-        DATABASE_URL: 'postgresql://e2e:e2e@127.0.0.1:5432/e2e',
+        E2E_ADMIN_USERNAME: E2E_ADMIN.username,
+        E2E_ADMIN_PASSWORD: E2E_ADMIN.password,
       },
     },
     {

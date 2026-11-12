@@ -8,3 +8,4 @@ playwright-report/
 test-results/
 apps/server/storage/
 .DS_Store
+apps/server/src/generated/

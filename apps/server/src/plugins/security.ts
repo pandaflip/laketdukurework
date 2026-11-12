@@ -34,7 +34,7 @@ export async function registerSecurity(
   });
 
   await app.register(rateLimit, {
-    max: options.rateLimitMax ?? 120,
+    max: options.rateLimitMax ?? 300,
     timeWindow: '1 minute',
   });
 }

@@ -1,0 +1,204 @@
+// Data model of the catalog, the safety policy inputs and the administration.
+// Game rooms and players are not stored: they live in memory (Phase 2).
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// Administrable status. Never grants access to sensitive modes on its own.
+enum CharacterStatus {
+  ALLOWED
+  RESTRICTED
+  EXCLUDED
+}
+
+/// Safety classification. Only ADULT_VERIFIED can open sensitive modes.
+enum AgeClass {
+  UNKNOWN
+  ADULT_VERIFIED
+  MINOR
+  CHILDLIKE
+  AMBIGUOUS
+}
+
+/// Audience classification of a universe, set explicitly by an administrator.
+/// UNREVIEWED (default) is the strictest tier: no sensitive mode until reviewed.
+enum UniverseAudience {
+  GENERAL
+  YOUTH
+  UNREVIEWED
+}
+
+enum LabelKind {
+  NAME
+  ALIAS
+}
+
+/// Individual review of an image. Unverified content is excluded everywhere.
+enum AssetReview {
+  UNVERIFIED
+  APPROVED_NEUTRAL
+  APPROVED_SENSITIVE
+  REJECTED
+}
+
+model Universe {
+  id                    String           @id @default(cuid())
+  /// Immutable technical identifier.
+  slug                  String           @unique
+  name                  String
+  /// Mode identifiers (see the shared mode registry) offered for this universe.
+  enabledModes          String[]
+  /// Stored classification. Universes listed in the code (see shared policy) are
+  /// young-audience whatever is stored here.
+  audience              UniverseAudience @default(UNREVIEWED)
+  audienceNote          String?
+  audienceSetAt         DateTime?
+  audienceSetById       String?
+  audienceSetBy         AdminUser?       @relation("UniverseAudienceSetBy", fields: [audienceSetById], references: [id], onDelete: SetNull)
+  /// Young-audience universes keep sensitive modes locked until an administrator
+  /// unlocks them explicitly.
+  sensitiveUnlockedAt   DateTime?
+  sensitiveUnlockNote   String?
+  sensitiveUnlockedById String?
+  sensitiveUnlockedBy   AdminUser?       @relation("UniverseUnlockedBy", fields: [sensitiveUnlockedById], references: [id], onDelete: SetNull)
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+  characters            Character[]
+}
+
+model Character {
+  id              String                 @id @default(cuid())
+  universeId      String
+  universe        Universe               @relation(fields: [universeId], references: [id], onDelete: Restrict)
+  /// Immutable technical identifier, unique inside its universe.
+  slug            String
+  status          CharacterStatus        @default(RESTRICTED)
+  ageClass        AgeClass               @default(UNKNOWN)
+  /// Written justification of the classification.
+  ageClassNote    String?
+  ageClassSetAt   DateTime?
+  ageClassSetById String?
+  ageClassSetBy   AdminUser?             @relation(fields: [ageClassSetById], references: [id], onDelete: SetNull)
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+  labels          CharacterLabel[]
+  blockedModes    CharacterBlockedMode[]
+  variants        Variant[]
+
+  @@unique([universeId, slug])
+  @@index([status])
+}
+
+/// Localized display name (one NAME per locale) or accepted alias of a character.
+model CharacterLabel {
+  id          String    @id @default(cuid())
+  characterId String
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  /// BCP 47 tag from the shared locale list (en, fr, pt-BR).
+  locale      String
+  kind        LabelKind
+  value       String
+  /// Accent-, case- and punctuation-insensitive form used for search and matching.
+  normalized  String
+
+  @@unique([characterId, locale, normalized])
+  @@index([normalized])
+}
+
+/// Per-character, per-mode restriction added by an administrator.
+model CharacterBlockedMode {
+  characterId String
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  modeId      String
+
+  @@id([characterId, modeId])
+}
+
+/// Skin or alternative version of a character. Carries no safety rule:
+/// restrictions are always read from the character.
+model Variant {
+  id          String    @id @default(cuid())
+  characterId String
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  slug        String
+  /// Localized names: { "en": "...", "fr"?: "...", "pt-BR"?: "..." }.
+  names       Json
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  assets      Asset[]
+
+  @@unique([characterId, slug])
+}
+
+/// Image attached to a variant. Only the review state exists for now:
+/// upload and storage columns are added with the import tool (lot 1C).
+model Asset {
+  id           String      @id @default(cuid())
+  variantId    String
+  variant      Variant     @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  review       AssetReview @default(UNVERIFIED)
+  reviewedAt   DateTime?
+  reviewedById String?
+  reviewedBy   AdminUser?  @relation(fields: [reviewedById], references: [id], onDelete: SetNull)
+  createdAt    DateTime    @default(now())
+}
+
+model AdminUser {
+  id                String         @id @default(cuid())
+  username          String         @unique
+  /// argon2id hash. The password itself is never stored or logged.
+  passwordHash      String
+  failedLoginCount  Int            @default(0)
+  lockedUntil       DateTime?
+  disabledAt        DateTime?
+  createdAt         DateTime       @default(now())
+  sessions          AdminSession[]
+  auditLogs         AuditLog[]
+  classifications   Character[]
+  universeUnlocks   Universe[]     @relation("UniverseUnlockedBy")
+  universeAudiences Universe[]     @relation("UniverseAudienceSetBy")
+  reviews           Asset[]
+}
+
+model AdminSession {
+  id         String    @id @default(cuid())
+  /// SHA-256 of the session token. The token only exists in the admin's cookie.
+  tokenHash  String    @unique
+  adminId    String
+  admin      AdminUser @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  createdAt  DateTime  @default(now())
+  lastSeenAt DateTime  @default(now())
+  expiresAt  DateTime
+
+  @@index([expiresAt])
+}
+
+/// Append-only history of administrative changes.
+model AuditLog {
+  id          String    @id @default(cuid())
+  adminId     String
+  admin       AdminUser @relation(fields: [adminId], references: [id], onDelete: Restrict)
+  /// Groups the entries of one bulk operation.
+  batchId     String?
+  entityType  String
+  entityId    String
+  entityLabel String
+  action      String
+  before      Json?
+  after       Json?
+  /// Set when this entry restores an earlier one.
+  revertsId   String?
+  /// Set on the original entry once it has been restored.
+  revertedAt  DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([entityType, entityId])
+  @@index([batchId])
+  @@index([createdAt])
+}

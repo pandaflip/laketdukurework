@@ -3,50 +3,115 @@
 Rebuild of Laketduku as the first game of a mini-games platform (working brand: RESSA.GAMES).
 Development is delivered in validated lots; see `docs/phase-reports/`.
 
-**Current state: Phase 1, lot 1A (technical foundation).** No gameplay, catalog or admin yet.
+**Current state: Phase 1, lots 1A and 1B.** Technical foundation, administrable catalog,
+safety policy and administration area. No image upload (lot 1C) and no gameplay (Phase 2) yet.
 
 ## Requirements
 
 - Node.js 22.22+ (`.nvmrc`), pnpm 10
-- Docker (local PostgreSQL; not used by the code before lot 1B)
+- Docker (local PostgreSQL)
 
-## Getting started
+## First-time setup
 
 ```bash
 pnpm install
 cp .env.example .env
 pnpm db:up
+pnpm db:migrate
+pnpm db:seed
+pnpm admin:create
 pnpm dev
 ```
 
+On Windows PowerShell, use `Copy-Item .env.example .env` instead of `cp`.
+
+- `pnpm db:migrate` applies the database migrations (safe to re-run).
+- `pnpm db:seed` adds a small demonstration catalog (optional, safe to re-run). Every seeded
+  character is Restricted and nobody is a verified adult.
+- `pnpm admin:create` asks for a username and a password (12 characters minimum, typed hidden).
+  Use `pnpm --filter @app/server admin:create --reset` to change a password.
+
+Then open:
+
 - Web app: <http://localhost:5173>
+- Administration: <http://localhost:5173/admin>
 - API health check: <http://localhost:5173/api/health> (proxied to the server on port 3001)
 
-The server refuses to start if a required variable (`WEB_ORIGIN`, `DATABASE_URL`) is missing or invalid.
+The server refuses to start if a required variable (`WEB_ORIGIN`, `DATABASE_URL`) is missing or
+invalid.
 
 ## Commands
 
-| Command                  | Purpose                                            |
-| ------------------------ | -------------------------------------------------- |
-| `pnpm dev`               | Web (5173) and server (3001) in watch mode         |
-| `pnpm check`             | Formatting, lint, type checking and unit tests     |
-| `pnpm test`              | Unit and integration tests (Vitest)                |
-| `pnpm e2e`               | Browser tests (Playwright); starts the apps itself |
-| `pnpm build`             | Production builds (`apps/*/dist`)                  |
-| `pnpm format`            | Apply Prettier                                     |
-| `pnpm db:up` / `db:down` | Start / stop the local PostgreSQL container        |
+| Command                  | Purpose                                                        |
+| ------------------------ | -------------------------------------------------------------- |
+| `pnpm dev`               | Web (5173) and server (3001) in watch mode                     |
+| `pnpm check`             | Formatting, lint, type checking and tests (needs PostgreSQL)   |
+| `pnpm test`              | Unit and integration tests (Vitest)                            |
+| `pnpm e2e`               | Browser tests (Playwright); starts the apps itself             |
+| `pnpm build`             | Production builds (`apps/*/dist`)                              |
+| `pnpm format`            | Apply Prettier                                                 |
+| `pnpm db:up` / `db:down` | Start / stop the local PostgreSQL container                    |
+| `pnpm db:migrate`        | Apply pending migrations                                       |
+| `pnpm db:migrate:dev`    | Create a migration after editing `schema.prisma` (development) |
+| `pnpm db:seed`           | Add the demonstration catalog                                  |
+| `pnpm admin:create`      | Create an administrator                                        |
+
+Browser tests include an automatic accessibility scan (axe-core, WCAG 2.1 A and AA) of the
+platform and administration pages.
+
+Tests never touch development data: they create and use separate databases derived from
+`DATABASE_URL` (`<name>_test` for Vitest, `<name>_e2e` for Playwright).
 
 First e2e run on a new machine: `pnpm --filter @app/e2e exec playwright install chromium`.
+
+## Safety policy
+
+See `docs/content-policy.md`. In short, five independent layers decide what a character may be
+used for: the modes enabled per universe, the administrable status (Allowed / Restricted /
+Excluded), the safety classification, the fundamental exclusions written in code
+(`packages/shared/src/policy/`) and the individual approval of each image. The status never opens
+a sensitive mode on its own, and the server recomputes eligibility from all five every time.
+
+Every universe carries an explicit audience classification: `UNREVIEWED` (the default for every
+new universe, no sensitive mode possible), `YOUTH` (sensitive modes only after an explicit unlock)
+or `GENERAL` (reviewed, not aimed at a young audience). Moving to `GENERAL` needs a confirmation
+and a written justification; a stricter classification applies at once and switches the sensitive
+modes off. Pokémon and Minecraft are always `YOUTH`, whatever is stored: the interface can make
+them stricter, never more permissive. No classification lifts any other condition: minors,
+childlike or ambiguous characters and unapproved images stay excluded.
+
+## Known warnings and ignored scripts
+
+**`Ignored build scripts: @prisma/engines, prisma`** during `pnpm install` is expected. These two
+packages' install scripts only pre-download database engines. The Prisma client is generated by
+this repository's own `postinstall` (`prisma generate`), and the Prisma CLI downloads a missing
+engine the first time it needs one (verified by deleting it). `pnpm-workspace.yaml` records the
+choice in `ignoredBuiltDependencies`. Nothing to do, except that the first migration needs
+internet access if the engine is not already in the pnpm store. Only `esbuild` is allowed to run
+its install script.
+
+**`pg` deprecation warning** ("Calling client.query() when the client is already executing a
+query"): it came from asking Prisma for four or more relations at once inside a transaction, which
+it runs in parallel on the transaction's single connection. The catalog code now loads relations
+one after the other (`loadRow` in `characters.service.ts`) and a test
+(`no-driver-warnings.int.test.ts`) fails if the warning comes back. Dependency versions were not
+changed. When upgrading Prisma or `pg` (the warning becomes an error in `pg` 9), check that test first.
 
 ## Layout
 
 ```
 packages/shared   Pure TypeScript shared by web and server: locales, game and mode
-                  registries (technical ids only), API schemas and error codes
+                  registries (technical ids only), API schemas, error codes and the
+                  eligibility policy
 apps/server       Fastify API: validated config, security plugins, feature modules
+  prisma          Database schema and migrations
+  src/modules     auth, catalog, audit (history), health
+  src/cli         Seed and administrator creation
 apps/web          React app
   src/platform    Portal shell: layout, language switcher, home, routing to games
   src/games/<id>  One folder per game; a game never imports from another game
+  src/admin       Administration area (separate chunk, loaded on /admin only)
+  src/design      Design tokens (provisional values) and shared components
   src/i18n        i18next setup and translation files (en, fr, pt-BR)
 e2e               Playwright tests
 ```
@@ -64,6 +129,7 @@ names and descriptions live in `apps/web/src/i18n/locales/<locale>/`:
 | `modes.json`    | Name and description of each mode |
 | `common.json`   | Interface strings                 |
 | `errors.json`   | Messages for API error codes      |
+| `admin.json`    | Administration area               |
 
 English is the reference: a test fails if a locale is missing a key or a game/mode entry.
 To rename the platform, the game or a mode, edit these files only.

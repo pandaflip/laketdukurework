@@ -1,0 +1,205 @@
+{
+  "loading": "Loading…",
+  "nav": {
+    "label": "Administration",
+    "characters": "Characters",
+    "universes": "Universes",
+    "history": "History",
+    "logout": "Sign out"
+  },
+  "login": {
+    "title": "Administration",
+    "username": "Username",
+    "password": "Password",
+    "submit": "Sign in"
+  },
+  "actions": {
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete"
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page {{page}} of {{pageCount}}"
+  },
+  "fields": {
+    "name": "Name",
+    "nameEn": "Name (English)",
+    "nameFr": "Name (French)",
+    "namePtBR": "Name (Portuguese)",
+    "universe": "Universe",
+    "status": "Status",
+    "classification": "Safety classification",
+    "eligibility": "Effective eligibility"
+  },
+  "status": {
+    "ALLOWED": {
+      "label": "Allowed",
+      "hint": "Active in the catalog. Each mode still applies its own rules: this status never opens a sensitive mode by itself."
+    },
+    "RESTRICTED": {
+      "label": "Restricted",
+      "hint": "Neutral modes only. This is where every new character starts."
+    },
+    "EXCLUDED": {
+      "label": "Excluded",
+      "hint": "Removed from every mode, neutral ones included."
+    }
+  },
+  "ageClass": {
+    "UNKNOWN": "Not reviewed",
+    "ADULT_VERIFIED": "Verified adult",
+    "MINOR": "Minor",
+    "CHILDLIKE": "Childlike appearance",
+    "AMBIGUOUS": "Ambiguous age"
+  },
+  "eligibility": {
+    "eligible": "Eligible",
+    "notEligible": "Not eligible",
+    "neutralYes": "Neutral modes: yes",
+    "neutralNo": "Neutral modes: no",
+    "sensitiveYes": "Sensitive modes: yes",
+    "sensitiveNo": "Sensitive modes: no",
+    "perRound": "Checked per round",
+    "compositeNote": "Chaos Mix has no content of its own. Every round it draws is checked on the server against the mode it was drawn for and the image used.",
+    "detailsLink": "Why?",
+    "legendSummary": "How to read these columns",
+    "legendEligibility": "Eligibility: what the character may be used for, from its status, safety classification and universe settings.",
+    "legendImages": "Images: how many of its images were approved one by one. A playable challenge needs both.",
+    "detailsFor": "(eligibility details for {{name}})"
+  },
+  "reasons": {
+    "CHARACTER_EXCLUDED": "The character is excluded from the game.",
+    "MODE_DISABLED_FOR_UNIVERSE": "This mode is not enabled for the universe.",
+    "MODE_BLOCKED_FOR_CHARACTER": "This mode is blocked for this character.",
+    "CORE_EXCLUSION": "Fundamental exclusion: cannot be lifted from this interface.",
+    "STATUS_RESTRICTED": "The status is Restricted (neutral modes only).",
+    "NOT_ADULT_VERIFIED": "The character is not classified as a verified adult.",
+    "ASSET_NOT_APPROVED": "The image has not been approved for this mode.",
+    "ASSET_REJECTED": "The image was rejected.",
+    "UNIVERSE_SENSITIVE_LOCKED": "Sensitive modes are locked for this universe (young-audience franchise).",
+    "MODE_IS_COMPOSITE": "Mix of other modes: each round is checked under its own mode.",
+    "UNIVERSE_UNREVIEWED": "This universe has not been reviewed yet: sensitive modes stay locked until it is classified."
+  },
+  "characters": {
+    "title": "Characters",
+    "addTitle": "Add a character",
+    "add": "Add",
+    "addHint": "A new character always starts as Restricted and Not reviewed.",
+    "search": "Search",
+    "searchPlaceholder": "Name or alias, in any language",
+    "allUniverses": "All universes",
+    "allStatuses": "All statuses",
+    "selected_one": "{{count}} character selected",
+    "selected_other": "{{count}} characters selected",
+    "bulkLabel": "Status to apply",
+    "bulkApply": "Apply to selection",
+    "bulkHint": "Bulk changes only touch the status, never the safety classification.",
+    "bulkDone_one": "{{count}} character updated.",
+    "bulkDone_other": "{{count}} characters updated.",
+    "selectAll": "Select all",
+    "statusOf": "Status of {{name}}",
+    "coreExcluded": "Fundamental exclusion",
+    "empty": "No character matches.",
+    "total_one": "{{count}} character",
+    "total_other": "{{count}} characters"
+  },
+  "character": {
+    "namesTitle": "Names",
+    "aliasesTitle": "Accepted aliases",
+    "aliasesHint": "Separate aliases with commas. They will count as correct answers in that language.",
+    "statusNote": "The status and the safety classification are two separate settings.",
+    "classificationIntro": "Only a verified adult, with a non-childlike appearance and presentation, can appear in sensitive modes. Small stature alone proves nothing either way: judge each character individually, and when in doubt choose Ambiguous age.",
+    "coreExcluded": "This character is permanently excluded from sensitive modes. It can never be classified as a verified adult.",
+    "note": "Justification",
+    "noteHint": "Optional. Explain the choice for the next reviewer.",
+    "noteHintAdult": "Required: at least {{count}} characters. State the source for the age and why the appearance is not childlike.",
+    "confirmAdult": "I have checked this character individually: adult according to the official material, non-childlike appearance and presentation, no ambiguity.",
+    "saveClassification": "Save classification",
+    "blockedTitle": "Modes blocked for this character",
+    "blockedIntro": "Tick a mode to keep this character out of it, whatever its status.",
+    "eligibilityIntro": "Computed by the server from every rule. This is what the game will apply.",
+    "variantsTitle": "Variants and skins",
+    "variantsIntro": "Variants inherit every restriction of the character. A skin can never unlock a mode.",
+    "noVariants": "No variant yet.",
+    "addVariant": "Add variant"
+  },
+  "universes": {
+    "title": "Universes",
+    "addTitle": "Add a universe",
+    "add": "Add",
+    "addHint": "A new universe starts with neutral modes only and must be reviewed before any sensitive mode can be enabled.",
+    "sensitive": "Sensitive",
+    "characterCount_one": "{{count}} character",
+    "characterCount_other": "{{count}} characters",
+    "youthNotice": "Franchise associated with a young audience. Sensitive modes stay locked here unless you unlock them explicitly. Even then, only individually verified adults with individually approved images can ever appear in them.",
+    "locked": "Locked",
+    "unlocked": "Unlocked",
+    "unlockIntro": "Unlocking is a deliberate exception, never a default. It is recorded with your justification. Characters and images keep every one of their own checks.",
+    "unlockNote": "Justification",
+    "unlockNoteHint": "At least {{count}} characters.",
+    "unlockConfirm": "I understand this is an exception: only verified adults with individually approved images can be eligible, and minors, childlike or ambiguous characters never are.",
+    "unlockAction": "Unlock sensitive modes",
+    "lockAction": "Lock again",
+    "lockHint": "Locking switches every sensitive mode off for this universe immediately.",
+    "audience": {
+      "GENERAL": "General audience",
+      "YOUTH": "Young audience",
+      "UNREVIEWED": "To review"
+    },
+    "audienceTitle": "Audience classification",
+    "audienceHint": {
+      "GENERAL": "Reviewed: not aimed at a young audience. Sensitive modes can be enabled here, for individually verified adults and approved images only.",
+      "YOUTH": "Aimed at a young audience. Sensitive modes stay locked unless you unlock them explicitly below.",
+      "UNREVIEWED": "Nobody has reviewed this universe yet. Sensitive modes stay locked until it is classified."
+    },
+    "audienceNote": "Justification",
+    "audienceNoteHint": "At least {{count}} characters. Say why this universe is not aimed at a young audience.",
+    "audienceConfirm": "I have reviewed this universe: it is not aimed at a young audience. This changes nothing for minors, childlike or ambiguous characters, who stay excluded from sensitive modes.",
+    "audienceSave": "Save classification",
+    "audienceFixed": "The code fixes this universe as young-audience. It can be made stricter, never more permissive.",
+    "audienceStricter": "A stricter classification applies at once and switches every sensitive mode off for this universe.",
+    "unreviewedNotice": "This universe has not been reviewed. Sensitive modes stay locked until you classify it below."
+  },
+  "history": {
+    "title": "History",
+    "intro": "Every change is recorded. A change can be restored as long as nothing newer has replaced it.",
+    "empty": "Nothing here yet.",
+    "none": "none",
+    "restore": "Restore",
+    "restoreBatch": "Restore the whole batch",
+    "isRestoration": "Restoration",
+    "restored": "Restored",
+    "bulk": "Bulk",
+    "batchRestored": "{{restored}} restored, {{skipped}} skipped (changed since).",
+    "actions": {
+      "universe.create": "Universe created",
+      "universe.update": "Universe updated",
+      "character.create": "Character created",
+      "character.labels": "Names changed",
+      "character.status": "Status changed",
+      "character.classification": "Classification changed",
+      "character.blocked-modes": "Blocked modes changed",
+      "variant.create": "Variant added",
+      "variant.update": "Variant renamed",
+      "variant.delete": "Variant deleted",
+      "universe.sensitive-unlock": "Sensitive modes unlocked",
+      "universe.sensitive-lock": "Sensitive modes locked again",
+      "universe.audience": "Audience classification changed"
+    }
+  },
+  "images": {
+    "title": "Images",
+    "none": "No image",
+    "badge": "{{approved}}/{{total}} approved",
+    "intro": "The eligibility of a character and the approval of each of its images are two separate things: a challenge needs both.",
+    "approvedNeutral": "Approved for neutral modes",
+    "approvedSensitive": "Approved for sensitive modes",
+    "unverified": "Waiting for review",
+    "rejected": "Rejected",
+    "usable_one": "{{count}} usable image",
+    "usable_other": "{{count}} usable images",
+    "importLater": "Importing and approving images arrives with the next lot."
+  }
+}

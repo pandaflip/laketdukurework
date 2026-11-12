@@ -1,0 +1,205 @@
+{
+  "loading": "Carregando…",
+  "nav": {
+    "label": "Administração",
+    "characters": "Personagens",
+    "universes": "Universos",
+    "history": "Histórico",
+    "logout": "Sair"
+  },
+  "login": {
+    "title": "Administração",
+    "username": "Usuário",
+    "password": "Senha",
+    "submit": "Entrar"
+  },
+  "actions": {
+    "save": "Salvar",
+    "edit": "Editar",
+    "delete": "Excluir"
+  },
+  "pagination": {
+    "previous": "Anterior",
+    "next": "Próxima",
+    "page": "Página {{page}} de {{pageCount}}"
+  },
+  "fields": {
+    "name": "Nome",
+    "nameEn": "Nome (inglês)",
+    "nameFr": "Nome (francês)",
+    "namePtBR": "Nome (português)",
+    "universe": "Universo",
+    "status": "Status",
+    "classification": "Classificação de segurança",
+    "eligibility": "Elegibilidade efetiva"
+  },
+  "status": {
+    "ALLOWED": {
+      "label": "Permitido",
+      "hint": "Ativo no catálogo. Cada modo ainda aplica as próprias regras: este status nunca libera um modo sensível sozinho."
+    },
+    "RESTRICTED": {
+      "label": "Restrito",
+      "hint": "Apenas modos neutros. É onde todo personagem novo começa."
+    },
+    "EXCLUDED": {
+      "label": "Excluído",
+      "hint": "Removido de todos os modos, inclusive os neutros."
+    }
+  },
+  "ageClass": {
+    "UNKNOWN": "Não avaliado",
+    "ADULT_VERIFIED": "Adulto verificado",
+    "MINOR": "Menor de idade",
+    "CHILDLIKE": "Aparência infantil",
+    "AMBIGUOUS": "Idade ambígua"
+  },
+  "eligibility": {
+    "eligible": "Elegível",
+    "notEligible": "Não elegível",
+    "neutralYes": "Modos neutros: sim",
+    "neutralNo": "Modos neutros: não",
+    "sensitiveYes": "Modos sensíveis: sim",
+    "sensitiveNo": "Modos sensíveis: não",
+    "perRound": "Verificado por rodada",
+    "compositeNote": "O Chaos Mix não tem conteúdo próprio. Cada rodada sorteada é verificada no servidor pelo modo de onde veio e pela imagem usada.",
+    "detailsLink": "Por quê?",
+    "legendSummary": "Como ler estas colunas",
+    "legendEligibility": "Elegibilidade: para que o personagem pode ser usado, de acordo com o status, a classificação de segurança e os ajustes do universo.",
+    "legendImages": "Imagens: quantas das suas imagens foram aprovadas uma a uma. Um desafio jogável exige as duas coisas.",
+    "detailsFor": "(detalhes de elegibilidade de {{name}})"
+  },
+  "reasons": {
+    "CHARACTER_EXCLUDED": "O personagem está excluído do jogo.",
+    "MODE_DISABLED_FOR_UNIVERSE": "Este modo não está ativado para o universo.",
+    "MODE_BLOCKED_FOR_CHARACTER": "Este modo está bloqueado para este personagem.",
+    "CORE_EXCLUSION": "Exclusão fundamental: não pode ser removida por esta interface.",
+    "STATUS_RESTRICTED": "O status é Restrito (apenas modos neutros).",
+    "NOT_ADULT_VERIFIED": "O personagem não está classificado como adulto verificado.",
+    "ASSET_NOT_APPROVED": "A imagem não foi aprovada para este modo.",
+    "ASSET_REJECTED": "A imagem foi rejeitada.",
+    "UNIVERSE_SENSITIVE_LOCKED": "Os modos sensíveis estão bloqueados para este universo (franquia de público jovem).",
+    "MODE_IS_COMPOSITE": "Mistura de outros modos: cada rodada é verificada pelo seu próprio modo.",
+    "UNIVERSE_UNREVIEWED": "Este universo ainda não foi revisado: os modos sensíveis ficam bloqueados até que ele seja classificado."
+  },
+  "characters": {
+    "title": "Personagens",
+    "addTitle": "Adicionar um personagem",
+    "add": "Adicionar",
+    "addHint": "Todo personagem novo começa como Restrito e Não avaliado.",
+    "search": "Busca",
+    "searchPlaceholder": "Nome ou apelido, em qualquer idioma",
+    "allUniverses": "Todos os universos",
+    "allStatuses": "Todos os status",
+    "selected_one": "{{count}} personagem selecionado",
+    "selected_other": "{{count}} personagens selecionados",
+    "bulkLabel": "Status a aplicar",
+    "bulkApply": "Aplicar à seleção",
+    "bulkHint": "Alterações em massa só mudam o status, nunca a classificação de segurança.",
+    "bulkDone_one": "{{count}} personagem atualizado.",
+    "bulkDone_other": "{{count}} personagens atualizados.",
+    "selectAll": "Selecionar tudo",
+    "statusOf": "Status de {{name}}",
+    "coreExcluded": "Exclusão fundamental",
+    "empty": "Nenhum personagem encontrado.",
+    "total_one": "{{count}} personagem",
+    "total_other": "{{count}} personagens"
+  },
+  "character": {
+    "namesTitle": "Nomes",
+    "aliasesTitle": "Apelidos aceitos",
+    "aliasesHint": "Separe os apelidos com vírgulas. Eles valerão como resposta certa nesse idioma.",
+    "statusNote": "O status e a classificação de segurança são dois ajustes separados.",
+    "classificationIntro": "Somente um adulto verificado, com aparência e apresentação não infantis, pode aparecer nos modos sensíveis. Baixa estatura sozinha não prova nada, nem para um lado nem para o outro: avalie cada personagem individualmente e, na dúvida, escolha Idade ambígua.",
+    "coreExcluded": "Este personagem está permanentemente excluído dos modos sensíveis. Ele nunca pode ser classificado como adulto verificado.",
+    "note": "Justificativa",
+    "noteHint": "Opcional. Explique a escolha para a próxima revisão.",
+    "noteHintAdult": "Obrigatória: pelo menos {{count}} caracteres. Indique a fonte da idade e por que a aparência não é infantil.",
+    "confirmAdult": "Verifiquei este personagem individualmente: adulto segundo o material oficial, aparência e apresentação não infantis, sem ambiguidade.",
+    "saveClassification": "Salvar classificação",
+    "blockedTitle": "Modos bloqueados para este personagem",
+    "blockedIntro": "Marque um modo para manter este personagem fora dele, seja qual for o status.",
+    "eligibilityIntro": "Calculada pelo servidor a partir de todas as regras. É o que o jogo vai aplicar.",
+    "variantsTitle": "Variantes e skins",
+    "variantsIntro": "As variantes herdam todas as restrições do personagem. Uma skin nunca libera um modo.",
+    "noVariants": "Nenhuma variante ainda.",
+    "addVariant": "Adicionar variante"
+  },
+  "universes": {
+    "title": "Universos",
+    "addTitle": "Adicionar um universo",
+    "add": "Adicionar",
+    "addHint": "Um universo novo começa apenas com os modos neutros e precisa ser revisado antes de ativar qualquer modo sensível.",
+    "sensitive": "Sensível",
+    "characterCount_one": "{{count}} personagem",
+    "characterCount_other": "{{count}} personagens",
+    "youthNotice": "Franquia associada a um público jovem. Os modos sensíveis ficam bloqueados aqui, a menos que você os desbloqueie explicitamente. Mesmo assim, só adultos verificados individualmente, com imagens aprovadas individualmente, podem aparecer neles.",
+    "locked": "Bloqueado",
+    "unlocked": "Desbloqueado",
+    "unlockIntro": "O desbloqueio é uma exceção deliberada, nunca um padrão. Fica registrado com a sua justificativa. Personagens e imagens mantêm cada uma das suas próprias verificações.",
+    "unlockNote": "Justificativa",
+    "unlockNoteHint": "Pelo menos {{count}} caracteres.",
+    "unlockConfirm": "Entendo que é uma exceção: só adultos verificados com imagens aprovadas individualmente podem ser elegíveis, e personagens menores, de aparência infantil ou de idade ambígua nunca são.",
+    "unlockAction": "Desbloquear modos sensíveis",
+    "lockAction": "Bloquear de novo",
+    "lockHint": "Ao bloquear de novo, todos os modos sensíveis deste universo são desativados imediatamente.",
+    "audience": {
+      "GENERAL": "Público geral",
+      "YOUTH": "Público jovem",
+      "UNREVIEWED": "A revisar"
+    },
+    "audienceTitle": "Classificação de público",
+    "audienceHint": {
+      "GENERAL": "Revisado: não é voltado a um público jovem. Os modos sensíveis podem ser ativados aqui, apenas para adultos verificados individualmente e imagens aprovadas.",
+      "YOUTH": "Voltado a um público jovem. Os modos sensíveis ficam bloqueados, a menos que você os desbloqueie explicitamente abaixo.",
+      "UNREVIEWED": "Ninguém revisou este universo ainda. Os modos sensíveis ficam bloqueados até que ele seja classificado."
+    },
+    "audienceNote": "Justificativa",
+    "audienceNoteHint": "Pelo menos {{count}} caracteres. Explique por que este universo não é voltado a um público jovem.",
+    "audienceConfirm": "Revisei este universo: ele não é voltado a um público jovem. Isso não muda nada para personagens menores, de aparência infantil ou de idade ambígua, que continuam excluídos dos modos sensíveis.",
+    "audienceSave": "Salvar classificação",
+    "audienceFixed": "O código fixa este universo como público jovem. Ele pode ficar mais restrito, nunca mais permissivo.",
+    "audienceStricter": "Uma classificação mais restrita vale imediatamente e desativa todos os modos sensíveis deste universo.",
+    "unreviewedNotice": "Este universo não foi revisado. Os modos sensíveis ficam bloqueados até que você o classifique abaixo."
+  },
+  "history": {
+    "title": "Histórico",
+    "intro": "Toda alteração fica registrada. Uma alteração pode ser restaurada enquanto nada mais recente a tiver substituído.",
+    "empty": "Nada por aqui ainda.",
+    "none": "nenhum",
+    "restore": "Restaurar",
+    "restoreBatch": "Restaurar o lote inteiro",
+    "isRestoration": "Restauração",
+    "restored": "Restaurada",
+    "bulk": "Lote",
+    "batchRestored": "{{restored}} restauradas, {{skipped}} ignoradas (alteradas depois).",
+    "actions": {
+      "universe.create": "Universo criado",
+      "universe.update": "Universo alterado",
+      "character.create": "Personagem criado",
+      "character.labels": "Nomes alterados",
+      "character.status": "Status alterado",
+      "character.classification": "Classificação alterada",
+      "character.blocked-modes": "Modos bloqueados alterados",
+      "variant.create": "Variante adicionada",
+      "variant.update": "Variante renomeada",
+      "variant.delete": "Variante excluída",
+      "universe.sensitive-unlock": "Modos sensíveis desbloqueados",
+      "universe.sensitive-lock": "Modos sensíveis bloqueados de novo",
+      "universe.audience": "Classificação de público alterada"
+    }
+  },
+  "images": {
+    "title": "Imagens",
+    "none": "Nenhuma imagem",
+    "badge": "{{approved}}/{{total}} aprovadas",
+    "intro": "A elegibilidade de um personagem e a aprovação de cada uma das suas imagens são duas coisas distintas: um desafio exige as duas.",
+    "approvedNeutral": "Aprovadas para modos neutros",
+    "approvedSensitive": "Aprovadas para modos sensíveis",
+    "unverified": "Aguardando revisão",
+    "rejected": "Rejeitadas",
+    "usable_one": "{{count}} imagem utilizável",
+    "usable_other": "{{count}} imagens utilizáveis",
+    "importLater": "A importação e a aprovação de imagens chegam com o próximo lote."
+  }
+}
