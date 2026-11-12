@@ -16,5 +16,11 @@
   "RESTORE_CONFLICT": "Cet élément a été modifié depuis : il ne peut pas être restauré automatiquement.",
   "RESTORE_NOT_ALLOWED": "Cette modification ne peut pas être restaurée. Une classification « adulte vérifié » doit toujours être saisie à la main.",
   "INELIGIBLE_CONTENT": "Ce contenu n'est pas éligible à ce mode.",
-  "AUDIENCE_FORBIDDEN": "Le code fixe cet univers comme jeune public : il ne peut pas être classé tout public."
+  "AUDIENCE_FORBIDDEN": "Le code fixe cet univers comme jeune public : il ne peut pas être classé tout public.",
+  "INVALID_IMAGE": "Ce fichier n'est pas une image utilisable. Utilisez un JPEG, PNG ou WebP intact, non animé et assez grand.",
+  "FILE_TOO_LARGE": "Ce fichier est trop volumineux.",
+  "DUPLICATE_IMAGE": "Cette image a déjà été importée pour ce personnage.",
+  "INVALID_SEQUENCE": "Certains cadrages ne sont pas valides pour cette image et ce ratio. Générez à nouveau la séquence.",
+  "SEQUENCE_REQUIRED": "Enregistrez une séquence avant d'approuver cette image.",
+  "APPROVAL_NOT_ALLOWED": "Les règles n'autorisent pas cette approbation pour le moment."
 }

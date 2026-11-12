@@ -6,6 +6,15 @@ dist/
 *.log
 playwright-report/
 test-results/
-apps/server/storage/
+
+# Image storage and development image datasets: never committed. Imported
+# illustrations (and the splash arts used for manual tests) are third-party
+# assets that must not reach the repository by accident.
+storage/
+**/storage/
+**/LoL_Female_Splasharts/
+**/image-storage/
+**/test-images/
+**/sample-images/
 .DS_Store
 apps/server/src/generated/

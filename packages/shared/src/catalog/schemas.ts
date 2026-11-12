@@ -11,7 +11,12 @@ import { AGE_CLASSES, CHARACTER_STATUSES } from './enums';
 
 const displayName = z.string().trim().min(1).max(80);
 const slug = z.string().trim().min(1).max(64).regex(SLUG_PATTERN);
-const id = z.string().min(1).max(64);
+/** Identifiers are generated (letters, digits, dash, underscore): nothing else is accepted. */
+const id = z
+  .string()
+  .min(1)
+  .max(64)
+  .regex(/^[A-Za-z0-9_-]+$/);
 
 /** One display name per language. English is required and is the reference. */
 export const localizedNamesSchema = z.object({

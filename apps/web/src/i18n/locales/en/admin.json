@@ -5,7 +5,8 @@
     "characters": "Characters",
     "universes": "Universes",
     "history": "History",
-    "logout": "Sign out"
+    "logout": "Sign out",
+    "images": "Images"
   },
   "login": {
     "title": "Administration",
@@ -186,7 +187,11 @@
       "variant.delete": "Variant deleted",
       "universe.sensitive-unlock": "Sensitive modes unlocked",
       "universe.sensitive-lock": "Sensitive modes locked again",
-      "universe.audience": "Audience classification changed"
+      "universe.audience": "Audience classification changed",
+      "image.import": "Image imported",
+      "image.sequence": "Sequence saved",
+      "image.review": "Image review changed",
+      "image.delete": "Image deleted"
     }
   },
   "images": {
@@ -200,6 +205,15 @@
     "rejected": "Rejected",
     "usable_one": "{{count}} usable image",
     "usable_other": "{{count}} usable images",
-    "importLater": "Importing and approving images arrives with the next lot."
+    "manage": "Manage images",
+    "import": "Import images",
+    "historySteps_one": "{{count}} step",
+    "historySteps_other": "{{count}} steps",
+    "reviewStates": {
+      "UNVERIFIED": "Unverified",
+      "APPROVED_NEUTRAL": "Approved (neutral)",
+      "APPROVED_SENSITIVE": "Approved (sensitive)",
+      "REJECTED": "Rejected"
+    }
   }
 }

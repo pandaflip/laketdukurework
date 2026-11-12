@@ -1,10 +1,13 @@
 import type { ApiError, ErrorCode } from '@app/shared';
 import cookie from '@fastify/cookie';
+import multipart from '@fastify/multipart';
 import Fastify, { type FastifyInstance } from 'fastify';
 import type { AppConfig } from './config';
 import { createDb } from './db';
 import { AppError } from './errors';
 import { registerAdminRoutes } from './modules/admin.routes';
+import { createLimiter } from './modules/images/processing';
+import { createImageDeps } from './modules/images/service';
 import type { AuthRouteOptions } from './modules/auth/routes';
 import { registerHealthRoutes } from './modules/health/routes';
 import { registerSecurity, type SecurityOptions } from './plugins/security';
@@ -13,6 +16,7 @@ export type AppOptions = SecurityOptions & AuthRouteOptions;
 
 function errorCodeForStatus(statusCode: number): ErrorCode {
   if (statusCode === 404) return 'NOT_FOUND';
+  if (statusCode === 413) return 'FILE_TOO_LARGE';
   if (statusCode === 503) return 'SERVICE_UNAVAILABLE';
   if (statusCode === 429) return 'RATE_LIMITED';
   if (statusCode >= 400 && statusCode < 500) return 'VALIDATION_ERROR';
@@ -55,6 +59,18 @@ export async function buildApp(
   app.decorateRequest('admin', null);
   await registerSecurity(app, config, options);
   await app.register(cookie);
+  // Streams: a file is only read by the one route that asks for it, and never above the limit.
+  await app.register(multipart, {
+    limits: { fileSize: config.UPLOAD_MAX_BYTES, files: 1, fields: 0, parts: 2 },
+  });
+  const images = createImageDeps(
+    db,
+    config,
+    createLimiter(config.IMAGE_CONCURRENCY),
+    (details, message) => {
+      app.log.warn(details, message);
+    },
+  );
 
   await app.register(
     (api, _opts, done) => {
@@ -65,7 +81,7 @@ export async function buildApp(
   );
   await app.register(
     (admin, _opts, done) => {
-      registerAdminRoutes(admin, db, config, options);
+      registerAdminRoutes(admin, db, config, images, options);
       done();
     },
     { prefix: '/api/admin' },

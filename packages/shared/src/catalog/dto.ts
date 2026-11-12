@@ -100,6 +100,10 @@ export const AUDIT_ACTIONS = [
   'variant.create',
   'variant.update',
   'variant.delete',
+  'image.import',
+  'image.sequence',
+  'image.review',
+  'image.delete',
 ] as const;
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];
 

@@ -8,6 +8,7 @@ import {
 } from '../src/modules/catalog/selection.service';
 import {
   adminClient,
+  createAsset,
   createReviewedUniverse,
   startApp,
   type Client,
@@ -24,17 +25,13 @@ async function setup(name = 'Ashe') {
   const created = (
     await admin.post('/characters', { universeId: universe.id, names: { en: name } })
   ).json<CharacterDto>();
-  const withVariant = (
-    await admin.post(`/characters/${created.id}/variants`, { names: { en: 'Classic' } })
-  ).json<CharacterDto>();
-  const variantId = withVariant.variants[0]?.id ?? '';
-  return { universeId: universe.id, characterId: created.id, variantId };
+  return { universeId: universe.id, characterId: created.id };
 }
 
 const addAsset = (
-  variantId: string,
+  characterId: string,
   review: 'UNVERIFIED' | 'APPROVED_NEUTRAL' | 'APPROVED_SENSITIVE' | 'REJECTED',
-) => context.db.asset.create({ data: { variantId, review } });
+) => createAsset(context.db, characterId, review);
 
 const character = async (id: string): Promise<CharacterDto> =>
   (await admin.get(`/characters/${id}`)).json();
@@ -59,7 +56,7 @@ afterEach(async () => {
 
 describe('image summary and usable images', () => {
   it('keeps the review of the images apart from the eligibility of the character', async () => {
-    const { characterId, variantId } = await setup();
+    const { characterId } = await setup();
     expect((await character(characterId)).images).toEqual({
       total: 0,
       approvedNeutral: 0,
@@ -68,10 +65,10 @@ describe('image summary and usable images', () => {
       unverified: 0,
     });
 
-    await addAsset(variantId, 'UNVERIFIED');
-    await addAsset(variantId, 'APPROVED_NEUTRAL');
-    await addAsset(variantId, 'APPROVED_SENSITIVE');
-    await addAsset(variantId, 'REJECTED');
+    await addAsset(characterId, 'UNVERIFIED');
+    await addAsset(characterId, 'APPROVED_NEUTRAL');
+    await addAsset(characterId, 'APPROVED_SENSITIVE');
+    await addAsset(characterId, 'REJECTED');
 
     const ashe = await character(characterId);
     expect(ashe.images).toEqual({
@@ -97,11 +94,11 @@ describe('image summary and usable images', () => {
 
 describe('round eligibility, checked on the server for the real mode and the image used', () => {
   it('requires an approval that matches the mode', async () => {
-    const { variantId, characterId } = await setup();
-    const unverified = await addAsset(variantId, 'UNVERIFIED');
-    const neutral = await addAsset(variantId, 'APPROVED_NEUTRAL');
-    const sensitive = await addAsset(variantId, 'APPROVED_SENSITIVE');
-    const rejected = await addAsset(variantId, 'REJECTED');
+    const { characterId } = await setup();
+    const unverified = await addAsset(characterId, 'UNVERIFIED');
+    const neutral = await addAsset(characterId, 'APPROVED_NEUTRAL');
+    const sensitive = await addAsset(characterId, 'APPROVED_SENSITIVE');
+    const rejected = await addAsset(characterId, 'REJECTED');
 
     expect((await checkRoundEligibility(context.db, 'zoom-out', unverified.id)).reasons).toEqual([
       'ASSET_NOT_APPROVED',
@@ -123,8 +120,8 @@ describe('round eligibility, checked on the server for the real mode and the ima
   });
 
   it('refuses the composite mode: every round is checked under its concrete mode', async () => {
-    const { variantId } = await setup();
-    const asset = await addAsset(variantId, 'APPROVED_SENSITIVE');
+    const { characterId } = await setup();
+    const asset = await addAsset(characterId, 'APPROVED_SENSITIVE');
     expect(await checkRoundEligibility(context.db, 'chaos-mix', asset.id)).toEqual({
       eligible: false,
       reasons: ['MODE_IS_COMPOSITE'],
@@ -136,8 +133,8 @@ describe('round eligibility, checked on the server for the real mode and the ima
   });
 
   it('reflects an administrative change on the very next check', async () => {
-    const { variantId, characterId, universeId } = await setup();
-    const asset = await addAsset(variantId, 'APPROVED_SENSITIVE');
+    const { characterId, universeId } = await setup();
+    const asset = await addAsset(characterId, 'APPROVED_SENSITIVE');
     await makeVerifiedAdult(characterId);
     await expect(assertRoundEligible(context.db, 'historic', asset.id)).resolves.toBeUndefined();
 
@@ -169,8 +166,8 @@ describe('round eligibility, checked on the server for the real mode and the ima
   });
 
   it('cannot be bypassed through a variant or an alias', async () => {
-    const { variantId, characterId } = await setup('Ashe');
-    const asset = await addAsset(variantId, 'APPROVED_SENSITIVE');
+    const { characterId } = await setup('Ashe');
+    const asset = await addAsset(characterId, 'APPROVED_SENSITIVE');
     await makeVerifiedAdult(characterId);
     await expect(assertRoundEligible(context.db, 'historic', asset.id)).resolves.toBeUndefined();
 

@@ -18,13 +18,10 @@ export async function checkRoundEligibility(
   modeId: ModeId,
   assetId: string,
 ): Promise<EligibilityResult> {
-  const asset = await db.asset.findUnique({
-    where: { id: assetId },
-    include: { variant: { select: { characterId: true } } },
-  });
+  const asset = await db.asset.findUnique({ where: { id: assetId } });
   if (!asset) throw notFound();
 
-  const row = await loadRow(db, asset.variant.characterId);
+  const row = await loadRow(db, asset.characterId);
   const { universe, character } = eligibilityInputs(row);
   return challengeEligibility(modeId, universe, character, { review: asset.review });
 }
