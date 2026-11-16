@@ -90,6 +90,7 @@ model Character {
   labels          CharacterLabel[]
   blockedModes    CharacterBlockedMode[]
   variants        Variant[]
+  assets          Asset[]
 
   @@unique([universeId, slug])
   @@index([status])
@@ -136,17 +137,76 @@ model Variant {
   @@unique([characterId, slug])
 }
 
-/// Image attached to a variant. Only the review state exists for now:
-/// upload and storage columns are added with the import tool (lot 1C).
+/// An image of a character: the unit that is reviewed, approved and played.
+/// Files live in the private storage, under names built from `storageKey` only.
 model Asset {
   id           String      @id @default(cuid())
-  variantId    String
-  variant      Variant     @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  characterId  String
+  character    Character   @relation(fields: [characterId], references: [id], onDelete: Restrict)
+  /// Optional skin this image shows. The character carries every safety rule.
+  variantId    String?
+  variant      Variant?    @relation(fields: [variantId], references: [id], onDelete: SetNull)
+  /// Display label taken from the uploaded file name (sanitized). Never used as a path.
+  label        String
+  /// Random identifier of the stored files: the only input of any file path.
+  storageKey   String      @unique
+  /// SHA-256 of the uploaded bytes: refuses the same file twice for one character.
+  sha256       String
+  /// Detected format of the upload: jpeg, png or webp.
+  sourceFormat String
+  /// Size of the normalized original, in pixels.
+  width        Int
+  height       Int
+  /// Size of the stored original, in bytes.
+  bytes        Int
   review       AssetReview @default(UNVERIFIED)
   reviewedAt   DateTime?
   reviewedById String?
   reviewedBy   AdminUser?  @relation(fields: [reviewedById], references: [id], onDelete: SetNull)
   createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  sequences    Sequence[]
+
+  @@unique([characterId, sha256])
+  @@index([characterId, createdAt])
+}
+
+/// The frames of one image for one mode. Several sequences per image and mode,
+/// and other modes, are possible later without changing the model.
+model Sequence {
+  id        String         @id @default(cuid())
+  assetId   String
+  asset     Asset          @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  /// Mode identifier from the shared registry. Only `zoom-out` has an editor for now.
+  modeId    String
+  /// Display ratio the frames were made for (for example 16 and 9).
+  aspectW   Int
+  aspectH   Int
+  /// Settings of the last simple-mode generation (focus, steps, zoom start and end).
+  params    Json
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  steps     SequenceStep[]
+
+  @@index([assetId])
+}
+
+model SequenceStep {
+  id         String   @id @default(cuid())
+  sequenceId String
+  sequence   Sequence @relation(fields: [sequenceId], references: [id], onDelete: Cascade)
+  position   Int
+  /// Custom name; null means the automatic "Step N".
+  name       String?
+  /// Frame in the coordinate system of the SOURCE image, normalized to 0..1.
+  x          Float
+  y          Float
+  w          Float
+  h          Float
+  /// True when an administrator adjusted this frame by hand.
+  manual     Boolean  @default(false)
+
+  @@unique([sequenceId, position])
 }
 
 model AdminUser {

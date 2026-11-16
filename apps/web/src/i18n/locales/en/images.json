@@ -1,0 +1,176 @@
+{
+  "loading": "Loading…",
+  "list": {
+    "title": "Images",
+    "intro": "Illustrations of the characters, with their Zoom Out sequence. Importing never approves anything: every image starts unverified.",
+    "review": "Review status",
+    "allReviews": "All",
+    "columns": {
+      "image": "Image",
+      "character": "Character",
+      "status": "Status",
+      "sequence": "Sequence",
+      "updated": "Last change"
+    },
+    "edit": "Edit",
+    "size": "{{width}} × {{height}} px",
+    "sequenceSteps_one": "{{count}} step",
+    "sequenceSteps_other": "{{count}} steps",
+    "sequenceNone": "No sequence",
+    "empty": "No image yet.",
+    "total_one": "{{count}} image",
+    "total_other": "{{count}} images",
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page {{page}} of {{pageCount}}"
+  },
+  "import": {
+    "title": "Import",
+    "search": "Find a character",
+    "searchHint": "Type a name, then pick the character below.",
+    "character": "Character",
+    "noCharacter": "Choose a character…",
+    "drop": "Drop pictures here",
+    "or": "or",
+    "choose": "Choose files",
+    "hint": "JPEG, PNG or WebP. Several files can be imported at once. Imported pictures start unverified.",
+    "pick": "Choose a character first: imported pictures belong to the selected character.",
+    "queue": "Import progress",
+    "waiting": "Waiting",
+    "importing": "Importing…",
+    "done": "Imported",
+    "failed": "Failed",
+    "open": "Open in the editor"
+  },
+  "review": {
+    "UNVERIFIED": "Unverified",
+    "APPROVED_NEUTRAL": "Approved (neutral)",
+    "APPROVED_SENSITIVE": "Approved (sensitive)",
+    "REJECTED": "Rejected",
+    "SEQUENCE_REQUIRED": "Save a sequence first: an approval covers its frames.",
+    "title": "Review",
+    "intro": "The approval covers the saved frames. Changing the frames of an approved image withdraws its approval.",
+    "saveFirst": "Save the sequence before reviewing it.",
+    "approveNeutral": "Approve for neutral modes",
+    "approveSensitive": "Approve for sensitive modes…",
+    "sensitiveIntro": "An approval for sensitive modes is an explicit decision about these frames. The server checks again that the character, the universe and the modes allow it.",
+    "note": "Justification",
+    "noteHint": "At least {{count}} characters: what was checked, and why these frames are appropriate.",
+    "confirmSensitive": "I have reviewed every frame of this sequence and they are appropriate for sensitive modes.",
+    "confirmApprove": "Approve for sensitive modes",
+    "reject": "Reject",
+    "reset": "Back to unverified",
+    "next": "Next image to review",
+    "noNext": "No other image to review"
+  },
+  "delete": {
+    "action": "Delete this image…",
+    "confirm": "Delete the image, its sequence and its files for good?",
+    "yes": "Delete for good",
+    "no": "Keep it"
+  },
+  "editor": {
+    "back": "Images",
+    "characterPage": "Character page"
+  },
+  "canvas": {
+    "frame": "Frame of the selected step",
+    "focus": "Focus point, {{x}}% across and {{y}}% down. Use the arrow keys to move it.",
+    "frameHelp": "Arrow keys move the frame, plus and minus change its zoom. Highest zoom for this picture: ×{{max}}."
+  },
+  "mode": {
+    "label": "Editing mode",
+    "simple": "Simple",
+    "advanced": "Advanced",
+    "random": "Random"
+  },
+  "simple": {
+    "title": "Generate the sequence",
+    "focusHint": "Click the picture to place the focus point: the center of the first frames. Drag the cross or use the fields below to fine-tune it.",
+    "focusX": "Focus X (%)",
+    "focusY": "Focus Y (%)",
+    "steps": "Number of steps",
+    "stepsHint": "From 1 to {{max}}.",
+    "zoomStart": "Initial zoom",
+    "zoomStartHint": "First frame: tight, on a detail.",
+    "zoomEnd": "Final zoom",
+    "zoomEndHint": "Last frame: ×1 is the whole picture.",
+    "aspect": "Display ratio",
+    "generate": "Generate",
+    "useLast": "Use last settings ({{steps}} steps, ×{{start}} to ×{{end}})",
+    "preserve": "Keep the steps I adjusted by hand",
+    "staleRatio": "The frames were made for another ratio. Generate again to apply the new one."
+  },
+  "advanced": {
+    "title": "Generate the sequence",
+    "stepsTitle": "Steps",
+    "noSteps": "Generate a sequence first, then adjust its steps here.",
+    "stepName": "Step name",
+    "stepNameHint": "Optional. Left empty, the step is called “Step N”.",
+    "frameX": "Center X (%)",
+    "frameY": "Center Y (%)",
+    "frameZoom": "Zoom",
+    "frameHint": "Drag the frame on the picture, or use the fields. Editing a frame marks the step as adjusted by hand.",
+    "add": "Add a step",
+    "duplicate": "Duplicate",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "remove": "Delete step"
+  },
+  "preview": {
+    "title": "Preview",
+    "region": "Preview of the steps. Left and right arrows change step.",
+    "frameLabel": "Frame: {{name}}",
+    "previous": "Previous",
+    "next": "Next",
+    "position": "Step {{n}} of {{total}}",
+    "zoom": "Zoom ×{{zoom}}",
+    "empty": "Generate a sequence to preview it here, at the display ratio of the game."
+  },
+  "strip": {
+    "label": "Steps",
+    "select": "Show {{name}}"
+  },
+  "steps": {
+    "defaultName": "Step {{n}}",
+    "manual": "Adjusted by hand"
+  },
+  "problems": {
+    "INVALID_IMAGE_SIZE": "The picture has no usable size.",
+    "INVALID_RATIO": "The display ratio is not valid.",
+    "INVALID_STEP_COUNT": "Choose a whole number of steps between 1 and {{max}}.",
+    "INVALID_FOCUS": "Place the focus point inside the picture.",
+    "INVALID_ZOOM": "The zoom must be a positive number.",
+    "INVALID_RECT": "A frame is outside the picture.",
+    "START_NOT_TIGHTER": "The initial zoom must be tighter (higher) than the final zoom."
+  },
+  "warnings": {
+    "ZOOM_RAISED_TO_FIT": "A zoom below ×1 was raised to ×1, the widest frame this ratio allows (step {{steps}}).",
+    "ZOOM_LIMITED": "A zoom was lowered to the highest this picture allows, so that frames stay readable (step {{steps}}).",
+    "RECT_ADJUSTED_TO_RATIO": "A frame did not have the display ratio: it was adjusted around its center (step {{steps}}).",
+    "FRAME_SHIFTED_INSIDE_IMAGE": "Some frames were shifted to stay inside the picture, for instance a frame almost as large as the picture, or one near an edge (steps {{steps}}).",
+    "MANUAL_DROPPED_one": "{{count}} step adjusted by hand did not fit in the new length and was dropped.",
+    "MANUAL_DROPPED_other": "{{count}} steps adjusted by hand did not fit in the new length and were dropped."
+  },
+  "save": {
+    "save": "Save",
+    "saveAndAdd": "Save and add another image",
+    "unsaved": "Unsaved changes",
+    "saved": "Saved",
+    "withdrawsApproval": "This image is approved. Saving changed frames withdraws the approval, and it will have to be reviewed again."
+  },
+  "random": {
+    "title": "Random draw",
+    "hint": "A focus point is drawn automatically, then the sequence is generated for it. Relaunch to draw again, preview the result, and switch to Advanced mode to adjust the steps.",
+    "zoomStart": "Initial zoom",
+    "zoomStartHint": "First frame: ×12 by default.",
+    "zoomEnd": "Final zoom",
+    "zoomEndHint": "Last frame: ×1 by default, the whole picture.",
+    "zone": "Draw zone (%)",
+    "zoneHint": "The focus is drawn in the central {{zone}}% of the picture, away from the borders.",
+    "relaunch": "Relaunch",
+    "focusDrawn": "Focus drawn: {{x}}% across, {{y}}% down.",
+    "fixed": "Once saved, the draw stays fixed: nothing is ever drawn again during games.",
+    "replacesManual": "Relaunching replaces every step, including the ones you adjusted by hand."
+  }
+}

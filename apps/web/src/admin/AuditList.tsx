@@ -7,6 +7,8 @@ import { currentLocale } from '../i18n';
 import { adminApi } from '../lib/api';
 import { ErrorNotice, useAdminMutation } from './shared';
 
+const text = (value: unknown): string => (typeof value === 'string' ? value : '');
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
@@ -25,6 +27,16 @@ function useSummarize(): (entry: AuditEntryDto, value: unknown) => string {
         return Array.isArray(value.modeIds) && value.modeIds.length > 0
           ? value.modeIds.join(', ')
           : t('history.none');
+      case 'image.import':
+        return text(value.label);
+      case 'image.sequence':
+        return t('images.historySteps', { count: Number(value.steps ?? 0) });
+      case 'image.review':
+        return t(`images.reviewStates.${String(value.review)}`, {
+          defaultValue: String(value.review),
+        });
+      case 'image.delete':
+        return text(value.label);
       case 'universe.audience':
         return t(`universes.audience.${String(value.audience)}`, {
           defaultValue: String(value.audience),

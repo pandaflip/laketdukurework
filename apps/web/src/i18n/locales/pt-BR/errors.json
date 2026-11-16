@@ -16,5 +16,11 @@
   "RESTORE_CONFLICT": "Isso foi alterado de novo depois, então não pode ser restaurado automaticamente.",
   "RESTORE_NOT_ALLOWED": "Esta alteração não pode ser restaurada. Uma classificação de adulto verificado deve sempre ser registrada manualmente.",
   "INELIGIBLE_CONTENT": "Este conteúdo não é elegível para este modo.",
-  "AUDIENCE_FORBIDDEN": "O código fixa este universo como público jovem: ele não pode ser classificado como público geral."
+  "AUDIENCE_FORBIDDEN": "O código fixa este universo como público jovem: ele não pode ser classificado como público geral.",
+  "INVALID_IMAGE": "Este arquivo não é uma imagem utilizável. Use um JPEG, PNG ou WebP intacto, sem animação e grande o bastante.",
+  "FILE_TOO_LARGE": "Este arquivo é grande demais.",
+  "DUPLICATE_IMAGE": "Esta imagem já foi importada para este personagem.",
+  "INVALID_SEQUENCE": "Alguns enquadramentos não são válidos para esta imagem e proporção. Gere a sequência de novo.",
+  "SEQUENCE_REQUIRED": "Salve uma sequência antes de aprovar esta imagem.",
+  "APPROVAL_NOT_ALLOWED": "As regras não permitem esta aprovação no momento."
 }

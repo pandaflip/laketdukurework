@@ -42,7 +42,8 @@ const include = {
   universe: true,
   labels: true,
   blockedModes: true,
-  variants: { orderBy: { slug: 'asc' }, include: { assets: { select: { review: true } } } },
+  variants: { orderBy: { slug: 'asc' } },
+  assets: { select: { review: true } },
 } satisfies Prisma.CharacterInclude;
 
 export type Row = Prisma.CharacterGetPayload<{ include: typeof include }>;
@@ -85,6 +86,11 @@ function labelsFacet(row: Row): LabelsFacet {
     },
     aliases: { en: aliasesOf('en'), fr: aliasesOf('fr'), 'pt-BR': aliasesOf('pt-BR') },
   };
+}
+
+/** Names of a character in every language that has one; English always exists. */
+export function characterNames(row: Pick<Row, 'labels' | 'slug'>): LocalizedNames {
+  return labelsFacet(row as Row).names;
 }
 
 const statusFacet = (row: Row): StatusFacet => ({ status: row.status });
@@ -138,7 +144,7 @@ function toVariantDto(variant: { id: string; slug: string; names: unknown }): Va
 }
 
 function summarizeImages(row: Row): ImageSummaryDto {
-  const reviews = row.variants.flatMap((variant) => variant.assets.map((asset) => asset.review));
+  const reviews = row.assets.map((asset) => asset.review);
   const count = (review: string): number => reviews.filter((value) => value === review).length;
   return {
     total: reviews.length,
@@ -151,7 +157,7 @@ function summarizeImages(row: Row): ImageSummaryDto {
 
 function usableImages(row: Row): Record<ModeId, number> {
   const { universe, character } = eligibilityInputs(row);
-  const assets = row.variants.flatMap((variant) => variant.assets);
+  const { assets } = row;
   return Object.fromEntries(
     MODE_IDS.map((modeId) => [
       modeId,
@@ -209,10 +215,10 @@ export async function loadRow(db: DbOrTx, id: string): Promise<Row> {
   const variants = await db.variant.findMany({
     where: { characterId: id },
     orderBy: { slug: 'asc' },
-    include: { assets: { select: { review: true } } },
   });
   const blockedModes = await db.characterBlockedMode.findMany({ where: { characterId: id } });
-  return { ...base, variants, blockedModes };
+  const assets = await db.asset.findMany({ where: { characterId: id }, select: { review: true } });
+  return { ...base, variants, blockedModes, assets };
 }
 
 interface LabelRow {

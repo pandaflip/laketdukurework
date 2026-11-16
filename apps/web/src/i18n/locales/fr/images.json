@@ -1,0 +1,176 @@
+{
+  "loading": "Chargement…",
+  "list": {
+    "title": "Images",
+    "intro": "Illustrations des personnages, avec leur séquence Zoom Out. Importer n'approuve jamais rien : chaque image démarre non vérifiée.",
+    "review": "Statut de revue",
+    "allReviews": "Tous",
+    "columns": {
+      "image": "Image",
+      "character": "Personnage",
+      "status": "Statut",
+      "sequence": "Séquence",
+      "updated": "Dernière modification"
+    },
+    "edit": "Modifier",
+    "size": "{{width}} × {{height}} px",
+    "sequenceSteps_one": "{{count}} étape",
+    "sequenceSteps_other": "{{count}} étapes",
+    "sequenceNone": "Aucune séquence",
+    "empty": "Aucune image pour l'instant.",
+    "total_one": "{{count}} image",
+    "total_other": "{{count}} images",
+    "previous": "Précédent",
+    "next": "Suivant",
+    "page": "Page {{page}} sur {{pageCount}}"
+  },
+  "import": {
+    "title": "Importer",
+    "search": "Trouver un personnage",
+    "searchHint": "Tapez un nom, puis choisissez le personnage ci-dessous.",
+    "character": "Personnage",
+    "noCharacter": "Choisir un personnage…",
+    "drop": "Déposez des images ici",
+    "or": "ou",
+    "choose": "Choisir des fichiers",
+    "hint": "JPEG, PNG ou WebP. Plusieurs fichiers peuvent être importés d'un coup. Les images importées démarrent non vérifiées.",
+    "pick": "Choisissez d'abord un personnage : les images importées appartiennent au personnage sélectionné.",
+    "queue": "Progression de l'import",
+    "waiting": "En attente",
+    "importing": "Import en cours…",
+    "done": "Importée",
+    "failed": "Échec",
+    "open": "Ouvrir dans l'éditeur"
+  },
+  "review": {
+    "UNVERIFIED": "Non vérifiée",
+    "APPROVED_NEUTRAL": "Approuvée (neutre)",
+    "APPROVED_SENSITIVE": "Approuvée (sensible)",
+    "REJECTED": "Rejetée",
+    "SEQUENCE_REQUIRED": "Enregistrez d'abord une séquence : l'approbation porte sur ses cadrages.",
+    "title": "Revue",
+    "intro": "L'approbation porte sur les cadrages enregistrés. Modifier les cadrages d'une image approuvée retire son approbation.",
+    "saveFirst": "Enregistrez la séquence avant de la relire.",
+    "approveNeutral": "Approuver pour les modes neutres",
+    "approveSensitive": "Approuver pour les modes sensibles…",
+    "sensitiveIntro": "Une approbation pour les modes sensibles est une décision explicite sur ces cadrages. Le serveur revérifie que le personnage, l'univers et les modes l'autorisent.",
+    "note": "Justification",
+    "noteHint": "Au moins {{count}} caractères : ce qui a été vérifié, et pourquoi ces cadrages sont appropriés.",
+    "confirmSensitive": "J'ai relu chaque cadrage de cette séquence et ils sont appropriés pour les modes sensibles.",
+    "confirmApprove": "Approuver pour les modes sensibles",
+    "reject": "Rejeter",
+    "reset": "Remettre en non vérifiée",
+    "next": "Image suivante à relire",
+    "noNext": "Aucune autre image à relire"
+  },
+  "delete": {
+    "action": "Supprimer cette image…",
+    "confirm": "Supprimer définitivement l'image, sa séquence et ses fichiers ?",
+    "yes": "Supprimer définitivement",
+    "no": "La garder"
+  },
+  "editor": {
+    "back": "Images",
+    "characterPage": "Fiche du personnage"
+  },
+  "canvas": {
+    "frame": "Cadrage de l'étape sélectionnée",
+    "focus": "Point de focus, à {{x}} % en largeur et {{y}} % en hauteur. Les flèches du clavier le déplacent.",
+    "frameHelp": "Les flèches déplacent le cadrage, plus et moins changent son zoom. Zoom maximal pour cette image : ×{{max}}."
+  },
+  "mode": {
+    "label": "Mode d'édition",
+    "simple": "Simple",
+    "advanced": "Avancé",
+    "random": "Aléatoire"
+  },
+  "simple": {
+    "title": "Générer la séquence",
+    "focusHint": "Cliquez sur l'image pour placer le point de focus : le centre des premiers cadrages. Faites glisser la croix ou utilisez les champs ci-dessous pour l'ajuster.",
+    "focusX": "Focus X (%)",
+    "focusY": "Focus Y (%)",
+    "steps": "Nombre d'étapes",
+    "stepsHint": "De 1 à {{max}}.",
+    "zoomStart": "Zoom initial",
+    "zoomStartHint": "Premier cadrage : serré, sur un détail.",
+    "zoomEnd": "Zoom final",
+    "zoomEndHint": "Dernier cadrage : ×1 montre toute l'image.",
+    "aspect": "Ratio d'affichage",
+    "generate": "Générer",
+    "useLast": "Réutiliser les derniers réglages ({{steps}} étapes, de ×{{start}} à ×{{end}})",
+    "preserve": "Conserver les étapes ajustées à la main",
+    "staleRatio": "Les cadrages ont été faits pour un autre ratio. Générez à nouveau pour appliquer le nouveau."
+  },
+  "advanced": {
+    "title": "Générer la séquence",
+    "stepsTitle": "Étapes",
+    "noSteps": "Générez d'abord une séquence, puis ajustez ses étapes ici.",
+    "stepName": "Nom de l'étape",
+    "stepNameHint": "Facultatif. Laissé vide, l'étape s'appelle « Étape N ».",
+    "frameX": "Centre X (%)",
+    "frameY": "Centre Y (%)",
+    "frameZoom": "Zoom",
+    "frameHint": "Faites glisser le cadrage sur l'image, ou utilisez les champs. Modifier un cadrage marque l'étape comme ajustée à la main.",
+    "add": "Ajouter une étape",
+    "duplicate": "Dupliquer",
+    "moveUp": "Monter",
+    "moveDown": "Descendre",
+    "remove": "Supprimer l'étape"
+  },
+  "preview": {
+    "title": "Aperçu",
+    "region": "Aperçu des étapes. Les flèches gauche et droite changent d'étape.",
+    "frameLabel": "Cadrage : {{name}}",
+    "previous": "Précédente",
+    "next": "Suivante",
+    "position": "Étape {{n}} sur {{total}}",
+    "zoom": "Zoom ×{{zoom}}",
+    "empty": "Générez une séquence pour la voir ici, au ratio d'affichage du jeu."
+  },
+  "strip": {
+    "label": "Étapes",
+    "select": "Afficher {{name}}"
+  },
+  "steps": {
+    "defaultName": "Étape {{n}}",
+    "manual": "Ajustée à la main"
+  },
+  "problems": {
+    "INVALID_IMAGE_SIZE": "L'image n'a pas de taille utilisable.",
+    "INVALID_RATIO": "Le ratio d'affichage n'est pas valide.",
+    "INVALID_STEP_COUNT": "Choisissez un nombre entier d'étapes entre 1 et {{max}}.",
+    "INVALID_FOCUS": "Placez le point de focus dans l'image.",
+    "INVALID_ZOOM": "Le zoom doit être un nombre positif.",
+    "INVALID_RECT": "Un cadrage sort de l'image.",
+    "START_NOT_TIGHTER": "Le zoom initial doit être plus serré (plus élevé) que le zoom final."
+  },
+  "warnings": {
+    "ZOOM_RAISED_TO_FIT": "Un zoom inférieur à ×1 a été remonté à ×1, le cadrage le plus large permis par ce ratio (étape {{steps}}).",
+    "ZOOM_LIMITED": "Un zoom a été abaissé au maximum permis par cette image, pour que les cadrages restent lisibles (étape {{steps}}).",
+    "RECT_ADJUSTED_TO_RATIO": "Un cadrage n'avait pas le ratio d'affichage : il a été ajusté autour de son centre (étape {{steps}}).",
+    "FRAME_SHIFTED_INSIDE_IMAGE": "Certains cadrages ont été décalés pour rester dans l'image, par exemple un cadrage presque aussi grand que l'image ou proche d'un bord (étapes {{steps}}).",
+    "MANUAL_DROPPED_one": "{{count}} étape ajustée à la main ne tenait pas dans la nouvelle longueur et a été retirée.",
+    "MANUAL_DROPPED_other": "{{count}} étapes ajustées à la main ne tenaient pas dans la nouvelle longueur et ont été retirées."
+  },
+  "save": {
+    "save": "Enregistrer",
+    "saveAndAdd": "Enregistrer et ajouter une autre image",
+    "unsaved": "Modifications non enregistrées",
+    "saved": "Enregistré",
+    "withdrawsApproval": "Cette image est approuvée. Enregistrer des cadrages modifiés retire l'approbation : elle devra être relue."
+  },
+  "random": {
+    "title": "Tirage aléatoire",
+    "hint": "Un point de focus est tiré automatiquement, puis la séquence est générée pour lui. Relancez pour tirer à nouveau, regardez l'aperçu, et passez en mode avancé pour ajuster les étapes.",
+    "zoomStart": "Zoom initial",
+    "zoomStartHint": "Premier cadrage : ×12 par défaut.",
+    "zoomEnd": "Zoom final",
+    "zoomEndHint": "Dernier cadrage : ×1 par défaut, toute l'image.",
+    "zone": "Zone de tirage (%)",
+    "zoneHint": "Le focus est tiré dans les {{zone}} % centraux de l'image, loin des bords.",
+    "relaunch": "Relancer",
+    "focusDrawn": "Focus tiré : à {{x}} % en largeur, {{y}} % en hauteur.",
+    "fixed": "Une fois enregistré, le tirage reste fixe : rien n'est jamais retiré pendant les parties.",
+    "replacesManual": "Relancer remplace toutes les étapes, y compris celles que vous avez ajustées à la main."
+  }
+}

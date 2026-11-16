@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { checkRoundEligibility } from '../src/modules/catalog/selection.service';
 import {
   adminClient,
+  createAsset,
   createReviewedUniverse,
   startApp,
   type Client,
@@ -38,12 +39,7 @@ describe('database driver', () => {
         aliases: { en: ['Archer'] },
       })
     ).json<CharacterDto>();
-    const withVariant = (
-      await admin.post(`/characters/${created.id}/variants`, { names: { en: 'Classic' } })
-    ).json<CharacterDto>();
-    const asset = await context.db.asset.create({
-      data: { variantId: withVariant.variants[0]?.id ?? '', review: 'APPROVED_NEUTRAL' },
-    });
+    const asset = await createAsset(context.db, created.id, 'APPROVED_NEUTRAL');
 
     await admin.put(`/characters/${created.id}/status`, { status: 'ALLOWED' });
     await admin.put(`/characters/${created.id}/blocked-modes`, { modeIds: ['pixelated'] });

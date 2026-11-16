@@ -330,8 +330,9 @@ function EligibilityCard({ character }: { character: CharacterDto }) {
   );
 }
 
-function ImagesCard({ images }: { images: CharacterDto['images'] }) {
+function ImagesCard({ character }: { character: CharacterDto }) {
   const { t } = useTranslation('admin');
+  const { images } = character;
   const rows = [
     ['approvedNeutral', images.approvedNeutral],
     ['approvedSensitive', images.approvedSensitive],
@@ -350,7 +351,20 @@ function ImagesCard({ images }: { images: CharacterDto['images'] }) {
           </div>
         ))}
       </dl>
-      <p className="mt-3 text-xs text-fg-muted">{t('images.importLater')}</p>
+      <div className="mt-4 flex flex-wrap gap-2 text-sm">
+        <Link
+          to={`/admin/images?characterId=${character.id}`}
+          className="rounded-control border border-line-strong bg-surface-raised px-3 py-1.5 font-medium hover:bg-surface-sunken"
+        >
+          {t('images.manage')}
+        </Link>
+        <Link
+          to={`/admin/images?characterId=${character.id}&add=1`}
+          className="rounded-control bg-accent px-3 py-1.5 font-medium text-accent-fg hover:bg-accent-hover"
+        >
+          {t('images.import')}
+        </Link>
+      </div>
     </Card>
   );
 }
@@ -512,7 +526,7 @@ export function CharacterPage() {
       <div className="grid gap-4 lg:grid-cols-2">
         <LabelsCard key={labelsKey} character={data} />
         <EligibilityCard character={data} />
-        <ImagesCard images={data.images} />
+        <ImagesCard character={data} />
         <StatusCard character={data} />
         <ClassificationCard key={classificationKey} character={data} />
         <BlockedModesCard key={blockedKey} character={data} />

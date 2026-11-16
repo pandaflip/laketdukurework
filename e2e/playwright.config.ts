@@ -31,6 +31,8 @@ export default defineConfig({
         PORT: '3001',
         LOG_LEVEL: 'warn',
         WEB_ORIGIN: 'http://localhost:5173',
+        // Relative to apps/server, ignored by git, emptied by the server at start.
+        STORAGE_DIR: './storage/e2e',
         E2E_ADMIN_USERNAME: E2E_ADMIN.username,
         E2E_ADMIN_PASSWORD: E2E_ADMIN.password,
       },

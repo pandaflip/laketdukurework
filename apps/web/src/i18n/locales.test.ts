@@ -3,6 +3,9 @@ import {
   AUDIT_ACTIONS,
   CHARACTER_STATUSES,
   ERROR_CODES,
+  GENERATE_ERROR_CODES,
+  GENERATION_WARNING_CODES,
+  ASSET_REVIEWS,
   GAME_IDS,
   INELIGIBILITY_REASONS,
   MODE_IDS,
@@ -72,5 +75,15 @@ describe('translation files', () => {
       expect(admin).toHaveProperty([`status.${status}.label`]);
       expect(admin).toHaveProperty([`status.${status}.hint`]);
     }
+  });
+
+  it.each(SUPPORTED_LOCALES)('%s translates the image editor codes', (locale) => {
+    const images = flatten(resources[locale].images);
+    for (const code of GENERATE_ERROR_CODES) expect(images).toHaveProperty([`problems.${code}`]);
+    for (const code of GENERATION_WARNING_CODES)
+      expect(images).toHaveProperty([`warnings.${code}`]);
+    for (const review of ASSET_REVIEWS) expect(images).toHaveProperty([`review.${review}`]);
+    expect(images).toHaveProperty(['warnings.MANUAL_DROPPED_one']);
+    expect(images).toHaveProperty(['warnings.MANUAL_DROPPED_other']);
   });
 });

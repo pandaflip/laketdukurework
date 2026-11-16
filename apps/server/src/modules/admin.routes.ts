@@ -13,15 +13,16 @@ import {
   updateUniverseSchema,
   variantSchema,
 } from '@app/shared';
-import type { FastifyInstance, FastifyRequest } from 'fastify';
-import { z } from 'zod';
+import type { FastifyInstance } from 'fastify';
 import type { AppConfig } from '../config';
 import type { Db } from '../db';
 import { parse } from '../errors';
-import type { AuditContext } from './audit/log';
 import { listAudit, restoreAuditBatch, restoreAuditEntry } from './audit/service';
 import { assertSameOrigin, loadAdmin, requireAdmin } from './auth/guard';
 import { registerAuthRoutes, type AuthRouteOptions } from './auth/routes';
+import { registerImageRoutes } from './images/routes';
+import type { ImageDeps } from './images/service';
+import { context, idOf } from './route-helpers';
 import {
   bulkSetStatus,
   createCharacter,
@@ -44,16 +45,6 @@ import {
   updateUniverse,
 } from './catalog/universes.service';
 
-const idParams = z.object({ id: z.string().min(1).max(64) });
-
-function context(request: FastifyRequest): AuditContext {
-  return { adminId: requireAdmin(request).id };
-}
-
-function idOf(request: FastifyRequest): string {
-  return parse(idParams, request.params).id;
-}
-
 /**
  * Everything under `/api/admin`. Two hooks protect the whole scope:
  * the origin check (CSRF) and the session lookup. Every route except login
@@ -63,6 +54,7 @@ export function registerAdminRoutes(
   app: FastifyInstance,
   db: Db,
   config: AppConfig,
+  images: ImageDeps,
   options: AuthRouteOptions = {},
 ): void {
   app.addHook('onRequest', async (request, reply) => {
@@ -163,6 +155,8 @@ export function registerAdminRoutes(
     secured.delete('/variants/:id', (request) =>
       deleteVariant(db, context(request), idOf(request)),
     );
+
+    registerImageRoutes(secured, images, config);
 
     // History
     secured.get('/audit', (request) => listAudit(db, parse(auditListQuerySchema, request.query)));

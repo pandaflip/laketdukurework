@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { checkRoundEligibility } from '../src/modules/catalog/selection.service';
 import {
   adminClient,
+  createAsset,
   createReviewedUniverse,
   REVIEW_NOTE,
   startApp,
@@ -301,12 +302,7 @@ describe('moving to a stricter classification', () => {
       note: ADULT_NOTE,
       confirm: true,
     });
-    const variant = (
-      await admin.post(`/characters/${ashe.id}/variants`, { names: { en: 'Classic' } })
-    ).json<CharacterDto>();
-    const asset = await context.db.asset.create({
-      data: { variantId: variant.variants[0]?.id ?? '', review: 'APPROVED_SENSITIVE' },
-    });
+    const asset = await createAsset(context.db, ashe.id, 'APPROVED_SENSITIVE');
     expect((await checkRoundEligibility(context.db, 'historic', asset.id)).eligible).toBe(true);
 
     await audience(created.id, { audience: 'UNREVIEWED' });

@@ -3,8 +3,8 @@
 Rebuild of Laketduku as the first game of a mini-games platform (working brand: RESSA.GAMES).
 Development is delivered in validated lots; see `docs/phase-reports/`.
 
-**Current state: Phase 1, lots 1A and 1B.** Technical foundation, administrable catalog,
-safety policy and administration area. No image upload (lot 1C) and no gameplay (Phase 2) yet.
+**Current state: Phase 1, lots 1A, 1B and 1C.** Technical foundation, administrable catalog,
+safety policy, administration area, image import and Zoom Out sequence editor. No gameplay (Phase 2) yet.
 
 ## Requirements
 
@@ -55,6 +55,8 @@ invalid.
 | `pnpm db:migrate:dev`    | Create a migration after editing `schema.prisma` (development) |
 | `pnpm db:seed`           | Add the demonstration catalog                                  |
 | `pnpm admin:create`      | Create an administrator                                        |
+| `pnpm samples:generate`  | Write synthetic test pictures (git-ignored)                    |
+| `pnpm storage:prune`     | List (and with `--apply` remove) orphan image files            |
 
 Browser tests include an automatic accessibility scan (axe-core, WCAG 2.1 A and AA) of the
 platform and administration pages.
@@ -79,6 +81,21 @@ and a written justification; a stricter classification applies at once and switc
 modes off. Pokémon and Minecraft are always `YOUTH`, whatever is stored: the interface can make
 them stricter, never more permissive. No classification lifts any other condition: minors,
 childlike or ambiguous characters and unapproved images stay excluded.
+
+## Images and sequences
+
+**Administration → Images** imports illustrations (file picker or drag and drop), then opens an
+editor: click the focus point, choose the number of steps and the first and last zoom, generate,
+preview, adjust steps by hand, save, then approve or reject. See `docs/images-et-sequences.md`.
+
+- Files live in a **private** directory (`STORAGE_DIR`, default `apps/server/storage`), never served
+  as static files; they leave only through protected routes. The directory, and any `storage/`,
+  `LoL_Female_Splasharts/` or `test-images/` folder, is ignored by git.
+- Limits (`UPLOAD_MAX_BYTES`, `IMAGE_MAX_PIXELS`, `IMAGE_MIN_SIDE`, `IMAGE_CONCURRENCY`) are in
+  `.env.example`. JPEG, PNG and static WebP only.
+- `pnpm samples:generate` writes synthetic test pictures (several sizes and ratios) to
+  `apps/server/test-images/`. `pnpm storage:prune` lists files no image points to (`--apply` removes them).
+- Imported pictures are always `UNVERIFIED`: being in a folder is never an approval.
 
 ## Known warnings and ignored scripts
 

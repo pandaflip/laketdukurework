@@ -21,7 +21,9 @@
     "db:migrate": "pnpm --filter @app/server db:migrate",
     "db:migrate:dev": "pnpm --filter @app/server db:migrate:dev",
     "db:seed": "pnpm --filter @app/server db:seed",
-    "admin:create": "pnpm --filter @app/server admin:create"
+    "admin:create": "pnpm --filter @app/server admin:create",
+    "storage:prune": "pnpm --filter @app/server storage:prune",
+    "samples:generate": "pnpm --filter @app/server samples:generate"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

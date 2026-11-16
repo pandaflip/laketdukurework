@@ -87,6 +87,23 @@ Ces protections ne dépendent d'aucun réglage de l'interface :
 | Aucun contournement par renommage, alias, variante, modification groupée ou restauration                                      | Tests d'intégration                                                                                                    |
 | Toute règle est réévaluée à chaque sélection, sans cache                                                                      | Service de sélection                                                                                                   |
 
+## Approbation des images (lot 1C)
+
+L'approbation d'une image est individuelle et porte sur ses **cadrages enregistrés** :
+
+- une image importée est `UNVERIFIED` ; seule une action d'administrateur la fait changer ;
+- approuver exige une séquence enregistrée ;
+- l'approbation pour un mode neutre exige un personnage qui n'est pas `EXCLUDED` ;
+- l'approbation pour un mode sensible exige une confirmation, une justification et **toutes** les
+  conditions d'éligibilité du personnage, réévaluées par le serveur (les mêmes qu'à chaque
+  sélection de défi) ; elle ne peut contourner ni l'audience de l'univers, ni la classification
+  individuelle, ni les exclusions fondamentales, ni un mode désactivé ou bloqué ;
+- modifier les cadrages d'une image approuvée retire son approbation ;
+- une image rejetée n'est jamais jouable ;
+- importation, séquence, revue et suppression sont journalisées et non restaurables.
+
+Détails : `images-et-sequences.md`.
+
 ## Chaos Mix
 
 Chaos Mix n'a pas de contenu propre : il tire des manches dans d'autres modes. Il est donc

@@ -5,7 +5,8 @@
     "characters": "Personagens",
     "universes": "Universos",
     "history": "Histórico",
-    "logout": "Sair"
+    "logout": "Sair",
+    "images": "Imagens"
   },
   "login": {
     "title": "Administração",
@@ -186,7 +187,11 @@
       "variant.delete": "Variante excluída",
       "universe.sensitive-unlock": "Modos sensíveis desbloqueados",
       "universe.sensitive-lock": "Modos sensíveis bloqueados de novo",
-      "universe.audience": "Classificação de público alterada"
+      "universe.audience": "Classificação de público alterada",
+      "image.import": "Imagem importada",
+      "image.sequence": "Sequência salva",
+      "image.review": "Revisão de imagem alterada",
+      "image.delete": "Imagem excluída"
     }
   },
   "images": {
@@ -200,6 +205,15 @@
     "rejected": "Rejeitadas",
     "usable_one": "{{count}} imagem utilizável",
     "usable_other": "{{count}} imagens utilizáveis",
-    "importLater": "A importação e a aprovação de imagens chegam com o próximo lote."
+    "manage": "Gerenciar imagens",
+    "import": "Importar imagens",
+    "historySteps_one": "{{count}} etapa",
+    "historySteps_other": "{{count}} etapas",
+    "reviewStates": {
+      "UNVERIFIED": "Não verificada",
+      "APPROVED_NEUTRAL": "Aprovada (neutro)",
+      "APPROVED_SENSITIVE": "Aprovada (sensível)",
+      "REJECTED": "Rejeitada"
+    }
   }
 }

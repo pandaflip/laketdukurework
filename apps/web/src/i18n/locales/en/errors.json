@@ -16,5 +16,11 @@
   "RESTORE_CONFLICT": "This was changed again since then, so it cannot be restored automatically.",
   "RESTORE_NOT_ALLOWED": "This change cannot be restored. A verified-adult classification must always be entered by hand.",
   "INELIGIBLE_CONTENT": "This content is not eligible for this mode.",
-  "AUDIENCE_FORBIDDEN": "The code fixes this universe as young-audience: it cannot be classified as general audience."
+  "AUDIENCE_FORBIDDEN": "The code fixes this universe as young-audience: it cannot be classified as general audience.",
+  "INVALID_IMAGE": "This file is not a usable picture. Use a JPEG, PNG or WebP that is not damaged, not animated, and large enough.",
+  "FILE_TOO_LARGE": "This file is too large.",
+  "DUPLICATE_IMAGE": "This picture was already imported for this character.",
+  "INVALID_SEQUENCE": "Some frames are not valid for this picture and ratio. Generate the sequence again.",
+  "SEQUENCE_REQUIRED": "Save a sequence before approving this image.",
+  "APPROVAL_NOT_ALLOWED": "The rules do not allow this approval right now."
 }

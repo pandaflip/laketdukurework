@@ -5,7 +5,8 @@
     "characters": "Personnages",
     "universes": "Univers",
     "history": "Historique",
-    "logout": "Se déconnecter"
+    "logout": "Se déconnecter",
+    "images": "Images"
   },
   "login": {
     "title": "Administration",
@@ -186,7 +187,11 @@
       "variant.delete": "Variante supprimée",
       "universe.sensitive-unlock": "Modes sensibles déverrouillés",
       "universe.sensitive-lock": "Modes sensibles reverrouillés",
-      "universe.audience": "Classification d'audience modifiée"
+      "universe.audience": "Classification d'audience modifiée",
+      "image.import": "Image importée",
+      "image.sequence": "Séquence enregistrée",
+      "image.review": "Revue d'image modifiée",
+      "image.delete": "Image supprimée"
     }
   },
   "images": {
@@ -200,6 +205,15 @@
     "rejected": "Rejetées",
     "usable_one": "{{count}} image utilisable",
     "usable_other": "{{count}} images utilisables",
-    "importLater": "L'import et l'approbation des images arrivent avec le prochain lot."
+    "manage": "Gérer les images",
+    "import": "Importer des images",
+    "historySteps_one": "{{count}} étape",
+    "historySteps_other": "{{count}} étapes",
+    "reviewStates": {
+      "UNVERIFIED": "Non vérifiée",
+      "APPROVED_NEUTRAL": "Approuvée (neutre)",
+      "APPROVED_SENSITIVE": "Approuvée (sensible)",
+      "REJECTED": "Rejetée"
+    }
   }
 }
