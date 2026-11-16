@@ -4,6 +4,7 @@ export * from './catalog/dto';
 export * from './catalog/enums';
 export * from './catalog/images';
 export * from './catalog/schemas';
+export * from './game';
 export * from './i18n/locales';
 export * from './policy/audience';
 export * from './policy/classification';

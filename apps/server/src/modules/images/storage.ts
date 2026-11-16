@@ -1,6 +1,6 @@
 import { randomBytes } from 'node:crypto';
 import { createReadStream, type ReadStream } from 'node:fs';
-import { mkdir, readdir, rename, rm, stat, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, readFile, rename, rm, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 /**
@@ -61,6 +61,11 @@ export class FileStorage {
 
   async size(kind: StoredKind, key: string): Promise<number> {
     return (await stat(this.filePath(kind, key))).size;
+  }
+
+  /** The whole file, for server-side rendering. */
+  read(kind: StoredKind, key: string): Promise<Buffer> {
+    return readFile(this.filePath(kind, key));
   }
 
   open(kind: StoredKind, key: string): ReadStream {

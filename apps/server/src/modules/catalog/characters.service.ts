@@ -112,7 +112,12 @@ function assertExpected(expected: unknown, current: unknown): void {
 // Mapping
 // ---------------------------------------------------------------------------
 
-export function eligibilityInputs(row: Row): {
+export type EligibilitySource = Pick<
+  Row,
+  'slug' | 'status' | 'ageClass' | 'universe' | 'labels' | 'blockedModes'
+>;
+
+export function eligibilityInputs(row: EligibilitySource): {
   universe: EligibilityUniverse;
   character: EligibilityCharacter;
 } {
