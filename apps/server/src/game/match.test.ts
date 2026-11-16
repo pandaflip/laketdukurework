@@ -327,7 +327,7 @@ describe('scoring by order of answers', () => {
     ]);
   });
 
-  it('stops after the maximum number of rounds and shares the victory when nobody scored', () => {
+  it('stops after the maximum number of rounds with no winner when nobody scored', () => {
     const game = begin(2, { stepDelaySec: 2, steps: 3 }, 3);
     let at = game.startedAt;
     for (let played = 1; played <= MAX_ROUNDS; played++) {
@@ -344,7 +344,7 @@ describe('scoring by order of answers', () => {
       }
     }
     expect(game.match.phase).toBe('finished');
-    expect(game.match.publicView(at).winners).toEqual(game.players);
+    expect(game.match.publicView(at).winners).toEqual([]);
     expect(game.match.publicView(at).roundsPlayed).toBe(MAX_ROUNDS);
   });
 
@@ -554,6 +554,92 @@ describe('answer options', () => {
     expect(game.match.privateView(game.players[0] as string, game.startedAt)).toMatchObject({
       myWrongAnswers: ['LB'],
     });
+  });
+});
+
+describe('who may act', () => {
+  it('refuses answers and votes from a player who is not connected', () => {
+    const game = begin(3, { stepDelaySec: 6, steps: 5 }, 5);
+    const [a, b] = game.players as [string, string, string];
+    const at = game.startedAt + 2 * SECOND;
+    game.match.setConnected(a, false, at);
+    expect(game.match.answer(a, 0, 'Ahri', at)).toEqual({
+      status: 'rejected',
+      reason: 'NOT_CONNECTED',
+    });
+    expect(game.match.vote(a, 0, at)).toEqual({ status: 'rejected', reason: 'NOT_CONNECTED' });
+    // Nothing was spent or counted for them.
+    expect(game.match.publicView(at).players[0]?.score).toBe(0);
+    expect(round(game, at).votes).toEqual({ count: 0, needed: 1 });
+    game.match.setConnected(a, true, at + 1);
+    expect(game.match.answer(a, 0, 'Ahri', at + 2).status).toBe('correct');
+    expect(game.match.vote(b, 0, at + 3).status).toBe('counted');
+  });
+
+  it('refuses everyone who is not in the game', () => {
+    const game = begin(2);
+    expect(game.match.answer('someone-else', 0, 'Ahri', game.startedAt)).toMatchObject({
+      reason: 'UNKNOWN_PLAYER',
+    });
+    expect(game.match.vote('someone-else', 0, game.startedAt)).toMatchObject({
+      reason: 'UNKNOWN_PLAYER',
+    });
+    expect(game.match.privateView('someone-else', game.startedAt)).toBeNull();
+  });
+
+  it('lets a registered player come back to their place, score and status', () => {
+    const game = begin(
+      3,
+      {
+        attempts: { kind: 'limited', max: 3 },
+        vote: { enabled: true, threshold: 'unanimous' },
+        stepDelaySec: 6,
+        steps: 5,
+      },
+      5,
+    );
+    const [a, b] = game.players as [string, string, string];
+    const at = game.startedAt + 2 * SECOND;
+    answerAs(game, 1, 'Zed', at);
+    answerAs(game, 1, 'Ahri', at + SECOND);
+    game.match.vote(a, 0, at + SECOND);
+    game.match.setConnected(b, false, at + 2 * SECOND);
+    game.match.setConnected(a, false, at + 2 * SECOND);
+
+    const gone = game.match.publicView(at + 3 * SECOND).players;
+    expect(gone.map((player) => player.connected)).toEqual([false, false, true]);
+    // A newcomer cannot take their place, whatever the nickname.
+    expect(game.match.addPlayer('Player 2')).toMatchObject({ ok: false });
+
+    game.match.setConnected(b, true, at + 3.5 * SECOND);
+    game.match.setConnected(a, true, at + 3.5 * SECOND);
+    const back = game.match.publicView(at + 3.5 * SECOND).players;
+    expect(back[1]).toMatchObject({
+      nickname: 'Player 2',
+      connected: true,
+      found: true,
+      foundRank: 1,
+      score: 1000,
+      place: 1,
+    });
+    expect(game.match.privateView(b, at + 3.5 * SECOND)).toMatchObject({
+      attemptsUsed: 2,
+      attemptsLeft: 1,
+      blocked: 'ALREADY_FOUND',
+      myWrongAnswers: ['Zed'],
+    });
+    expect(game.match.privateView(a, at + 3.5 * SECOND)?.voted).toBe(true);
+    expect(round(game, at).stepIndex).toBe(0);
+  });
+
+  it('gives the host back to the next connected player and keeps the game going', () => {
+    const game = begin(3);
+    const [host, second] = game.players as [string, string, string];
+    game.match.setConnected(host, false, game.startedAt + SECOND);
+    expect(game.match.hostId).toBe(second);
+    game.match.setConnected(host, true, game.startedAt + 2 * SECOND);
+    expect(game.match.hostId).toBe(second); // the role does not bounce back
+    expect(game.match.phase).toBe('round');
   });
 });
 
@@ -789,6 +875,43 @@ describe('what players may learn', () => {
       tokens.add(round(game, game.startedAt).frameToken);
     }
     expect(tokens.size).toBe(4);
+  });
+});
+
+describe('frame addresses', () => {
+  it('belong to one game: another game does not know them', async () => {
+    const one = begin(2, { stepDelaySec: 15 });
+    const other = begin(2, { stepDelaySec: 15 });
+    const token = round(one, one.startedAt).frameToken;
+    expect(await one.match.openFrame(token, one.players[0] as string)).not.toBeNull();
+    expect(await other.match.openFrame(token, other.players[0] as string)).toBeNull();
+    // Even with a player identifier of the other game.
+    expect(await other.match.openFrame(token, one.players[0] as string)).toBeNull();
+  });
+
+  it('are refused to a stranger even with a valid address, and give nothing before the countdown ends', async () => {
+    const match = newMatch();
+    const host = match.addPlayer('Alice');
+    if (!host.ok) throw new Error('join failed');
+    match.start(host.playerId, 10, T0);
+    match.provideChallenge(challenge(), T0);
+    // No address exists before the first step is shown.
+    expect(match.publicView(T0).round).toBeNull();
+    expect(await match.openFrame('id1', host.playerId)).toBeNull();
+  });
+
+  it('stop being served when the game is over', async () => {
+    const game = begin(2, { targetScore: 1_000 });
+    const token = round(game, game.startedAt).frameToken;
+    answerAs(game, 0, 'Ahri', game.startedAt);
+    answerAs(game, 1, 'Ahri', game.startedAt);
+    const reveal = game.match.publicView(game.startedAt).reveal?.frameToken ?? '';
+    expect(await game.match.openFrame(reveal, game.players[0] as string)).not.toBeNull();
+    game.match.tick(game.startedAt + REVEAL_MS);
+    expect(game.match.phase).toBe('finished');
+    expect(game.challenge.released).toBe(true);
+    expect(await game.match.openFrame(token, game.players[0] as string)).toBeNull();
+    expect(await game.match.openFrame(reveal, game.players[0] as string)).toBeNull();
   });
 });
 

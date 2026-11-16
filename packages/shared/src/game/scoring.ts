@@ -49,9 +49,12 @@ export function rankStandings(totals: readonly Totals[]): Placed[] {
   return placed;
 }
 
-/** The players sharing the first place (several when the tie persists). */
+/**
+ * The players sharing the first place (several when the tie persists among
+ * players who scored). Nobody wins a game in which nobody scored.
+ */
 export function winnersOf(totals: readonly Totals[]): string[] {
   return rankStandings(totals)
-    .filter((entry) => entry.place === 1)
+    .filter((entry) => entry.place === 1 && entry.score > 0)
     .map((entry) => entry.playerId);
 }

@@ -30,6 +30,7 @@ import type { PreparedChallenge, RenderedClue } from './types';
 export type AnswerRejection =
   | 'NOT_IN_ROUND'
   | 'UNKNOWN_PLAYER'
+  | 'NOT_CONNECTED'
   | 'ALREADY_FOUND'
   | 'STALE_STEP'
   | 'INVALID_ANSWER'
@@ -52,6 +53,7 @@ export type AnswerOutcome =
 export type VoteRejection =
   | 'NOT_IN_ROUND'
   | 'UNKNOWN_PLAYER'
+  | 'NOT_CONNECTED'
   | 'VOTES_DISABLED'
   | 'STALE_STEP'
   | 'LAST_STEP'
@@ -322,6 +324,8 @@ export class Match {
     const player = this.players.get(playerId);
     if (!player) return reject('UNKNOWN_PLAYER');
     if (this.phase_ !== 'round' || !round) return reject('NOT_IN_ROUND');
+    // Defense in depth: the network layer only relays messages of live connections.
+    if (!player.connected) return reject('NOT_CONNECTED');
     if (round.finders.has(playerId)) return reject('ALREADY_FOUND');
     if (stepIndex !== round.stepIndex) return reject('STALE_STEP');
 
@@ -369,8 +373,10 @@ export class Match {
 
   vote(playerId: string, stepIndex: number, now: number): VoteOutcome {
     const round = this.round;
-    if (!this.players.has(playerId)) return { status: 'rejected', reason: 'UNKNOWN_PLAYER' };
+    const voter = this.players.get(playerId);
+    if (!voter) return { status: 'rejected', reason: 'UNKNOWN_PLAYER' };
     if (this.phase_ !== 'round' || !round) return { status: 'rejected', reason: 'NOT_IN_ROUND' };
+    if (!voter.connected) return { status: 'rejected', reason: 'NOT_CONNECTED' };
     if (!this.config_.vote.enabled) return { status: 'rejected', reason: 'VOTES_DISABLED' };
     if (stepIndex !== round.stepIndex) return { status: 'rejected', reason: 'STALE_STEP' };
     if (round.stepIndex >= round.count - 1) return { status: 'rejected', reason: 'LAST_STEP' };
@@ -501,6 +507,8 @@ export class Match {
   private finish(): void {
     this.winners = winnersOf(this.totals());
     this.revealEndsAt = null;
+    // The game is over: nothing of the last round is served any more.
+    this.releaseRound();
     this.setPhase('finished');
   }
 

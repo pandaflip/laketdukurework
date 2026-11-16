@@ -31,7 +31,11 @@ Un défi n'est éligible à un mode sensible que si **toutes** ces conditions so
 7. l'image a été approuvée individuellement pour un usage sensible (`APPROVED_SENSITIVE`).
 
 Un mode neutre demande seulement un statut autre que `EXCLUDED`, un mode activé et non bloqué,
-et une image approuvée (neutre ou sensible).
+et une image approuvée **pour l'usage neutre** (`APPROVED_NEUTRAL`). Une approbation sensible ne
+vaut pas approbation neutre : une image approuvée pour un mode sensible n'apparaît pas dans un mode
+neutre tant qu'elle n'a pas été approuvée aussi pour cet usage. Les autorisations par mode ou
+groupe de modes (une même image servant légitimement à plusieurs jeux) sont une évolution
+envisagée, non réalisée.
 
 L'éligibilité d'un **personnage** (conditions 1 à 6) et l'approbation de ses **images**
 (condition 7) sont affichées séparément dans l'interface : un défi jouable exige les deux.

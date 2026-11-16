@@ -107,6 +107,18 @@ describe('rankStandings', () => {
     expect(winnersOf([totals('b', 500, 1, 1, 1), totals('a', 500, 1, 1, 0)])).toEqual(['a', 'b']);
   });
 
+  it('gives nobody the victory when nobody scored', () => {
+    expect(winnersOf([totals('a', 0, 0, 0, 0), totals('b', 0, 0, 0, 1)])).toEqual([]);
+    expect(winnersOf([totals('a', 0, 0, 0, 0)])).toEqual([]);
+    expect(winnersOf([])).toEqual([]);
+  });
+
+  it('still shares the victory between players who scored', () => {
+    expect(
+      winnersOf([totals('a', 800, 1, 2, 0), totals('b', 800, 1, 2, 1), totals('c', 0, 0, 0, 2)]),
+    ).toEqual(['a', 'b']);
+  });
+
   it('does not depend on the order of the input', () => {
     fc.assert(
       fc.property(

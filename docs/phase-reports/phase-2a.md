@@ -59,15 +59,30 @@ recherche du nom, de l'univers et de l'image avant la révélation.
 
 ## Décisions prises en cours de route
 
-- **Victoire partagée si personne n'a marqué en 30 manches** : tous les joueurs la partagent.
+- **Personne n'a marqué** (30 manches ou plus de défis) : la partie se termine sans vainqueur.
 - **Réponse affichée** : une mauvaise réponse n'est publiée que si elle ne nomme, n'abrège ni ne
   déforme la bonne ; sinon seul son auteur la voit (sinon, avec les alias désactivés, taper « LB »
   aurait révélé la réponse à tous).
 - **Rejoindre une salle** : seulement dans le salon d'attente.
-- **Éligibilité** : une image approuvée « sensible » passe aussi dans un mode neutre, selon la
-  politique du lot 1B. À confirmer (voir `docs/jeu-zoom-out.md`, « Points d'attention »).
+- **Éligibilité** : un mode neutre n'accepte que `APPROVED_NEUTRAL` (décision de la relecture) ; une approbation sensible ne vaut pas approbation neutre.
 - **Catégories** : le filtre est défini et testé, mais les tables arrivent en 2B ; en attendant,
   un filtre par catégorie ne retient rien.
+
+## Corrections de la relecture
+
+- Zoom Out n'accepte que `APPROVED_NEUTRAL` (règle générale des modes neutres dans
+  `challengeEligibility`) ; quatre tests du lot 1B qui supposaient l'inverse ont été mis à jour, et
+  une propriété vérifie qu'une approbation sensible n'ouvre jamais un mode neutre.
+- Personne n'a marqué : la partie se termine sans vainqueur ; l'égalité entre joueurs ayant marqué
+  reste partagée.
+- Les réponses et votes d'un joueur déconnecté sont refusés par le moteur (`NOT_CONNECTED`), en
+  plus du contrôle de la connexion que fera la couche réseau en 2B (le moteur ne peut pas
+  authentifier : il reçoit l'identité d'une connexion déjà authentifiée).
+- La reconnexion d'un joueur inscrit rend sa place, son score, son statut, ses tentatives et son
+  vote ; personne ne peut rejoindre après le lancement.
+- Mémoire : le dernier rendu est libéré à la fin de la partie, l'original lu n'est plus gardé
+  une fois toutes les frames rendues (tests : une seule lecture par manche, rendu une frame à la
+  fois, plus rien de servi après libération). Mesures : voir `docs/jeu-zoom-out.md`.
 
 ## Limites connues
 

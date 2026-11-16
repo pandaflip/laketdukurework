@@ -103,6 +103,23 @@ describe('which images can be drawn', () => {
     expect((await drain(source)).sort()).toEqual(['Ahri', 'Zed']);
   });
 
+  it('draws only images approved for neutral use: a sensitive approval is not enough', async () => {
+    await playable('Ahri');
+    const approvedForSensitiveUse = await playable('Zed');
+    await context.db.asset.update({
+      where: { id: approvedForSensitiveUse.image.id },
+      data: { review: 'APPROVED_SENSITIVE' },
+    });
+    const source = await pool();
+    expect(source.size).toBe(1);
+    expect(await drain(source)).toEqual(['Ahri']);
+
+    // And an approval that changes to sensitive after the draw is caught just before the round.
+    const early = await pool();
+    await context.db.asset.updateMany({ where: {}, data: { review: 'APPROVED_SENSITIVE' } });
+    expect(await drain(early)).toEqual([]);
+  });
+
   it('never draws the same character or the same image twice', async () => {
     const first = await playable('Ahri');
     seed += 1;

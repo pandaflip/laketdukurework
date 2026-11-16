@@ -84,6 +84,8 @@ export class ZoomOutClues implements ClueSource {
       for (let index = 1; index < this.count && !this.released; index++) {
         await this.render(index).catch(() => undefined);
       }
+      // Every frame is rendered: the original is no longer needed in memory.
+      this.source = null;
     })();
   }
 

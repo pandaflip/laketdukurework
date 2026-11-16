@@ -106,8 +106,10 @@ export function characterEligibility(
 
 /**
  * Full eligibility of a challenge: the character rules plus an individually
- * approved asset. A sensitive mode requires an asset explicitly approved for
- * sensitive use; unverified content is excluded from every mode.
+ * approved asset. Each kind of mode needs its own approval: a sensitive mode
+ * requires `APPROVED_SENSITIVE`, a neutral mode requires `APPROVED_NEUTRAL`
+ * (a sensitive approval never stands in for it); unverified content is
+ * excluded from every mode.
  */
 export function challengeEligibility(
   modeId: ModeId,
@@ -123,7 +125,9 @@ export function challengeEligibility(
     reasons.push('ASSET_REJECTED');
   } else if (sensitive) {
     if (asset.review !== 'APPROVED_SENSITIVE') reasons.push('ASSET_NOT_APPROVED');
-  } else if (asset.review !== 'APPROVED_NEUTRAL' && asset.review !== 'APPROVED_SENSITIVE') {
+  } else if (asset.review !== 'APPROVED_NEUTRAL') {
+    // A sensitive approval is not a neutral approval: it was given under the
+    // stricter conditions of one kind of use and says nothing about another.
     reasons.push('ASSET_NOT_APPROVED');
   }
   return result(reasons);

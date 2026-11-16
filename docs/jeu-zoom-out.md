@@ -70,8 +70,9 @@ final de `max(délai, 8 s)` ; les votes ne peuvent que la raccourcir.
   trouvé. Un joueur déconnecté ne bloque pas la fin ; il reprend sa place, son score et ses
   quotas en se reconnectant.
 - La partie s'arrête après la manche où un joueur atteint le score cible, quand plus aucun défi
-  éligible n'existe, ou après 30 manches. Victoire partagée si l'égalité persiste (si personne
-  n'a marqué en 30 manches, tous les joueurs la partagent).
+  éligible n'existe, ou après 30 manches. Victoire partagée si l'égalité persiste entre
+  joueurs ayant marqué ; **si personne n'a marqué, la partie se termine sans vainqueur**
+  (`winners` est alors une liste vide).
 - On ne rejoint une salle que dans le salon d'attente.
 
 ### Points
@@ -127,8 +128,8 @@ manches trouvées ; les joueurs égaux sur les trois critères partagent la plac
 
 ## Sélection des défis
 
-`ChallengePool` : à l'ouverture, liste les images **approuvées** (neutre ou sensible, selon le
-mode joué) avec une séquence, dont le personnage passe `challengeEligibility`, dont les
+`ChallengePool` : à l'ouverture, liste les images **approuvées pour le mode joué** (`APPROVED_NEUTRAL`
+pour Zoom Out : une approbation sensible ne vaut pas approbation neutre) avec une séquence, dont le personnage passe `challengeEligibility`, dont les
 cadrages sont encore valides pour l'image, qui passent les filtres de l'hôte et dont le
 personnage peut être identifié sans ambiguïté. Tirage aléatoire (générateur injecté, donc
 rejouable), **une image et un personnage au plus une fois par partie**. Chaque défi est
@@ -157,6 +158,30 @@ modes activés, cadrages, fichier) : un contenu rejeté ou retiré en cours de p
 - Les identifiants des joueurs et des adresses d'images sont fournis par une fonction injectée
   (`newId`) : en production, des valeurs aléatoires non devinables (à brancher en 2B).
 
+## Mémoire et images haute définition
+
+Mesure indicative (machine de développement, images synthétiques, 20 frames par image, rendu
+limité à 2 tâches simultanées, premier rendu avant les autres) :
+
+| Image              | Premier rendu | 20 frames prêtes | Mémoire du processus (avant → pic) |
+| ------------------ | ------------- | ---------------- | ---------------------------------- |
+| 1 Mpx (1215 × 717) | 22 ms         | 0,5 s            | 102 → 242 Mo                       |
+| 20 Mpx             | 0,33 s        | 4,0 s            | 299 → 609 Mo                       |
+| 40 Mpx             | 0,61 s        | 7,4 s            | 386 → 995 Mo                       |
+
+Le pic inclut les tampons du banc d'essai lui-même (image brute générée) : c'est une borne haute.
+Le coût est dû au décodage complet de l'original à chaque frame (le format WebP ne permet pas de
+lire une zone seule) : de l'ordre de 4 octets par pixel et par décodage en cours.
+
+- Les frames de la manche sont rendues **l'une après l'autre**, et l'original lu n'est gardé en
+  mémoire que pendant ces rendus ; il est libéré dès que la dernière frame est prête, et tout est
+  libéré à la fin de la partie (`finish`), à la fermeture (`close`) et quand la manche suivante
+  commence.
+- Pour un splash art usuel (1 Mpx) le coût est négligeable. Une image de 40 Mpx, autorisée par la
+  limite actuelle, peut approcher 1 Go de pic sur un petit hébergement : à mesurer avec vos vraies
+  images en 2B, et à traiter si besoin (par exemple une version de jeu plafonnée à 4 000 px de
+  large, calculée à l'import, qui bornerait la mémoire quelle que soit l'image importée).
+
 ## Ce qui reste pour 2B et 2C
 
 - **2B** : WebSocket (`@fastify/websocket`), salons (code, limites par adresse, hôte, reconnexion
@@ -168,9 +193,8 @@ modes activés, cadrages, fichier) : un contenu rejeté ou retiré en cours de p
 
 ## Points d'attention
 
-- **Politique d'éligibilité existante** : une image approuvée « sensible » est aussi acceptée dans
-  un mode neutre (c'est le comportement de `challengeEligibility` depuis le lot 1B). Une image
-  approuvée pour `historic` peut donc apparaître en Zoom Out. À confirmer ou à restreindre dans la
-  politique, pas dans le moteur.
+- **Approbations** : depuis la relecture de la PR 2A, un mode neutre n'accepte que
+  `APPROVED_NEUTRAL`. Des autorisations par mode ou groupe de modes (une même image servant à
+  plusieurs jeux) sont une évolution envisagée ; une image n'a aujourd'hui qu'une seule revue.
 - **Salons en mémoire, une seule instance** : un redémarrage perd les parties en cours.
 - **Équité** : l'ordre dépend de l'arrivée au serveur, donc de la latence de chaque joueur.
