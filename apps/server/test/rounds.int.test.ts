@@ -78,9 +78,10 @@ describe('image summary and usable images', () => {
       rejected: 1,
       unverified: 1,
     });
-    // The character is eligible to neutral modes: two images are usable there.
+    // The character is eligible to neutral modes: only the image approved for neutral use
+    // is usable there (a sensitive approval does not count).
     expect(ashe.eligibility['zoom-out'].eligible).toBe(true);
-    expect(ashe.usableImages['zoom-out']).toBe(2);
+    expect(ashe.usableImages['zoom-out']).toBe(1);
     // Not a verified adult: images approved for sensitive use change nothing.
     expect(ashe.eligibility.historic.eligible).toBe(false);
     expect(ashe.usableImages.historic).toBe(0);
@@ -107,9 +108,10 @@ describe('round eligibility, checked on the server for the real mode and the ima
       'ASSET_REJECTED',
     ]);
     expect((await checkRoundEligibility(context.db, 'zoom-out', neutral.id)).eligible).toBe(true);
-    expect((await checkRoundEligibility(context.db, 'pixelated', sensitive.id)).eligible).toBe(
-      true,
-    );
+    // A sensitive approval is not a neutral approval.
+    expect((await checkRoundEligibility(context.db, 'pixelated', sensitive.id)).reasons).toEqual([
+      'ASSET_NOT_APPROVED',
+    ]);
 
     // The sensitive mode needs a verified adult AND an image approved for it.
     await makeVerifiedAdult(characterId);
@@ -159,8 +161,9 @@ describe('round eligibility, checked on the server for the real mode and the ima
       'MODE_DISABLED_FOR_UNIVERSE',
     ]);
 
+    const neutral = await addAsset(characterId, 'APPROVED_NEUTRAL');
     await admin.put(`/characters/${characterId}/status`, { status: 'EXCLUDED' });
-    expect((await checkRoundEligibility(context.db, 'zoom-out', asset.id)).reasons).toEqual([
+    expect((await checkRoundEligibility(context.db, 'zoom-out', neutral.id)).reasons).toEqual([
       'CHARACTER_EXCLUDED',
     ]);
   });

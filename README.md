@@ -88,6 +88,12 @@ childlike or ambiguous characters and unapproved images stay excluded.
 editor: click the focus point, choose the number of steps and the first and last zoom, generate,
 preview, adjust steps by hand, save, then approve or reject. See `docs/images-et-sequences.md`.
 
+## Zoom Out game engine (Phase 2A)
+
+The rules of a Zoom Out game (rounds, order-based scoring, attempts, votes, answer matching, secure
+frames) live in `apps/server/src/game` and `packages/shared/src/game`, with no network or
+interface yet. See `docs/jeu-zoom-out.md`.
+
 - Files live in a **private** directory (`STORAGE_DIR`, default `apps/server/storage`), never served
   as static files; they leave only through protected routes. The directory, and any `storage/`,
   `LoL_Female_Splasharts/` or `test-images/` folder, is ignored by git.

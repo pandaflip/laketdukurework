@@ -260,6 +260,34 @@ describe('composite mode (Chaos Mix)', () => {
 });
 
 describe('neutral modes', () => {
+  it('need a neutral approval: a sensitive approval is not enough', () => {
+    for (const modeId of NEUTRAL_MODES) {
+      expect(
+        challengeEligibility(modeId, lol, adult, { review: 'APPROVED_NEUTRAL' }).eligible,
+      ).toBe(true);
+      expect(challengeEligibility(modeId, lol, adult, { review: 'APPROVED_SENSITIVE' })).toEqual({
+        eligible: false,
+        reasons: ['ASSET_NOT_APPROVED'],
+      });
+    }
+  });
+
+  it('are never opened by a sensitive approval, whatever the character, as a property', () => {
+    fc.assert(
+      fc.property(
+        fc.constantFrom(...NEUTRAL_MODES),
+        fc.constantFrom(...CHARACTER_STATUSES),
+        fc.constantFrom(...AGE_CLASSES),
+        (modeId, status, ageClass) => {
+          const character = { ...adult, status, ageClass };
+          expect(
+            challengeEligibility(modeId, lol, character, { review: 'APPROVED_SENSITIVE' }).eligible,
+          ).toBe(false);
+        },
+      ),
+    );
+  });
+
   it('accept RESTRICTED characters of any age class with an approved asset', () => {
     const child = { ...adult, status: 'RESTRICTED', ageClass: 'MINOR' } as const;
     expect(characterEligibility('zoom-out', lol, child).eligible).toBe(true);

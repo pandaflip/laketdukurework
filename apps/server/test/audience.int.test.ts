@@ -310,7 +310,13 @@ describe('moving to a stricter classification', () => {
       'MODE_DISABLED_FOR_UNIVERSE',
       'UNIVERSE_UNREVIEWED',
     ]);
-    expect((await checkRoundEligibility(context.db, 'zoom-out', asset.id)).eligible).toBe(true);
+    // A neutral mode is unaffected by the audience, but it needs a neutral approval:
+    // the sensitive approval of this image does not count there.
+    const neutral = await createAsset(context.db, ashe.id, 'APPROVED_NEUTRAL');
+    expect((await checkRoundEligibility(context.db, 'zoom-out', neutral.id)).eligible).toBe(true);
+    expect((await checkRoundEligibility(context.db, 'zoom-out', asset.id)).reasons).toEqual([
+      'ASSET_NOT_APPROVED',
+    ]);
   });
 });
 

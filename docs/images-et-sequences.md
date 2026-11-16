@@ -116,6 +116,16 @@ jamais servi comme fichiers statiques :
 Les étapes et le zoom sont des limites techniques, pas des règles métier : le nombre d'étapes reste
 libre dans cette limite.
 
+**Évolution envisagée, non réalisée** : relever les limites à 25 Mo et 65 mégapixels. À ne faire
+qu'après des essais de mémoire et de performance : le décodage d'une image de 65 mégapixels
+occupe plusieurs centaines de mégaoctets, et la phase 2 découpe l'original pour chaque manche
+(voir `docs/jeu-zoom-out.md`). Les deux réglages sont des variables d'environnement
+(`UPLOAD_MAX_BYTES`, `IMAGE_MAX_PIXELS`) : le changement ne demande aucune modification du code.
+
+**Avant la mise en production** : le dossier de stockage doit être persistant (volume durable, pas
+le disque éphémère du conteneur) et sauvegardé avec la base PostgreSQL, à la même fréquence, car
+une sauvegarde de la base sans les fichiers laisserait des images sans fichier.
+
 ## Revue et sécurité
 
 - Une image importée est **toujours** `UNVERIFIED`. Aucune action d'import n'approuve quoi que ce soit.
