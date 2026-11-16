@@ -262,6 +262,27 @@ describe('messages', () => {
     }
   });
 
+  it('accepts the host and lobby messages, and nothing that names a player or a role', () => {
+    expect(
+      clientMessageSchema.safeParse({
+        type: 'configure',
+        config: { steps: 5, vote: { enabled: false } },
+      }).success,
+    ).toBe(true);
+    expect(clientMessageSchema.safeParse({ type: 'start' }).success).toBe(true);
+    expect(clientMessageSchema.safeParse({ type: 'leave' }).success).toBe(true);
+    for (const bad of [
+      { type: 'start', playerId: 'x' },
+      { type: 'start', isHost: true },
+      { type: 'leave', reason: 'because' },
+      { type: 'configure' },
+      { type: 'configure', config: 'steps=5' },
+      { type: 'configure', config: [] },
+    ]) {
+      expect(clientMessageSchema.safeParse(bad).success, JSON.stringify(bad)).toBe(false);
+    }
+  });
+
   it('cleans nicknames and refuses control and invisible characters', () => {
     expect(cleanNickname('  Lucas   B  ')).toBe('Lucas B');
     expect(cleanNickname('A')).toBeNull();

@@ -34,6 +34,13 @@ export const ERROR_CODES = [
   // History
   'RESTORE_CONFLICT',
   'RESTORE_NOT_ALLOWED',
+  // Game rooms
+  'ROOM_NOT_FOUND',
+  'ROOM_FULL',
+  'ROOM_STARTED',
+  'BAD_NICKNAME',
+  'NICKNAME_TAKEN',
+  'TOO_MANY_ROOMS',
 ] as const;
 
 export type ErrorCode = (typeof ERROR_CODES)[number];

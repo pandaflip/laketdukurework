@@ -22,5 +22,11 @@
   "DUPLICATE_IMAGE": "This picture was already imported for this character.",
   "INVALID_SEQUENCE": "Some frames are not valid for this picture and ratio. Generate the sequence again.",
   "SEQUENCE_REQUIRED": "Save a sequence before approving this image.",
-  "APPROVAL_NOT_ALLOWED": "The rules do not allow this approval right now."
+  "APPROVAL_NOT_ALLOWED": "The rules do not allow this approval right now.",
+  "ROOM_NOT_FOUND": "This room does not exist or has closed.",
+  "ROOM_FULL": "This room is full.",
+  "ROOM_STARTED": "This game has already started: players cannot join any more.",
+  "BAD_NICKNAME": "Choose a nickname of 2 to 16 characters.",
+  "NICKNAME_TAKEN": "Someone in this room already uses this nickname.",
+  "TOO_MANY_ROOMS": "Too many rooms are open right now. Please try again later."
 }

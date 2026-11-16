@@ -94,6 +94,12 @@ The rules of a Zoom Out game (rounds, order-based scoring, attempts, votes, answ
 frames) live in `apps/server/src/game` and `packages/shared/src/game`, with no network or
 interface yet. See `docs/jeu-zoom-out.md`.
 
+## Game rooms over WebSocket (Phase 2B-1)
+
+Private rooms (code, cookie identity, reconnection, host configuration, limits) are served under
+`/api/play`. See `docs/jeu-reseau.md`. To measure memory and rendering time on your own pictures
+with several rooms at once: `pnpm bench:render -- --dir <folder>` (the folder is only read).
+
 - Files live in a **private** directory (`STORAGE_DIR`, default `apps/server/storage`), never served
   as static files; they leave only through protected routes. The directory, and any `storage/`,
   `LoL_Female_Splasharts/` or `test-images/` folder, is ignored by git.

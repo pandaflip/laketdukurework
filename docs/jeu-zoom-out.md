@@ -184,10 +184,9 @@ lire une zone seule) : de l'ordre de 4 octets par pixel et par décodage en cour
 
 ## Ce qui reste pour 2B et 2C
 
-- **2B** : WebSocket (`@fastify/websocket`), salons (code, limites par adresse, hôte, reconnexion
-  par jeton secret, nettoyage), routes des images avec le jeton de joueur, envoi des vues,
-  limitation de débit des messages, modèle `Category` / `CharacterCategory` et son administration
-  minimale, écran de configuration de l'hôte avec le compteur de défis disponibles.
+- **2B-1** (fait, `docs/jeu-reseau.md`) : WebSocket, salons, reconnexion, routes des images,
+  limites. **2B-2** : modèle `Category` / `CharacterCategory` et son administration minimale,
+  compteur de défis disponibles.
 - **2C** : écrans de jeu (ordinateur et mobile), traductions EN / FR / PT-BR, essais multi-
   navigateurs, accessibilité, déploiement de test.
 

@@ -22,5 +22,11 @@
   "DUPLICATE_IMAGE": "Esta imagem já foi importada para este personagem.",
   "INVALID_SEQUENCE": "Alguns enquadramentos não são válidos para esta imagem e proporção. Gere a sequência de novo.",
   "SEQUENCE_REQUIRED": "Salve uma sequência antes de aprovar esta imagem.",
-  "APPROVAL_NOT_ALLOWED": "As regras não permitem esta aprovação no momento."
+  "APPROVAL_NOT_ALLOWED": "As regras não permitem esta aprovação no momento.",
+  "ROOM_NOT_FOUND": "Esta sala não existe ou foi fechada.",
+  "ROOM_FULL": "Esta sala está cheia.",
+  "ROOM_STARTED": "O jogo já começou: não é mais possível entrar.",
+  "BAD_NICKNAME": "Escolha um apelido de 2 a 16 caracteres.",
+  "NICKNAME_TAKEN": "Alguém nesta sala já usa este apelido.",
+  "TOO_MANY_ROOMS": "Há salas demais abertas agora. Tente novamente mais tarde."
 }
