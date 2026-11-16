@@ -16,7 +16,8 @@
     "admin:create": "tsx --env-file-if-exists=../../.env src/cli/create-admin.ts",
     "e2e:serve": "tsx --env-file-if-exists=../../.env src/cli/e2e-serve.ts",
     "storage:prune": "tsx --env-file-if-exists=../../.env src/cli/storage-prune.ts",
-    "samples:generate": "tsx src/cli/make-samples.ts"
+    "samples:generate": "tsx src/cli/make-samples.ts",
+    "bench:render": "tsx --env-file-if-exists=../../.env src/cli/bench-render.ts"
   },
   "dependencies": {
     "@app/shared": "workspace:*",
@@ -25,6 +26,7 @@
     "@fastify/helmet": "^13.2.0",
     "@fastify/multipart": "^10.1.8",
     "@fastify/rate-limit": "^11.2.2",
+    "@fastify/websocket": "^11.3.7",
     "@node-rs/argon2": "^2.2.2",
     "@prisma/adapter-pg": "7.10.1",
     "@prisma/client": "7.10.1",
@@ -36,10 +38,12 @@
   "devDependencies": {
     "@types/node": "^22.0.0",
     "@types/pg": "^8.23.1",
+    "@types/ws": "^8.18.2",
     "fast-check": "^4.10.2",
     "prisma": "7.10.1",
     "tsup": "^9.0.0",
     "tsx": "^4.23.15",
-    "vitest": "^5.1.0"
+    "vitest": "^5.1.0",
+    "ws": "^8.23.0"
   }
 }

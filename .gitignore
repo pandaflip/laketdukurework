@@ -18,3 +18,6 @@ storage/
 **/sample-images/
 .DS_Store
 apps/server/src/generated/
+
+# Reports of the render benchmark (may name local pictures)
+bench-*.json

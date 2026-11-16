@@ -22,5 +22,11 @@
   "DUPLICATE_IMAGE": "Cette image a déjà été importée pour ce personnage.",
   "INVALID_SEQUENCE": "Certains cadrages ne sont pas valides pour cette image et ce ratio. Générez à nouveau la séquence.",
   "SEQUENCE_REQUIRED": "Enregistrez une séquence avant d'approuver cette image.",
-  "APPROVAL_NOT_ALLOWED": "Les règles n'autorisent pas cette approbation pour le moment."
+  "APPROVAL_NOT_ALLOWED": "Les règles n'autorisent pas cette approbation pour le moment.",
+  "ROOM_NOT_FOUND": "Ce salon n'existe pas ou est fermé.",
+  "ROOM_FULL": "Ce salon est complet.",
+  "ROOM_STARTED": "La partie a déjà commencé : on ne peut plus la rejoindre.",
+  "BAD_NICKNAME": "Choisissez un pseudo de 2 à 16 caractères.",
+  "NICKNAME_TAKEN": "Quelqu'un utilise déjà ce pseudo dans ce salon.",
+  "TOO_MANY_ROOMS": "Trop de salons sont ouverts en ce moment. Réessayez plus tard."
 }

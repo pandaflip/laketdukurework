@@ -1,5 +1,6 @@
 import type { ApiError, ErrorCode } from '@app/shared';
 import cookie from '@fastify/cookie';
+import websocket from '@fastify/websocket';
 import multipart from '@fastify/multipart';
 import Fastify, { type FastifyInstance } from 'fastify';
 import type { AppConfig } from './config';
@@ -8,11 +9,22 @@ import { AppError } from './errors';
 import { registerAdminRoutes } from './modules/admin.routes';
 import { createLimiter } from './modules/images/processing';
 import { createImageDeps } from './modules/images/service';
+import { FileStorage } from './modules/images/storage';
+import { systemTimers, type Timers } from './game/runtime';
+import type { Random } from './game/deck';
+import { RoomManager } from './play/manager';
+import { MAX_MESSAGE_BYTES, registerPlayRoutes } from './play/routes';
 import type { AuthRouteOptions } from './modules/auth/routes';
 import { registerHealthRoutes } from './modules/health/routes';
 import { registerSecurity, type SecurityOptions } from './plugins/security';
 
-export type AppOptions = SecurityOptions & AuthRouteOptions;
+/** Test hooks for the game rooms: the game clock and the draw. */
+export interface PlayOptions {
+  readonly playTimers?: Timers;
+  readonly playRandom?: Random;
+}
+
+export type AppOptions = SecurityOptions & AuthRouteOptions & PlayOptions;
 
 function errorCodeForStatus(statusCode: number): ErrorCode {
   if (statusCode === 404) return 'NOT_FOUND';
@@ -63,14 +75,29 @@ export async function buildApp(
   await app.register(multipart, {
     limits: { fileSize: config.UPLOAD_MAX_BYTES, files: 1, fields: 0, parts: 2 },
   });
-  const images = createImageDeps(
-    db,
+  // One budget of simultaneous image work, shared by the administration and the games.
+  const imageLimit = createLimiter(config.IMAGE_CONCURRENCY);
+  const images = createImageDeps(db, config, imageLimit, (details, message) => {
+    app.log.warn(details, message);
+  });
+  const rooms = new RoomManager({
     config,
-    createLimiter(config.IMAGE_CONCURRENCY),
-    (details, message) => {
-      app.log.warn(details, message);
+    db,
+    storage: new FileStorage(config.STORAGE_DIR),
+    limit: imageLimit,
+    random: options.playRandom ?? Math.random,
+    timers: options.playTimers ?? systemTimers,
+  });
+  await app.register(websocket, {
+    options: { maxPayload: MAX_MESSAGE_BYTES },
+    // On shutdown, players are told the server stops (and their rooms close) BEFORE the
+    // connections are cut, which is what the plugin does by default.
+    preClose(done) {
+      rooms.closeAll('SERVER_STOPPING');
+      for (const client of this.websocketServer.clients) client.close();
+      this.websocketServer.close(done);
     },
-  );
+  });
 
   await app.register(
     (api, _opts, done) => {
@@ -78,6 +105,13 @@ export async function buildApp(
       done();
     },
     { prefix: '/api' },
+  );
+  await app.register(
+    (play, _opts, done) => {
+      registerPlayRoutes(play, { manager: rooms, config });
+      done();
+    },
+    { prefix: '/api/play' },
   );
   await app.register(
     (admin, _opts, done) => {

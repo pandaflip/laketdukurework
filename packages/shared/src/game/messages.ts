@@ -19,9 +19,21 @@ export const voteMessageSchema = z.strictObject({
   stepIndex: z.number().int().min(0).max(99),
 });
 
+/** Host only, lobby only: a whole or partial configuration, validated by the engine. */
+export const configureMessageSchema = z.strictObject({
+  type: z.literal('configure'),
+  config: z.record(z.string().max(32), z.unknown()),
+});
+
+export const startMessageSchema = z.strictObject({ type: z.literal('start') });
+export const leaveMessageSchema = z.strictObject({ type: z.literal('leave') });
+
 export const clientMessageSchema = z.discriminatedUnion('type', [
   answerMessageSchema,
   voteMessageSchema,
+  configureMessageSchema,
+  startMessageSchema,
+  leaveMessageSchema,
 ]);
 export type ClientMessage = z.infer<typeof clientMessageSchema>;
 

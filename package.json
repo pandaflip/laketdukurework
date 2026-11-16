@@ -23,7 +23,8 @@
     "db:seed": "pnpm --filter @app/server db:seed",
     "admin:create": "pnpm --filter @app/server admin:create",
     "storage:prune": "pnpm --filter @app/server storage:prune",
-    "samples:generate": "pnpm --filter @app/server samples:generate"
+    "samples:generate": "pnpm --filter @app/server samples:generate",
+    "bench:render": "pnpm --filter @app/server bench:render"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
